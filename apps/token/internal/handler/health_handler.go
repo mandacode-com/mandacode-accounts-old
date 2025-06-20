@@ -2,9 +2,9 @@ package handler
 
 import (
 	"context"
-	"log"
 	"time"
 
+	"go.uber.org/zap"
 	healthv1 "mandacode.com/accounts/token/proto/health/v1"
 )
 
@@ -12,26 +12,25 @@ import (
 type healthHandler struct {
 	healthv1.UnimplementedHealthServiceServer
 	statusMap map[string]healthv1.ServingStatus
+	logger    *zap.Logger
 }
 
 // NewHealthHandler returns a new health service handler
-func NewHealthHandler() healthv1.HealthServiceServer {
+func NewHealthHandler(logger *zap.Logger) healthv1.HealthServiceServer {
 	return &healthHandler{
+		logger: logger,
 		statusMap: map[string]healthv1.ServingStatus{
-			"":        healthv1.ServingStatus_SERVING_STATUS_SERVING, // default service
-			"token":   healthv1.ServingStatus_SERVING_STATUS_SERVING,
-			"grpc":    healthv1.ServingStatus_SERVING_STATUS_SERVING,
-			"unknown": healthv1.ServingStatus_SERVING_STATUS_NOT_SERVING,
+			"token":  healthv1.ServingStatus_SERVING_STATUS_SERVING,
+			"health": healthv1.ServingStatus_SERVING_STATUS_SERVING,
 		},
 	}
 }
 
 // Check handles a unary health check
 func (h *healthHandler) Check(ctx context.Context, req *healthv1.CheckRequest) (*healthv1.CheckResponse, error) {
-	log.Printf("[HealthCheck] requested for service: %s", req.Service)
-
 	status, ok := h.statusMap[req.Service]
 	if !ok {
+		h.logger.Error("unknown service in health check", zap.String("service", req.Service))
 		status = healthv1.ServingStatus_SERVING_STATUS_UNSPECIFIED
 	}
 
@@ -42,11 +41,10 @@ func (h *healthHandler) Check(ctx context.Context, req *healthv1.CheckRequest) (
 
 // Watch handles a streaming health check (e.g. Kubernetes readiness probes)
 func (h *healthHandler) Watch(req *healthv1.WatchRequest, stream healthv1.HealthService_WatchServer) error {
-	log.Printf("[HealthWatch] watching service: %s", req.Service)
-
 	for {
 		status, ok := h.statusMap[req.Service]
 		if !ok {
+			h.logger.Error("unknown service in health watch", zap.String("service", req.Service))
 			status = healthv1.ServingStatus_SERVING_STATUS_UNSPECIFIED
 		}
 

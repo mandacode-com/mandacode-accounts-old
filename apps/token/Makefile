@@ -7,7 +7,6 @@ TAG ?=
 IMAGE_NAME := $(REGISTRY)/$(APP_NAME)
 
 PROTO_SRC := proto
-PROTO_VENDOR := third_party
 DOCKER_CONTEXT := .
 
 .PHONY: all build-app push-app generate-proto clean-proto check-tag
@@ -28,7 +27,6 @@ push-app: build-app
 generate-proto:
 	protoc \
 		-I $(PROTO_SRC) \
-		-I $(PROTO_VENDOR) \
 		--go_out=paths=source_relative:$(PROTO_SRC) \
 		--go-grpc_out=paths=source_relative:$(PROTO_SRC) \
 		--validate_out=lang=go,paths=source_relative:$(PROTO_SRC) \

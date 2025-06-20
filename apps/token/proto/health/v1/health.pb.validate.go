@@ -57,7 +57,16 @@ func (m *CheckRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Service
+	if utf8.RuneCountInString(m.GetService()) < 1 {
+		err := CheckRequestValidationError{
+			field:  "Service",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return CheckRequestMultiError(errors)
@@ -158,7 +167,16 @@ func (m *CheckResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Status
+	if _, ok := ServingStatus_name[int32(m.GetStatus())]; !ok {
+		err := CheckResponseValidationError{
+			field:  "Status",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return CheckResponseMultiError(errors)
@@ -260,7 +278,16 @@ func (m *WatchRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Service
+	if utf8.RuneCountInString(m.GetService()) < 1 {
+		err := WatchRequestValidationError{
+			field:  "Service",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return WatchRequestMultiError(errors)
@@ -361,9 +388,27 @@ func (m *WatchResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Status
+	if _, ok := ServingStatus_name[int32(m.GetStatus())]; !ok {
+		err := WatchResponseValidationError{
+			field:  "Status",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Timestamp
+	if m.GetTimestamp() <= 0 {
+		err := WatchResponseValidationError{
+			field:  "Timestamp",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return WatchResponseMultiError(errors)

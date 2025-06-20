@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package token.v1;
 
-import "validate/validate.proto";
+import "third_party/validate/validate.proto";
 
 option go_package = "mandacode.com/accounts/token/proto/token/v1;tokenv1";
 
@@ -32,13 +32,19 @@ service TokenService {
       returns (VerifyEmailVerificationTokenResponse);
 }
 
+//
+// Access token messages
+//
 message GenerateAccessTokenRequest {
   string user_id = 1 [ (validate.rules).string = {uuid : true} ];
 }
 
 message GenerateAccessTokenResponse {
-  string token = 1;
-  int64 expires_at = 2; // Expiration time in Unix timestamp format
+  string token = 1
+      [ (validate.rules).string = {min_len : 1} ]; // The generated access token
+  int64 expires_at = 2 [
+    (validate.rules).int64 = {gt : 0}
+  ]; // Expiration time in Unix timestamp format
 }
 
 message VerifyAccessTokenRequest {
@@ -53,18 +59,23 @@ message VerifyAccessTokenResponse {
   ]; // User ID associated with the token, if valid
 }
 
+//
+// Refresh token messages
+//
 message GenerateRefreshTokenRequest {
-  // string user_id = 1; // User ID for whom the refresh token is generated
   string user_id = 1 [ (validate.rules).string = {uuid : true} ];
 }
 
 message GenerateRefreshTokenResponse {
-  string token = 1;
-  int64 expires_at = 2; // Expiration time in Unix timestamp format
+  string token = 1 [
+    (validate.rules).string = {min_len : 1}
+  ]; // The generated refresh token
+  int64 expires_at = 2 [
+    (validate.rules).int64 = {gt : 0}
+  ]; // Expiration time in Unix timestamp format
 }
 
 message VerifyRefreshTokenRequest {
-  // string token = 1; // The refresh token to verify
   string token = 1 [
     (validate.rules).string = {min_len : 1}
   ]; // The refresh token to verify
@@ -77,18 +88,28 @@ message VerifyRefreshTokenResponse {
   ]; // User ID associated with the token, if valid
 }
 
+//
+// Email verification token messages
+//
 message GenerateEmailVerificationTokenRequest {
-  string email = 1 [
+  string user_id = 1 [
+    (validate.rules).string = {uuid : true}
+  ]; // User ID for which the verification token is generated
+  string email = 2 [
     (validate.rules).string = {email : true}
   ]; // Email address for which the verification token is generated
-  string code = 2 [
+  string code = 3 [
     (validate.rules).string = {min_len : 1}
   ]; // Optional code to include in the token
 }
 
 message GenerateEmailVerificationTokenResponse {
-  string token = 1;
-  int64 expires_at = 2; // Expiration time in Unix timestamp format
+  string token = 1 [
+    (validate.rules).string = {min_len : 1}
+  ]; // The generated email verification token
+  int64 expires_at = 2 [
+    (validate.rules).int64 = {gt : 0}
+  ]; // Expiration time in Unix timestamp format
 }
 
 message VerifyEmailVerificationTokenRequest {
@@ -98,6 +119,14 @@ message VerifyEmailVerificationTokenRequest {
 }
 
 message VerifyEmailVerificationTokenResponse {
-  bool valid = 1;   // Indicates if the token is valid
-  string email = 2; // Email address associated with the token, if valid
+  bool valid = 1; // Indicates if the token is valid
+  optional string user_id = 2 [
+    (validate.rules).string = {uuid : true}
+  ]; // User ID associated with the token, if valid
+  optional string email = 3 [
+    (validate.rules).string = {email : true}
+  ]; // Email address associated with the token, if valid
+  optional string code = 4 [
+    (validate.rules).string = {min_len : 1}
+  ]; // Code associated with the token, if valid
 }

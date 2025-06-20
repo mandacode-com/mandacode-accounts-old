@@ -11,48 +11,28 @@ import (
 type tokenGenerator struct {
 	publicKey  *rsa.PublicKey
 	privateKey *rsa.PrivateKey
-	sub        string
 	expiresIn  time.Duration
 }
 
-func LoadRSAPublicKeyFromPEM(keyStr string) (*rsa.PublicKey, error) {
-	if keyStr == "" {
-		return nil, errors.New("public key string cannot be empty")
-	}
-	// Load the public key from PEM format
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(keyStr))
-	if err != nil {
-		return nil, errors.New("failed to parse public key: " + err.Error())
-	}
-	return publicKey, nil
-}
-
-func LoadRSAPrivateKeyFromPEM(keyStr string) (*rsa.PrivateKey, error) {
-	if keyStr == "" {
-		return nil, errors.New("private key string cannot be empty")
-	}
-	// Load the private key from PEM format
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(keyStr))
-	if err != nil {
-		return nil, errors.New("failed to parse private key: " + err.Error())
-	}
-	return privateKey, nil
-}
-
-// NewTokenGenerator creates a new tokenGenerator with the provided RSA private key, subject, and expiration duration
+// NewTokenGenerator creates a new tokenGenerator instance with the provided RSA keys and expiration duration
+//
+// Parameters:
+//   - publicKey: the RSA public key used for verifying the token
+//   - privateKey: the RSA private key used for signing the token
+//   - expiresIn: the duration after which the token will expire
+//
+// Returns:
+//   - *tokenGenerator: a pointer to the newly created tokenGenerator instance
+//   - error: an error if any of the parameters are invalid or if key parsing fails
 func NewTokenGenerator(
 	publicKey *rsa.PublicKey,
 	privateKey *rsa.PrivateKey,
-	sub string,
 	expiresIn time.Duration) (*tokenGenerator, error) {
 	if publicKey == nil {
 		return nil, errors.New("public key cannot be nil")
 	}
 	if privateKey == nil {
 		return nil, errors.New("private key cannot be nil")
-	}
-	if sub == "" {
-		return nil, errors.New("subject (sub) cannot be empty")
 	}
 	if expiresIn <= 0 {
 		return nil, errors.New("expiration duration must be greater than zero")
@@ -61,15 +41,23 @@ func NewTokenGenerator(
 	return &tokenGenerator{
 		publicKey:  &privateKey.PublicKey,
 		privateKey: privateKey,
-		sub:        sub,
 		expiresIn:  expiresIn,
 	}, nil
 }
 
+// NewTokenGeneratorByStr creates a new tokenGenerator using RSA keys provided as PEM formatted strings
+//
+// Parameters:
+//   - publicKeyStr: the PEM formatted RSA public key string
+//   - privateKeyStr: the PEM formatted RSA private key string
+//   - expiresIn: the duration after which the token will expiresIn
+//
+// Returns:
+//   - *tokenGenerator: a pointer to the newly created tokenGenerator instance
+//   - error: an error if any of the parameters are invalid or if key parsing fails
 func NewTokenGeneratorByStr(
 	publicKeyStr string,
 	privateKeyStr string,
-	sub string,
 	expiresIn time.Duration) (*tokenGenerator, error) {
 	publicKey, err := LoadRSAPublicKeyFromPEM(publicKeyStr)
 	if err != nil {
@@ -79,10 +67,18 @@ func NewTokenGeneratorByStr(
 	if err != nil {
 		return nil, err
 	}
-	return NewTokenGenerator(publicKey, privateKey, sub, expiresIn)
+	return NewTokenGenerator(publicKey, privateKey, expiresIn)
 }
 
-// GenerateToken creates a signed JWT token using RSA private key
+// GenerateToken generates a signed JWT token with the provided claims
+//
+// Parameters:
+//   - claims: a map of additional claims to include in the token
+//
+// Returns:
+//   - token: the generated JWT token as a string
+//   - expiresAt: the Unix timestamp (in seconds) indicating the expiration time of the token
+//   - error: an error if token generation fails (e.g., if the private key is not initialized or signing fails
 func (j *tokenGenerator) GenerateToken(
 	claims map[string]string,
 ) (string, int64, error) {
@@ -95,7 +91,6 @@ func (j *tokenGenerator) GenerateToken(
 	expiresAt := now.Add(j.expiresIn)
 
 	tokenClaims := jwt.MapClaims{
-		"sub": j.sub,
 		"iat": now.Unix(),
 		"exp": expiresAt.Unix(),
 	}
@@ -113,6 +108,14 @@ func (j *tokenGenerator) GenerateToken(
 	return signedToken, expiresAt.Unix(), nil
 }
 
+// VerifyToken verifies the provided JWT token and extracts the claims
+//
+// Parameters:
+//   - token: the JWT token to verify
+//
+// Returns:
+//   - claims: a map of claims extracted from the token if valid
+//   - error: an error if verification fails (e.g., if the public key is not initialized or parsing fails)
 func (j *tokenGenerator) VerifyToken(
 	token string,
 ) (map[string]string, error) {
@@ -121,7 +124,7 @@ func (j *tokenGenerator) VerifyToken(
 		return nil, errors.New("public key is not initialized")
 	}
 
-	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
