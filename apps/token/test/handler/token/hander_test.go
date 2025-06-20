@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 
-	"mandacode.com/accounts/token/internal/app"
-	"mandacode.com/accounts/token/internal/domain"
-	"mandacode.com/accounts/token/internal/handler"
+	"mandacode.com/accounts/token/internal/app/token"
+	"mandacode.com/accounts/token/internal/domain/token"
+	"mandacode.com/accounts/token/internal/handler/token"
 	proto "mandacode.com/accounts/token/proto/token/v1"
 )
 
@@ -34,8 +34,8 @@ func (m *mockTokenGenerator) VerifyToken(token string) (map[string]string, error
 	return result.(map[string]string), args.Error(1)
 }
 
-func newTokenServiceWithMocks(m domain.TokenGenerator) *app.TokenService {
-	return app.NewTokenService(m, m, m)
+func newTokenServiceWithMocks(m tokendomain.TokenGenerator) *token.TokenService {
+	return token.NewTokenService(m, m, m)
 }
 
 func TestGenerateAccessTokenHandler(t *testing.T) {
@@ -43,7 +43,7 @@ func TestGenerateAccessTokenHandler(t *testing.T) {
 	mockGen := new(mockTokenGenerator)
 	mockGen.On("GenerateToken", mock.Anything).Return("tok", 1111, nil)
 
-	h := handler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
+	h := tokenhandler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
 	resp, err := h.GenerateAccessToken(context.Background(), &proto.GenerateAccessTokenRequest{UserId: mockUserID})
 	require.NoError(t, err)
 	require.Equal(t, "tok", resp.Token)
@@ -54,7 +54,7 @@ func TestVerifyAccessTokenHandler_Error(t *testing.T) {
 	mockGen := new(mockTokenGenerator)
 	mockGen.On("VerifyToken", "bad").Return(nil, errors.New("fail"))
 
-	h := handler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
+	h := tokenhandler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
 	_, err := h.VerifyAccessToken(context.Background(), &proto.VerifyAccessTokenRequest{Token: "bad"})
 	require.Error(t, err)
 }
@@ -64,7 +64,7 @@ func TestVerifyAccessTokenHandler_Success(t *testing.T) {
 	mockGen := new(mockTokenGenerator)
 	mockGen.On("VerifyToken", "token").Return(map[string]string{"sub": mockUserID}, nil)
 
-	h := handler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
+	h := tokenhandler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
 	resp, err := h.VerifyAccessToken(context.Background(), &proto.VerifyAccessTokenRequest{Token: "token"})
 	require.NoError(t, err)
 	require.Equal(t, mockUserID, *resp.UserId)
@@ -78,7 +78,7 @@ func TestGenerateRefreshTokenHandler(t *testing.T) {
 		return claims["sub"] == mockUserID
 	})).Return("rtok", 2222, nil)
 
-	h := handler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
+	h := tokenhandler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
 	resp, err := h.GenerateRefreshToken(context.Background(), &proto.GenerateRefreshTokenRequest{UserId: mockUserID})
 	require.NoError(t, err)
 	require.Equal(t, "rtok", resp.Token)
@@ -89,7 +89,7 @@ func TestVerifyRefreshTokenHandler_Error(t *testing.T) {
 	mockGen := new(mockTokenGenerator)
 	mockGen.On("VerifyToken", "bad").Return(nil, errors.New("fail"))
 
-	h := handler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
+	h := tokenhandler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
 	_, err := h.VerifyRefreshToken(context.Background(), &proto.VerifyRefreshTokenRequest{Token: "bad"})
 	require.Error(t, err)
 }
@@ -98,7 +98,7 @@ func TestVerifyRefreshTokenHandler_Success(t *testing.T) {
 	mockGen := new(mockTokenGenerator)
 	mockGen.On("VerifyToken", "token").Return(map[string]string{"sub": "uid"}, nil)
 
-	h := handler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
+	h := tokenhandler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
 	resp, err := h.VerifyRefreshToken(context.Background(), &proto.VerifyRefreshTokenRequest{Token: "token"})
 	require.NoError(t, err)
 	require.Equal(t, "uid", *resp.UserId)
@@ -113,7 +113,7 @@ func TestGenerateEmailVerificationTokenHandler(t *testing.T) {
 	mockGen := new(mockTokenGenerator)
 	mockGen.On("GenerateToken", mock.Anything).Return("etok", 3333, nil)
 
-	h := handler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
+	h := tokenhandler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
 	resp, err := h.GenerateEmailVerificationToken(context.Background(), &proto.GenerateEmailVerificationTokenRequest{
 		UserId: mockUserID, Email: mockEmail, Code: mockCode,
 	})
@@ -126,7 +126,7 @@ func TestVerifyEmailVerificationTokenHandler_Error(t *testing.T) {
 	mockGen := new(mockTokenGenerator)
 	mockGen.On("VerifyToken", "bad").Return(nil, errors.New("fail"))
 
-	h := handler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
+	h := tokenhandler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
 	_, err := h.VerifyEmailVerificationToken(context.Background(), &proto.VerifyEmailVerificationTokenRequest{Token: "bad"})
 	require.Error(t, err)
 }
@@ -143,7 +143,7 @@ func TestVerifyEmailVerificationTokenHandler_Success(t *testing.T) {
 		"code":  mockCode,
 	}, nil)
 
-	h := handler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
+	h := tokenhandler.NewTokenHandler(newTokenServiceWithMocks(mockGen), zap.NewNop())
 	resp, err := h.VerifyEmailVerificationToken(context.Background(), &proto.VerifyEmailVerificationTokenRequest{Token: "tok"})
 	require.NoError(t, err)
 	require.True(t, resp.Valid)

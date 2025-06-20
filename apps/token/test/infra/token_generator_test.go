@@ -12,7 +12,7 @@ import (
 	"mandacode.com/accounts/token/internal/infra"
 )
 
-func generateTestKeys(t *testing.T) (string, string) {
+func generateTestKeys(t *testing.T) (string) {
 	t.Helper()
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
@@ -20,15 +20,12 @@ func generateTestKeys(t *testing.T) (string, string) {
 	privBytes := x509.MarshalPKCS1PrivateKey(priv)
 	privPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: privBytes})
 
-	pubBytes := x509.MarshalPKCS1PublicKey(&priv.PublicKey)
-	pubPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PUBLIC KEY", Bytes: pubBytes})
-
-	return string(pubPEM), string(privPEM)
+	return string(privPEM)
 }
 
 func TestGenerateAndVerifyToken(t *testing.T) {
-	pub, priv := generateTestKeys(t)
-	gen, err := infra.NewTokenGeneratorByStr(pub, priv, time.Second)
+	priv := generateTestKeys(t)
+	gen, err := infra.NewTokenGeneratorByStr(priv, time.Second)
 	require.NoError(t, err)
 
 	claims := map[string]string{"sub": "user1", "role": "admin"}
@@ -44,8 +41,8 @@ func TestGenerateAndVerifyToken(t *testing.T) {
 }
 
 func TestVerifyInvalidToken(t *testing.T) {
-	pub, priv := generateTestKeys(t)
-	gen, err := infra.NewTokenGeneratorByStr(pub, priv, time.Minute)
+	priv := generateTestKeys(t)
+	gen, err := infra.NewTokenGeneratorByStr(priv, time.Minute)
 	require.NoError(t, err)
 
 	_, err = gen.VerifyToken("invalid.token.here")
@@ -53,8 +50,8 @@ func TestVerifyInvalidToken(t *testing.T) {
 }
 
 func TestExpiredToken(t *testing.T) {
-	pub, priv := generateTestKeys(t)
-	gen, err := infra.NewTokenGeneratorByStr(pub, priv, 1*time.Millisecond)
+	priv := generateTestKeys(t)
+	gen, err := infra.NewTokenGeneratorByStr(priv, 1*time.Millisecond)
 	require.NoError(t, err)
 
 	token, _, err := gen.GenerateToken(map[string]string{"sub": "user1"})
@@ -68,14 +65,16 @@ func TestExpiredToken(t *testing.T) {
 }
 
 func TestNewTokenGeneratorFailures(t *testing.T) {
-	priv, _ := generateTestKeys(t)
-
-	_, err := infra.NewTokenGeneratorByStr("", priv, time.Minute)
+	// Test with invalid private key
+	_, err := infra.NewTokenGeneratorByStr("invalid-key", time.Second)
 	require.Error(t, err)
 
-	_, err = infra.NewTokenGeneratorByStr(priv, "", time.Minute)
+	// Test with empty private key
+	_, err = infra.NewTokenGeneratorByStr("", time.Second)
 	require.Error(t, err)
 
-	_, err = infra.NewTokenGeneratorByStr(priv, priv, -time.Second)
+	// Test with zero expiration time
+	priv := generateTestKeys(t)
+	_, err = infra.NewTokenGeneratorByStr(priv, 0)
 	require.Error(t, err)
 }

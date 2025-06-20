@@ -7,9 +7,10 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"mandacode.com/accounts/token/internal/app"
+	"mandacode.com/accounts/token/internal/app/token"
 	"mandacode.com/accounts/token/internal/config"
-	"mandacode.com/accounts/token/internal/handler"
+	"mandacode.com/accounts/token/internal/handler/health"
+	"mandacode.com/accounts/token/internal/handler/token"
 	"mandacode.com/accounts/token/internal/infra"
 	healthProto "mandacode.com/accounts/token/proto/health/v1"
 	tokenProto "mandacode.com/accounts/token/proto/token/v1"
@@ -27,7 +28,6 @@ func main() {
 
 	// Load RSA keys from PEM files
 	accessTokenGen, err := infra.NewTokenGeneratorByStr(
-		cfg.AccessPublicKey,
 		cfg.AccessPrivateKey,
 		cfg.AccessTokenDuration,
 	)
@@ -35,7 +35,6 @@ func main() {
 		logger.Fatal("failed to create access token generator", zap.Error(err))
 	}
 	refreshTokenGen, err := infra.NewTokenGeneratorByStr(
-		cfg.RefreshPublicKey,
 		cfg.RefreshPrivateKey,
 		cfg.RefreshTokenDuration,
 	)
@@ -43,7 +42,6 @@ func main() {
 		logger.Fatal("failed to create refresh token generator", zap.Error(err))
 	}
 	emailVerificationTokenGen, err := infra.NewTokenGeneratorByStr(
-		cfg.EmailVerificationPublicKey,
 		cfg.EmailVerificationPrivateKey,
 		cfg.EmailVerificationTokenDuration,
 	)
@@ -52,7 +50,7 @@ func main() {
 	}
 
 	// Create the token service with the JWT generator
-	tokenService := app.NewTokenService(accessTokenGen, refreshTokenGen, emailVerificationTokenGen)
+	tokenService := token.NewTokenService(accessTokenGen, refreshTokenGen, emailVerificationTokenGen)
 
 	// Set up the gRPC server and register the JWT service handler
 	lis, err := net.Listen("tcp", ":50051")
@@ -64,11 +62,11 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	// Register the token service
-	tokenHandler := handler.NewTokenHandler(tokenService, logger)
+	tokenHandler := tokenhandler.NewTokenHandler(tokenService, logger)
 	tokenProto.RegisterTokenServiceServer(grpcServer, tokenHandler)
 
 	// Register the health service
-	healthHandler := handler.NewHealthHandler(logger)
+	healthHandler := healthhandler.NewHealthHandler(logger)
 	healthProto.RegisterHealthServiceServer(grpcServer, healthHandler)
 
 	logger.Info("Token gRPC service running", zap.String("address", ":50051"))

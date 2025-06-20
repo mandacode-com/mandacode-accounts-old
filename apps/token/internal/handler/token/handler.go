@@ -1,22 +1,22 @@
-package handler
+package tokenhandler
 
 import (
 	"context"
 
 	"go.uber.org/zap"
-	"mandacode.com/accounts/token/internal/app"
+	"mandacode.com/accounts/token/internal/app/token"
 	proto "mandacode.com/accounts/token/proto/token/v1"
 )
 
 // tokenHandler implements the JWTServiceServer gRPC interface
 type tokenHandler struct {
 	proto.UnimplementedTokenServiceServer
-	tokenService *app.TokenService
+	tokenService *token.TokenService
 	logger       *zap.Logger
 }
 
 // NewTokenHandler returns a gRPC handler ith dependencies injected
-func NewTokenHandler(tokenService *app.TokenService, logger *zap.Logger) proto.TokenServiceServer {
+func NewTokenHandler(tokenService *token.TokenService, logger *zap.Logger) proto.TokenServiceServer {
 	return &tokenHandler{
 		tokenService: tokenService,
 		logger:       logger,
@@ -141,9 +141,9 @@ func (h *tokenHandler) VerifyEmailVerificationToken(ctx context.Context, req *pr
 	}
 
 	return &proto.VerifyEmailVerificationTokenResponse{
-		Valid: true,
+		Valid:  true,
 		UserId: userID,
-		Email: email,
-		Code:  code,
+		Email:  email,
+		Code:   code,
 	}, nil
 }

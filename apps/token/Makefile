@@ -9,7 +9,7 @@ IMAGE_NAME := $(REGISTRY)/$(APP_NAME)
 PROTO_SRC := proto
 DOCKER_CONTEXT := .
 
-.PHONY: all build-app push-app generate-proto clean-proto check-tag
+.PHONY: all build-app push-app test generate-proto clean-proto check-tag
 
 all: build-app
 
@@ -36,3 +36,5 @@ clean-proto:
 	find $(PROTO_SRC) -name "*.pb.go" -delete
 	find $(PROTO_SRC) -name "*.pb.validate.go" -delete
 
+test:
+	go test ./test/...

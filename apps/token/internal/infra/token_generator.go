@@ -17,7 +17,6 @@ type tokenGenerator struct {
 // NewTokenGenerator creates a new tokenGenerator instance with the provided RSA keys and expiration duration
 //
 // Parameters:
-//   - publicKey: the RSA public key used for verifying the token
 //   - privateKey: the RSA private key used for signing the token
 //   - expiresIn: the duration after which the token will expire
 //
@@ -25,12 +24,8 @@ type tokenGenerator struct {
 //   - *tokenGenerator: a pointer to the newly created tokenGenerator instance
 //   - error: an error if any of the parameters are invalid or if key parsing fails
 func NewTokenGenerator(
-	publicKey *rsa.PublicKey,
 	privateKey *rsa.PrivateKey,
 	expiresIn time.Duration) (*tokenGenerator, error) {
-	if publicKey == nil {
-		return nil, errors.New("public key cannot be nil")
-	}
 	if privateKey == nil {
 		return nil, errors.New("private key cannot be nil")
 	}
@@ -48,7 +43,6 @@ func NewTokenGenerator(
 // NewTokenGeneratorByStr creates a new tokenGenerator using RSA keys provided as PEM formatted strings
 //
 // Parameters:
-//   - publicKeyStr: the PEM formatted RSA public key string
 //   - privateKeyStr: the PEM formatted RSA private key string
 //   - expiresIn: the duration after which the token will expiresIn
 //
@@ -56,18 +50,13 @@ func NewTokenGenerator(
 //   - *tokenGenerator: a pointer to the newly created tokenGenerator instance
 //   - error: an error if any of the parameters are invalid or if key parsing fails
 func NewTokenGeneratorByStr(
-	publicKeyStr string,
 	privateKeyStr string,
 	expiresIn time.Duration) (*tokenGenerator, error) {
-	publicKey, err := LoadRSAPublicKeyFromPEM(publicKeyStr)
-	if err != nil {
-		return nil, err
-	}
 	privateKey, err := LoadRSAPrivateKeyFromPEM(privateKeyStr)
 	if err != nil {
 		return nil, err
 	}
-	return NewTokenGenerator(publicKey, privateKey, expiresIn)
+	return NewTokenGenerator(privateKey, expiresIn)
 }
 
 // GenerateToken generates a signed JWT token with the provided claims

@@ -1,4 +1,4 @@
-package domain
+package tokendomain
 
 // TokenGenerator defines an interface for generating JWT tokens
 type TokenGenerator interface {

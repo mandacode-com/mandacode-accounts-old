@@ -11,15 +11,12 @@ type Config struct {
 	Env  string
 	Port string
 
-	AccessPublicKey     string
 	AccessPrivateKey    string
 	AccessTokenDuration time.Duration
 
-	RefreshPublicKey     string
 	RefreshPrivateKey    string
 	RefreshTokenDuration time.Duration
 
-	EmailVerificationPublicKey     string
 	EmailVerificationPrivateKey    string
 	EmailVerificationTokenDuration time.Duration
 }
@@ -46,13 +43,10 @@ func LoadConfig() *Config {
 	return &Config{
 		Env:                            getEnv("ENV", "local"),
 		Port:                           getEnv("PORT", "50051"),
-		AccessPublicKey:                getEnv("ACCESS_PUBLIC_KEY", ""),
 		AccessPrivateKey:               getEnv("ACCESS_PRIVATE_KEY", ""),
 		AccessTokenDuration:            accessTokenDuration,
-		RefreshPublicKey:               getEnv("REFRESH_PUBLIC_KEY", ""),
 		RefreshPrivateKey:              getEnv("REFRESH_PRIVATE_KEY", ""),
 		RefreshTokenDuration:           refreshTokenDuration,
-		EmailVerificationPublicKey:     getEnv("EMAIL_VERIFICATION_PUBLIC_KEY", ""),
 		EmailVerificationPrivateKey:    getEnv("EMAIL_VERIFICATION_PRIVATE_KEY", ""),
 		EmailVerificationTokenDuration: emailVerificationTokenDuration,
 	}
