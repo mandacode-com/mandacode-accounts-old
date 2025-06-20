@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package health.v1;
+
+option go_package = "mandacode.com/accounts/token/proto/health/v1;healthv1";
+
+service HealthService {
+  // Checks the health status of a service
+  rpc Check(CheckRequest) returns (CheckResponse);
+
+  // Watches the health status of a service
+  rpc Watch(WatchRequest) returns (stream WatchResponse);
+}
+
+message CheckRequest { string service = 1; }
+
+enum ServingStatus {
+  SERVING_STATUS_UNSPECIFIED = 0; // The health status is unknown
+  SERVING_STATUS_SERVING = 1;     // The service is serving requests
+  SERVING_STATUS_NOT_SERVING = 2; // The service is not serving requests
+}
+
+message CheckResponse {
+  ServingStatus status = 1; // The health status of the service
+}
+
+message WatchRequest { string service = 1; }
+
+message WatchResponse {
+  ServingStatus status = 1; // The health status of the service
+  int64 timestamp = 2;      // Timestamp of the health check in Unix format
+}
