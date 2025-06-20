@@ -8,7 +8,6 @@ import (
 
 // TokenService handles application logic for JWT generation
 type TokenService struct {
-	// tokenGen domain.TokenGenerator
 	accessTokenGen            domain.TokenGenerator
 	refreshTokenGen           domain.TokenGenerator
 	emailVerificationTokenGen domain.TokenGenerator
