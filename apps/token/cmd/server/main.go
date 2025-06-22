@@ -53,9 +53,9 @@ func main() {
 	tokenService := token.NewTokenService(accessTokenGen, refreshTokenGen, emailVerificationTokenGen)
 
 	// Set up the gRPC server and register the JWT service handler
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {
-		logger.Fatal("failed to listen on port 50051", zap.Error(err))
+		log.Fatalf("failed to listen on port %s: %v", cfg.Port, err)
 	}
 
 	// Create a new gRPC server and register the JWT service
@@ -69,7 +69,7 @@ func main() {
 	healthHandler := healthhandler.NewHealthHandler(logger)
 	healthProto.RegisterHealthServiceServer(grpcServer, healthHandler)
 
-	logger.Info("Token gRPC service running", zap.String("address", ":50051"))
+	logger.Info("Token gRPC service running", zap.String("address", cfg.Port))
 	if err := grpcServer.Serve(lis); err != nil {
 		logger.Fatal("failed to serve gRPC server", zap.Error(err))
 	}

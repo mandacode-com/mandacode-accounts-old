@@ -37,6 +37,7 @@ COPY --from=builder /app/app /app/app
 # Create non-root user
 USER 1001
 
-EXPOSE 8080
+ENV PORT=50051
+EXPOSE 50051
 
 ENTRYPOINT ["/app/app"]
