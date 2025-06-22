@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package health.v1;
+
+import "third_party/validate/validate.proto";
+
+option go_package = "mandacode.com/accounts/token/proto/health/v1;healthv1";
+
+service HealthService {
+  // Checks the health status of a service
+  rpc Check(CheckRequest) returns (CheckResponse);
+
+  // Watches the health status of a service
+  rpc Watch(WatchRequest) returns (stream WatchResponse);
+}
+
+enum ServingStatus {
+  SERVING_STATUS_UNSPECIFIED = 0; // The health status is unknown
+  SERVING_STATUS_SERVING = 1;     // The service is serving requests
+  SERVING_STATUS_NOT_SERVING = 2; // The service is not serving requests
+}
+
+message CheckRequest {
+  string service = 1 [
+    (validate.rules).string = {min_len : 1}
+  ]; // The name of the service to check
+}
+
+message CheckResponse {
+  ServingStatus status = 1 [
+    (validate.rules).enum = {defined_only : true}
+  ]; // The health status of the service
+}
+
+// message WatchRequest { string service = 1; }
+message WatchRequest {
+  string service = 1 [
+    (validate.rules).string = {min_len : 1}
+  ]; // The name of the service to watch
+}
+
+message WatchResponse {
+  ServingStatus status = 1 [
+    (validate.rules).enum = {defined_only : true}
+  ]; // The health status of the service
+  int64 timestamp = 2 [
+    (validate.rules).int64 = {gt : 0}
+  ]; // Timestamp of the health check in Unix format
+}
