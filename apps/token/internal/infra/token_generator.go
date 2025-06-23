@@ -3,8 +3,10 @@ package infra
 import (
 	"crypto/rsa"
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	tokendomain "mandacode.com/accounts/token/internal/domain/token"
 )
 
 // jwtGenerator is the concrete implementation of TokenGenerator
@@ -21,16 +23,16 @@ type tokenGenerator struct {
 //   - expiresIn: the duration after which the token will expire
 //
 // Returns:
-//   - *tokenGenerator: a pointer to the newly created tokenGenerator instance
-//   - error: an error if any of the parameters are invalid or if key parsing fails
+//   - tokendomain.TokenGenerator: an instance of TokenGenerator
+//   - error: an error if the private key is nil or expiresIn is not greater than zero
 func NewTokenGenerator(
 	privateKey *rsa.PrivateKey,
-	expiresIn time.Duration) (*tokenGenerator, error) {
+	expiresIn time.Duration) (tokendomain.TokenGenerator, error) {
 	if privateKey == nil {
 		return nil, errors.New("private key cannot be nil")
 	}
 	if expiresIn <= 0 {
-		return nil, errors.New("expiration duration must be greater than zero")
+		return nil, errors.New("expiresIn must be greater than zero")
 	}
 
 	return &tokenGenerator{
@@ -47,16 +49,28 @@ func NewTokenGenerator(
 //   - expiresIn: the duration after which the token will expiresIn
 //
 // Returns:
-//   - *tokenGenerator: a pointer to the newly created tokenGenerator instance
-//   - error: an error if any of the parameters are invalid or if key parsing fails
+//   - tokendomain.TokenGenerator: an instance of TokenGenerator
+//   - error: an error if the private key string is invalid, or if the private key is nil or expiresIn is not greater than zero
 func NewTokenGeneratorByStr(
 	privateKeyStr string,
-	expiresIn time.Duration) (*tokenGenerator, error) {
+	expiresIn time.Duration) (tokendomain.TokenGenerator, error) {
 	privateKey, err := LoadRSAPrivateKeyFromPEM(privateKeyStr)
+
 	if err != nil {
 		return nil, err
 	}
-	return NewTokenGenerator(privateKey, expiresIn)
+	if privateKey == nil {
+		return nil, errors.New("private key cannot be nil")
+	}
+	if expiresIn <= 0 {
+		return nil, errors.New("expiresIn must be greater than zero")
+	}
+
+	return &tokenGenerator{
+		publicKey:  &privateKey.PublicKey,
+		privateKey: privateKey,
+		expiresIn:  expiresIn,
+	}, nil
 }
 
 // GenerateToken generates a signed JWT token with the provided claims
