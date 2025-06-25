@@ -13,8 +13,8 @@ WORKDIR /app
 
 # Set Go environment
 ENV CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64
+  GOOS=linux \
+  GOARCH=amd64
 
 # Copy go.mod and go.sum first (for caching)
 COPY go.mod go.sum ./
@@ -24,7 +24,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary (static)
-RUN go build -o app ./cmd/server/main.go
+RUN go build -o app ./cmd/server
 
 ############################
 # 2. Runtime Stage (scratch)

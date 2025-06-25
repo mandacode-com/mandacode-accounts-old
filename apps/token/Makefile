@@ -1,29 +1,47 @@
 -include .make.env
 
+# ----------------------------
+# Application image settings
+# ----------------------------
 REGISTRY ?=
 APP_NAME ?=
 TAG ?=
 
-IMAGE_NAME := $(REGISTRY)/$(APP_NAME)
+APP_IMAGE := $(REGISTRY)/$(APP_NAME)
 
+# ----------------------------
+# Directory paths
+# ----------------------------
 PROTO_SRC := proto
-DOCKER_CONTEXT := .
+DOCKER_CONTEXT := ./docker
 
-.PHONY: all build-app push-app test generate-proto clean-proto check-tag
-
+# ----------------------------
+# Default target
+# ----------------------------
+.PHONY: all
 all: build-app
 
-check-tag:
-ifndef TAG
-	$(error TAG is required. Usage: make TAG=v1.2.3)
-endif
+# ----------------------------
+#  Run the application
+#  ----------------------------
+.PHONY: run
+run:
+	go run ./cmd/server
 
+# ----------------------------
+# Build & push app image
+# ----------------------------
+.PHONY: build-app push-app
 build-app: check-tag
-	docker build -t $(IMAGE_NAME):$(TAG) $(DOCKER_CONTEXT)
+	docker build -t $(APP_IMAGE):$(TAG) -f $(DOCKER_CONTEXT)/app.Dockerfile .
 
 push-app: build-app
-	docker push $(IMAGE_NAME):$(TAG)
+	docker push $(APP_IMAGE):$(TAG)
 
+# ----------------------------
+# Generate and clean proto files
+# ----------------------------
+.PHONY: generate-proto clean-proto
 generate-proto:
 	protoc \
 		-I $(PROTO_SRC) \
@@ -35,6 +53,18 @@ generate-proto:
 clean-proto:
 	find $(PROTO_SRC) -name "*.pb.go" -delete
 	find $(PROTO_SRC) -name "*.pb.validate.go" -delete
-
+# ----------------------------
+# Run unit tests
+# ----------------------------
+.PHONY: test
 test:
 	go test ./test/...
+
+# ----------------------------
+# Check that the image tag is set
+# ----------------------------
+.PHONY: check-tag
+check-tag:
+ifndef TAG
+	$(error TAG is required. Usage: make TAG=v1.2.3)
+endif

@@ -1,8 +1,31 @@
 package token
 
-import "errors"
+import (
+	"errors"
 
-// GenerateEmailVerificationToken generates a signed email verification token.
+	tokendomain "mandacode.com/accounts/token/internal/domain/service/token"
+)
+
+type EmailVerificationTokenApp struct {
+	tokenGenerator tokendomain.TokenGenerator
+}
+
+// NewEmailVerificationTokenApp creates a new instance of EmailVerificationTokenApp with the provided TokenGenerator.
+//
+// Parameters:
+//   - tokenGenerator: an instance of TokenGenerator used for generating and verifying email verification tokens.
+//
+// Returns:
+//   - EmailVerificationTokenApp: a new instance of EmailVerificationTokenApp.
+func NewEmailVerificationTokenApp(
+	tokenGenerator tokendomain.TokenGenerator,
+) *EmailVerificationTokenApp {
+	return &EmailVerificationTokenApp{
+		tokenGenerator: tokenGenerator,
+	}
+}
+
+// GenerateToken generates a signed email verification token for the specified user and email address.
 //
 // Parameters:
 //   - userID: the unique identifier of the user for whom the email verification is being generated.
@@ -13,18 +36,19 @@ import "errors"
 //   - token: the generated JWT email verification token as a string.
 //   - expiresAt: the Unix timestamp (in seconds) indicating the expiration time.
 //   - err: an error if token generation fails.
-func (s *TokenService) GenerateEmailVerificationToken(userID string, email string, code string) (string, int64, error) {
+func (s *EmailVerificationTokenApp) GenerateToken(userID string, email string, code string) (string, int64, error) {
 	claims := map[string]string{
 		"sub":   userID,
 		"email": email,
 		"code":  code,
 	}
-	return s.emailVerificationTokenGen.GenerateToken(
+	return s.tokenGenerator.GenerateToken(
 		claims,
 	)
+
 }
 
-// VerifyEmailVerificationToken verifies the provided email verification token and extracts the email and code.
+// VerifyToken verifies the provided email verification token and extracts the user ID, email, and verification code.
 //
 // Parameters:
 //   - token: the JWT email verification token to verify.
@@ -34,8 +58,8 @@ func (s *TokenService) GenerateEmailVerificationToken(userID string, email strin
 //   - email: the email address extracted from the token claims if valid.
 //   - code: the verification code extracted from the token claims if valid.
 //   - err: an error if verification fails or if the email or code claims are not found.
-func (s *TokenService) VerifyEmailVerificationToken(token string) (*string, *string, *string, error) {
-	claims, err := s.emailVerificationTokenGen.VerifyToken(
+func (s *EmailVerificationTokenApp) VerifyToken(token string) (*string, *string, *string, error) {
+	claims, err := s.tokenGenerator.VerifyToken(
 		token,
 	)
 

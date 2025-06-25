@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	tokendomain "mandacode.com/accounts/token/internal/domain/token"
+	tokendomain "mandacode.com/accounts/token/internal/domain/service/token"
 )
 
 // jwtGenerator is the concrete implementation of TokenGenerator
@@ -73,15 +73,6 @@ func NewTokenGeneratorByStr(
 	}, nil
 }
 
-// GenerateToken generates a signed JWT token with the provided claims
-//
-// Parameters:
-//   - claims: a map of additional claims to include in the token
-//
-// Returns:
-//   - token: the generated JWT token as a string
-//   - expiresAt: the Unix timestamp (in seconds) indicating the expiration time of the token
-//   - error: an error if token generation fails (e.g., if the private key is not initialized or signing fails
 func (j *tokenGenerator) GenerateToken(
 	claims map[string]string,
 ) (string, int64, error) {
@@ -111,14 +102,6 @@ func (j *tokenGenerator) GenerateToken(
 	return signedToken, expiresAt.Unix(), nil
 }
 
-// VerifyToken verifies the provided JWT token and extracts the claims
-//
-// Parameters:
-//   - token: the JWT token to verify
-//
-// Returns:
-//   - claims: a map of claims extracted from the token if valid
-//   - error: an error if verification fails (e.g., if the public key is not initialized or parsing fails)
 func (j *tokenGenerator) VerifyToken(
 	token string,
 ) (map[string]string, error) {

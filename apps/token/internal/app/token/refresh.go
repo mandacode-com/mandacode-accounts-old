@@ -1,8 +1,31 @@
 package token
 
-import "errors"
+import (
+	"errors"
 
-// GenerateRefreshToken generates a signed refresh token for the specified user.
+	tokendomain "mandacode.com/accounts/token/internal/domain/service/token"
+)
+
+type RefreshTokenApp struct {
+	tokenGenerator tokendomain.TokenGenerator
+}
+
+// NewRefreshTokenApp creates a new instance of RefreshTokenApp with the provided TokenGenerator.
+//
+// Parameters:
+//   - tokenGenerator: an instance of TokenGenerator used for generating and verifying refresh tokens.
+//
+// Returns:
+//   - RefreshTokenApp: a new instance of RefreshTokenApp.
+func NewRefreshTokenApp(
+	tokenGenerator tokendomain.TokenGenerator,
+) *RefreshTokenApp {
+	return &RefreshTokenApp{
+		tokenGenerator: tokenGenerator,
+	}
+}
+
+// GenerateToken generates a signed refresh token for the specified user.
 //
 // Parameters:
 //   - userID: the unique identifier of the user.
@@ -11,25 +34,24 @@ import "errors"
 //   - token: the generated JWT refresh token as a string.
 //   - expiresAt: the Unix timestamp (in seconds) indicating the expiration time.
 //   - err: an error if token generation fails.
-func (s *TokenService) GenerateRefreshToken(userID string) (string, int64, error) {
+func (s *RefreshTokenApp) GenerateToken(userID string) (string, int64, error) {
 	claims := map[string]string{
 		"sub": userID, // Use "sub" claim for user ID
 	}
-	return s.refreshTokenGen.GenerateToken(
+	return s.tokenGenerator.GenerateToken(
 		claims,
 	)
 }
 
-// VerifyRefreshToken verifies the provided refresh token and extracts the user ID.
-
+// VerifyToken verifies the provided refresh token and extracts the user ID.
 // Parameters:
 //   - token: the JWT refresh token to verify.
 //
 // Returns:
 //   - userID: the user ID extracted from the token claims if valid.
 //   - err: an error if verification fails or if the user_id claim is not found.
-func (s *TokenService) VerifyRefreshToken(token string) (*string, error) {
-	claims, err := s.refreshTokenGen.VerifyToken(
+func (s *RefreshTokenApp) VerifyToken(token string) (*string, error) {
+	claims, err := s.tokenGenerator.VerifyToken(
 		token,
 	)
 
