@@ -16,8 +16,8 @@ func TestTokenService_GenerateEmailVerificationToken(t *testing.T) {
 		return claims["sub"] == "u1" && claims["email"] == "a@b.c" && claims["code"] == "xyz"
 	})).Return("emailtoken", int64(9999), nil)
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	token, exp, err := svc.GenerateEmailVerificationToken("u1", "a@b.c", "xyz")
+	app := token.NewEmailVerificationTokenApp(mockGen)
+	token, exp, err := app.GenerateToken("u1", "a@b.c", "xyz")
 	require.NoError(t, err)
 	require.Equal(t, "emailtoken", token)
 	require.Equal(t, int64(9999), exp)
@@ -33,8 +33,8 @@ func TestTokenService_VerifyEmailVerificationToken_Success(t *testing.T) {
 		"code":  "xyz",
 	}, nil)
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	uid, email, code, err := svc.VerifyEmailVerificationToken("validtoken")
+	app := token.NewEmailVerificationTokenApp(mockGen)
+	uid, email, code, err := app.VerifyToken("validtoken")
 	require.NoError(t, err)
 	require.Equal(t, "u1", *uid)
 	require.Equal(t, "a@b.c", *email)
@@ -47,8 +47,8 @@ func TestTokenService_VerifyEmailVerificationToken_MissingClaims(t *testing.T) {
 	mockGen := new(MockTokenGenerator)
 	mockGen.On("VerifyToken", "invalidtoken").Return(map[string]string{}, nil)
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	uid, email, code, err := svc.VerifyEmailVerificationToken("invalidtoken")
+	app := token.NewEmailVerificationTokenApp(mockGen)
+	uid, email, code, err := app.VerifyToken("invalidtoken")
 	require.Error(t, err)
 	require.Nil(t, uid)
 	require.Nil(t, email)
@@ -61,8 +61,8 @@ func TestTokenService_VerifyEmailVerificationToken_Error(t *testing.T) {
 	mockGen := new(MockTokenGenerator)
 	mockGen.On("VerifyToken", "broken").Return(nil, errors.New("invalid token"))
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	uid, email, code, err := svc.VerifyEmailVerificationToken("broken")
+	app := token.NewEmailVerificationTokenApp(mockGen)
+	uid, email, code, err := app.VerifyToken("broken")
 	require.Error(t, err)
 	require.Nil(t, uid)
 	require.Nil(t, email)

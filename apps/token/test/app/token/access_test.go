@@ -17,8 +17,8 @@ func TestTokenService_GenerateAccessToken(t *testing.T) {
 		return claims["sub"] == mockUserID
 	})).Return("token123", int64(1234567890), nil)
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	token, exp, err := svc.GenerateAccessToken(mockUserID)
+	app := token.NewAccessTokenApp(mockGen)
+	token, exp, err := app.GenerateToken(mockUserID)
 	require.NoError(t, err)
 	require.Equal(t, "token123", token)
 	require.Equal(t, int64(1234567890), exp)
@@ -30,8 +30,8 @@ func TestTokenService_VerifyAccessToken_Success(t *testing.T) {
 	mockGen := new(MockTokenGenerator)
 	mockGen.On("VerifyToken", "validtoken").Return(map[string]string{"sub": "user123"}, nil)
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	userID, err := svc.VerifyAccessToken("validtoken")
+	app := token.NewAccessTokenApp(mockGen)
+	userID, err := app.VerifyToken("validtoken")
 	require.NoError(t, err)
 	require.Equal(t, "user123", *userID)
 
@@ -42,8 +42,8 @@ func TestTokenService_VerifyAccessToken_MissingClaim(t *testing.T) {
 	mockGen := new(MockTokenGenerator)
 	mockGen.On("VerifyToken", "invalidtoken").Return(map[string]string{}, nil)
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	userID, err := svc.VerifyAccessToken("invalidtoken")
+	app := token.NewAccessTokenApp(mockGen)
+	userID, err := app.VerifyToken("invalidtoken")
 	require.Error(t, err)
 	require.Nil(t, userID)
 
@@ -54,8 +54,8 @@ func TestTokenService_VerifyAccessToken_Error(t *testing.T) {
 	mockGen := new(MockTokenGenerator)
 	mockGen.On("VerifyToken", "broken").Return(nil, errors.New("invalid token"))
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	userID, err := svc.VerifyAccessToken("broken")
+	app := token.NewAccessTokenApp(mockGen)
+	userID, err := app.VerifyToken("broken")
 	require.Error(t, err)
 	require.Nil(t, userID)
 

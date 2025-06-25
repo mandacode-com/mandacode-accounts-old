@@ -17,8 +17,8 @@ func TestTokenService_GenerateRefreshToken(t *testing.T) {
 		return claims["sub"] == mockUserID
 	})).Return("refreshtoken123", int64(1234567890), nil)
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	token, exp, err := svc.GenerateRefreshToken(mockUserID)
+	app := token.NewRefreshTokenApp(mockGen)
+	token, exp, err := app.GenerateToken(mockUserID)
 	require.NoError(t, err)
 	require.Equal(t, "refreshtoken123", token)
 	require.Equal(t, int64(1234567890), exp)
@@ -30,8 +30,8 @@ func TestTokenService_VerifyRefreshToken_Success(t *testing.T) {
 	mockGen := new(MockTokenGenerator)
 	mockGen.On("VerifyToken", "validrefreshtoken").Return(map[string]string{"sub": "user123"}, nil)
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	userID, err := svc.VerifyRefreshToken("validrefreshtoken")
+	app := token.NewRefreshTokenApp(mockGen)
+	userID, err := app.VerifyToken("validrefreshtoken")
 	require.NoError(t, err)
 	require.Equal(t, "user123", *userID)
 
@@ -40,10 +40,10 @@ func TestTokenService_VerifyRefreshToken_Success(t *testing.T) {
 
 func TestTokenService_VerifyRefreshToken_MissingClaim(t *testing.T) {
 	mockGen := new(MockTokenGenerator)
-	mockGen.On("VerifyToken", "invalidrefreshtoken").Return(map[string]string{}, nil)
+	mockGen.On("VerifyToken", "invalid refreshtoken").Return(map[string]string{}, nil)
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	userID, err := svc.VerifyRefreshToken("invalidrefreshtoken")
+	app := token.NewRefreshTokenApp(mockGen)
+	userID, err := app.VerifyToken("invalid refreshtoken")
 	require.Error(t, err)
 	require.Nil(t, userID)
 
@@ -54,8 +54,8 @@ func TestTokenService_VerifyRefreshToken_Error(t *testing.T) {
 	mockGen := new(MockTokenGenerator)
 	mockGen.On("VerifyToken", "brokenrefreshtoken").Return(nil, errors.New("invalid token"))
 
-	svc := token.NewTokenService(mockGen, mockGen, mockGen)
-	userID, err := svc.VerifyRefreshToken("brokenrefreshtoken")
+	app := token.NewRefreshTokenApp(mockGen)
+	userID, err := app.VerifyToken("brokenrefreshtoken")
 	require.Error(t, err)
 	require.Nil(t, userID)
 
