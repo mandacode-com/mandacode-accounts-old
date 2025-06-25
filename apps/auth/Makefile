@@ -7,6 +7,9 @@ REGISTRY ?=
 APP_NAME ?=
 TAG ?=
 
+MIGRATE_NAME ?=
+MIGRATE_DEV_URL ?=
+
 APP_IMAGE := $(REGISTRY)/$(APP_NAME)
 
 # ----------------------------
@@ -50,7 +53,13 @@ push-app: build-app
 # ----------------------------
 # Build & push migration image
 # ----------------------------
-.PHONY: build-migrate push-migrate
+.PHONY: generate-migrate build-migrate push-migrate
+generate-migrate: check-migrate-name
+	atlas migrate diff $(MIGRATE_NAME) \
+		--dev-url $(MIGRATE_DEV_URL) \
+		--dir "file://ent/migrate/migrations" \
+		--to "ent://ent/schema"
+
 build-migrate: check-tag
 	docker build -t $(MIGRATE_IMAGE):$(MIGRATE_TAG) -f $(DOCKER_CONTEXT)/migrate.Dockerfile .
 
@@ -95,4 +104,10 @@ test:
 check-tag:
 ifndef TAG
 	$(error TAG is required. Usage: make TAG=v1.2.3)
+endif
+
+.PHONY: check-migrate-name
+check-migrate-name:
+ifndef MIGRATE_NAME
+	$(error MIGRATE_NAME is required. Usage: make MIGRATE_NAME=migrate)
 endif

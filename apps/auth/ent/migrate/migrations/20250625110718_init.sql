@@ -14,7 +14,12 @@ CREATE TABLE "public"."oauth_users" (
   "id" uuid NOT NULL,
   "email" character varying NOT NULL,
   "provider" character varying NOT NULL,
+  "provider_id" character varying NOT NULL,
   "is_active" boolean NOT NULL DEFAULT true,
   "is_verified" boolean NOT NULL DEFAULT true,
   PRIMARY KEY ("id")
 );
+-- Create index "oauthuser_id_provider" to table: "oauth_users"
+CREATE UNIQUE INDEX "oauthuser_id_provider" ON "public"."oauth_users" ("id", "provider");
+-- Create index "oauthuser_provider_provider_id" to table: "oauth_users"
+CREATE UNIQUE INDEX "oauthuser_provider_provider_id" ON "public"."oauth_users" ("provider", "provider_id");
