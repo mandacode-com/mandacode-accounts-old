@@ -10,13 +10,24 @@ type OAuthUserService interface {
 	// GetUserByProvider retrieves an OAuth user by their provider and provider ID.
 	//
 	// Parameters:
-	//   - userID: The unique identifier of the user.
 	//   - provider: The OAuth provider (e.g., "google", "github").
+	//   - providerID: The unique identifier provided by the OAuth provider.
 	//
 	// Returns:
 	//   - user: The OAuth user if found, otherwise nil.
 	//   - error: An error if the retrieval fails, otherwise nil.
-	GetUserByProvider(userID uuid.UUID, provider oauthuser.Provider) (*dto.OAuthUser, error)
+	GetUserByProvider(provider oauthuser.Provider, providerID string) (*dto.OAuthUser, error)
+
+	// GetUserByUserID retrieves an OAuth user by their userID and provider.
+	//
+	// Parameters:
+	//   - userID: The unique identifier of the user.
+	//   - provider: The OAuth provider of the user.
+	//
+	// Returns:
+	//   - user: The OAuth user if found, otherwise nil.
+	//   - error: An error if the retrieval fails, otherwise nil.
+	GetUserByUserID(userID uuid.UUID, provider oauthuser.Provider) (*dto.OAuthUser, error)
 
 	// CreateUser creates a new OAuth user with the given details.
 	//

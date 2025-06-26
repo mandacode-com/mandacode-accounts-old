@@ -13,10 +13,10 @@ type OAuthAuthService interface {
 	// Parameters:
 	//   - ctx: The context for the operation.
 	//   - provider: The OAuth provider (e.g., Google, Facebook).
-	//   - code: The authorization code received from the OAuth provider.
+	//   - providerID: The unique identifier provided by the OAuth provider.
 	//
 	// Returns:
 	//   - user: The OAuth user if login is successful.
 	//   - error: An error if the login fails, otherwise nil.
-	LoginOAuthUser(ctx context.Context, provider oauthuser.Provider, code string) (*dto.OAuthUser, error)
+	LoginOAuthUser(ctx context.Context, provider oauthuser.Provider, providerID string) (*dto.OAuthUser, error)
 }

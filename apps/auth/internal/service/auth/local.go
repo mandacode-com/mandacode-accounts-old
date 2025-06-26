@@ -41,10 +41,6 @@ func (s *LocalAuthService) LoginLocalUser(ctx context.Context, email string, pas
 		return nil, errors.New("user is not verified")
 	}
 
-	return &dto.LocalUser{
-		ID:         user.ID,
-		Email:      user.Email,
-		IsActive:   user.IsActive,
-		IsVerified: user.IsVerified,
-	}, nil
+	localUser := dto.NewLocalUserFromEntity(user)
+	return localUser, nil
 }

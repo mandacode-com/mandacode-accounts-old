@@ -18,17 +18,36 @@ func NewOAuthUserRepository(db *ent.Client) repodomain.OAuthUserRepository {
 	return &OAuthAuthRepository{db: db}
 }
 
-func (r *OAuthAuthRepository) GetUserByProvider(provider oauthuser.Provider, providerID string) (*ent.OAuthUser, error) {
+func (r *OAuthAuthRepository) GetUserByUserID(userID uuid.UUID, provider oauthuser.Provider) (*ent.OAuthUser, error) {
 	user, err := r.db.OAuthUser.
 		Query().
 		Where(
+			oauthuser.ID(userID),
 			oauthuser.ProviderEQ(provider),
-			oauthuser.ProviderID(providerID),
 		).
 		Only(context.Background())
 
 	if err != nil {
 		return nil, err
+	}
+
+	return user, nil
+}
+
+func (r *OAuthAuthRepository) GetUserByProvider(provider oauthuser.Provider, providerID string) (*ent.OAuthUser, error) {
+	user, err := r.db.OAuthUser.
+		Query().
+		Where(
+			oauthuser.ProviderEQ(provider),
+			oauthuser.ProviderIDEQ(providerID),
+		).
+		Only(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errors.New("user not found")
 	}
 
 	return user, nil

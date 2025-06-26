@@ -101,9 +101,9 @@ generate-ent:
 # ----------------------------
 # Run unit tests
 # ----------------------------
-.PHONY: test
-test:
-	go test ./test/...
+.PHONY: test-unit
+test-unit:
+	go test ./test/unit/...
 
 # ----------------------------
 # Check that the image tag is set
@@ -125,21 +125,8 @@ endif
 #  ----------------------------
 .PHONY: generate-mocks check-mock-target-dir
 generate-mocks: check-mock-target-dir
-	@echo "🔍 Generating mocks for interfaces under: '$(MOCK_TARGET_DIR)'"
-	@MODULE_PATH=$$(go list -m); \
-	find $(MOCK_TARGET_DIR) -type f -name '*.go' -not -path '*/mocks/*' | while read src; do \
-		src_rel=$$(realpath --relative-to=. $$src); \
-		pkg_dir=$$(dirname $$src_rel); \
-		ifaces=$$(grep -E 'type [A-Z][a-zA-Z0-9_]+ interface' $$src | awk '{print $$2}'); \
-		import_path=$${MODULE_PATH}/$$pkg_dir; \
-		for iface in $$ifaces; do \
-			out_dir=$(MOCK_DST_ROOT)/$$pkg_dir; \
-			mkdir -p $$out_dir; \
-			out_file=$$out_dir/mock_$$iface.go; \
-			echo "⚙️  Generating $$iface → $$out_file"; \
-			mockgen $$import_path $$iface > $$out_file || echo "❌ Failed to generate mock for $$iface"; \
-		done; \
-	done
+	./scripts/generate-mocks.sh $(MOCK_DST_DIR) $(MOCK_TARGET_DIR)
+
 
 check-mock-target-dir:
 ifndef MOCK_TARGET_DIR

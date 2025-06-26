@@ -68,7 +68,7 @@ func (a *OAuthUserApp) GetUser(ctx context.Context, userID string, provider prov
 		return nil, err
 	}
 
-	return a.oauthUserService.GetUserByProvider(userUUID, providerEnum)
+	return a.oauthUserService.GetUserByUserID(userUUID, providerEnum)
 }
 
 func (a *OAuthUserApp) DeleteUser(ctx context.Context, userID string, provider *providerv1.OAuthProvider) (*dto.OAuthDeletedUser, error) {

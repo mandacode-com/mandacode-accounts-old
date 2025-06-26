@@ -8,6 +8,10 @@ import (
 
 // OAuthUserRepository defines the interface for OAuth authentication repository operations.
 type OAuthUserRepository interface {
+	GetUserByUserID(
+		userID uuid.UUID,
+		provider oauthuser.Provider,
+	) (*ent.OAuthUser, error)
 	GetUserByProvider(
 		provider oauthuser.Provider,
 		providerID string,

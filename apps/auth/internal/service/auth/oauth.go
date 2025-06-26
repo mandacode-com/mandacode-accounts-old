@@ -35,12 +35,6 @@ func (s *OAuthAuthService) LoginOAuthUser(ctx context.Context, provider oauthuse
 		return nil, errors.New("user is not verified")
 	}
 
-	return &dto.OAuthUser{
-		ID:         user.ID,
-		Provider:   user.Provider,
-		ProviderID: user.ProviderID,
-		Email:      user.Email,
-		IsActive:   user.IsActive,
-		IsVerified: user.IsVerified,
-	}, nil
+	oauthUser := dto.NewOAuthUserFromEntity(user)
+	return oauthUser, nil
 }

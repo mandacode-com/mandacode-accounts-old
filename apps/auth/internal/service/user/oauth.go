@@ -36,8 +36,21 @@ func (s *OAuthUserService) CreateUser(
 	return oauthUser, nil
 }
 
-func (s *OAuthUserService) GetUserByProvider(userID uuid.UUID, provider oauthuser.Provider) (*dto.OAuthUser, error) {
-	user, err := s.oauthUser.GetUserByProvider(provider, userID.String())
+func (s *OAuthUserService) GetUserByProvider(provider oauthuser.Provider, providerID string) (*dto.OAuthUser, error) {
+	user, err := s.oauthUser.GetUserByProvider(provider, providerID)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
+
+	oauthUser := dto.NewOAuthUserFromEntity(user)
+	return oauthUser, nil
+}
+
+func (s *OAuthUserService) GetUserByUserID(userID uuid.UUID, provider oauthuser.Provider) (*dto.OAuthUser, error) {
+	user, err := s.oauthUser.GetUserByUserID(userID, provider)
 	if err != nil {
 		return nil, err
 	}
