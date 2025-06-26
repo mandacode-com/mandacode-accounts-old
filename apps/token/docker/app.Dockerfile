@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 ############################
 # 1. Build Stage
 ############################
@@ -24,7 +22,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary (static)
-RUN go build -o app ./cmd/server
+RUN go build -o server ./cmd/server
 
 ############################
 # 2. Runtime Stage (scratch)
@@ -32,7 +30,7 @@ RUN go build -o app ./cmd/server
 FROM scratch AS prod
 
 # Copy built binary only
-COPY --from=builder /app/app /app/app
+COPY --from=builder /app/server /app/server
 
 # Create non-root user
 USER 1001
@@ -40,4 +38,4 @@ USER 1001
 ENV PORT=50051
 EXPOSE 50051
 
-ENTRYPOINT ["/app/app"]
+ENTRYPOINT ["/app/server"]
