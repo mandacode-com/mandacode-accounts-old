@@ -3,11 +3,11 @@ package token
 import (
 	"errors"
 
-	tokendomain "mandacode.com/accounts/token/internal/domain/service/token"
+	svcdomain "mandacode.com/accounts/token/internal/domain/service"
 )
 
 type AccessTokenApp struct {
-	tokenGenerator tokendomain.TokenGenerator
+	tokenGenerator svcdomain.TokenGenerator
 }
 
 // NewAccessTokenApp creates a new instance of AccessTokenApp with the provided TokenGenerator.
@@ -18,7 +18,7 @@ type AccessTokenApp struct {
 // Returns:
 //   - AccessTokenApp: a new instance of AccessTokenApp.
 func NewAccessTokenApp(
-	tokenGenerator tokendomain.TokenGenerator,
+	tokenGenerator svcdomain.TokenGenerator,
 ) *AccessTokenApp {
 	return &AccessTokenApp{
 		tokenGenerator: tokenGenerator,

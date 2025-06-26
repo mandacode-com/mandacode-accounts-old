@@ -4,9 +4,9 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	tokenv1 "mandacode.com/accounts/proto/token/v1"
-	"mandacode.com/accounts/token/internal/app/token"
+	token "mandacode.com/accounts/token/internal/app"
 	"mandacode.com/accounts/token/internal/config"
-	tokenhandler "mandacode.com/accounts/token/internal/handler/token"
+	"mandacode.com/accounts/token/internal/handler"
 	"mandacode.com/accounts/token/internal/infra"
 )
 
@@ -42,7 +42,7 @@ func registerHandlers(
 	refreshTokenApp := token.NewRefreshTokenApp(refreshTokenGen)
 	emailVerificationTokenApp := token.NewEmailVerificationTokenApp(emailVerificationTokenGen)
 
-	tokenHandler, err := tokenhandler.NewTokenHandler(
+	tokenHandler, err := handler.NewTokenHandler(
 		accessTokenApp,
 		refreshTokenApp,
 		emailVerificationTokenApp,

@@ -1,6 +1,5 @@
-package tokendomain
+package svcdomain
 
-// TokenGenerator defines an interface for generating JWT tokens
 type TokenGenerator interface {
 	// GenerateToken generates a signed JWT token with the provided claims
 	//
@@ -10,7 +9,7 @@ type TokenGenerator interface {
 	// Returns:
 	//   - token: the generated JWT token as a string
 	//   - expiresAt: the Unix timestamp (in seconds) indicating the expiration time of the token
-	//   - error: an error if token generation fails (e.g., if the private key is not initialized or signing fails
+	//   - error: an error if token generation fails (e.g., if the private key is not initialized or signing fails)
 	GenerateToken(
 		claims map[string]string,
 	) (string, int64, error)

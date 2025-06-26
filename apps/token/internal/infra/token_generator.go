@@ -6,11 +6,12 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	tokendomain "mandacode.com/accounts/token/internal/domain/service/token"
+	svcdomain "mandacode.com/accounts/token/internal/domain/service"
+	"mandacode.com/accounts/token/internal/util"
 )
 
 // jwtGenerator is the concrete implementation of TokenGenerator
-type tokenGenerator struct {
+type TokenGenerator struct {
 	publicKey  *rsa.PublicKey
 	privateKey *rsa.PrivateKey
 	expiresIn  time.Duration
@@ -23,11 +24,11 @@ type tokenGenerator struct {
 //   - expiresIn: the duration after which the token will expire
 //
 // Returns:
-//   - tokendomain.TokenGenerator: an instance of TokenGenerator
+//   - svcdomain.TokenGenerator: an instance of TokenGenerator
 //   - error: an error if the private key is nil or expiresIn is not greater than zero
 func NewTokenGenerator(
 	privateKey *rsa.PrivateKey,
-	expiresIn time.Duration) (tokendomain.TokenGenerator, error) {
+	expiresIn time.Duration) (svcdomain.TokenGenerator, error) {
 	if privateKey == nil {
 		return nil, errors.New("private key cannot be nil")
 	}
@@ -35,7 +36,7 @@ func NewTokenGenerator(
 		return nil, errors.New("expiresIn must be greater than zero")
 	}
 
-	return &tokenGenerator{
+	return &TokenGenerator{
 		publicKey:  &privateKey.PublicKey,
 		privateKey: privateKey,
 		expiresIn:  expiresIn,
@@ -45,16 +46,16 @@ func NewTokenGenerator(
 // NewTokenGeneratorByStr creates a new tokenGenerator using RSA keys provided as PEM formatted strings
 //
 // Parameters:
-//   - privateKeyStr: the PEM formatted RSA private key string
+//   - privateKeyStr: the PEM formatted RSA private key string used for signing the token
 //   - expiresIn: the duration after which the token will expiresIn
 //
 // Returns:
-//   - tokendomain.TokenGenerator: an instance of TokenGenerator
-//   - error: an error if the private key string is invalid, or if the private key is nil or expiresIn is not greater than zero
+//   - svcdomain.TokenGenerator: an instance of TokenGenerator
+//   - error: an error if the private key string is invalid or expiresIn is not greater than zero
 func NewTokenGeneratorByStr(
 	privateKeyStr string,
-	expiresIn time.Duration) (tokendomain.TokenGenerator, error) {
-	privateKey, err := LoadRSAPrivateKeyFromPEM(privateKeyStr)
+	expiresIn time.Duration) (svcdomain.TokenGenerator, error) {
+	privateKey, err := util.LoadRSAPrivateKeyFromPEM(privateKeyStr)
 
 	if err != nil {
 		return nil, err
@@ -66,17 +67,16 @@ func NewTokenGeneratorByStr(
 		return nil, errors.New("expiresIn must be greater than zero")
 	}
 
-	return &tokenGenerator{
+	return &TokenGenerator{
 		publicKey:  &privateKey.PublicKey,
 		privateKey: privateKey,
 		expiresIn:  expiresIn,
 	}, nil
 }
 
-func (j *tokenGenerator) GenerateToken(
+func (j *TokenGenerator) GenerateToken(
 	claims map[string]string,
 ) (string, int64, error) {
-
 	if j.privateKey == nil {
 		return "", 0, errors.New("private key is not initialized")
 	}
@@ -102,10 +102,9 @@ func (j *tokenGenerator) GenerateToken(
 	return signedToken, expiresAt.Unix(), nil
 }
 
-func (j *tokenGenerator) VerifyToken(
+func (j *TokenGenerator) VerifyToken(
 	token string,
 ) (map[string]string, error) {
-
 	if j.publicKey == nil {
 		return nil, errors.New("public key is not initialized")
 	}

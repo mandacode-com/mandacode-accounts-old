@@ -1,4 +1,4 @@
-package tokenhandler
+package handler
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 	tokenv1 "mandacode.com/accounts/proto/token/v1"
-	"mandacode.com/accounts/token/internal/app/token"
+	token "mandacode.com/accounts/token/internal/app"
 )
 
 type TokenHandler struct {

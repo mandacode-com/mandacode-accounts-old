@@ -3,11 +3,11 @@ package token
 import (
 	"errors"
 
-	tokendomain "mandacode.com/accounts/token/internal/domain/service/token"
+	svcdomain "mandacode.com/accounts/token/internal/domain/service"
 )
 
 type EmailVerificationTokenApp struct {
-	tokenGenerator tokendomain.TokenGenerator
+	tokenGenerator svcdomain.TokenGenerator
 }
 
 // NewEmailVerificationTokenApp creates a new instance of EmailVerificationTokenApp with the provided TokenGenerator.
@@ -18,7 +18,7 @@ type EmailVerificationTokenApp struct {
 // Returns:
 //   - EmailVerificationTokenApp: a new instance of EmailVerificationTokenApp.
 func NewEmailVerificationTokenApp(
-	tokenGenerator tokendomain.TokenGenerator,
+	tokenGenerator svcdomain.TokenGenerator,
 ) *EmailVerificationTokenApp {
 	return &EmailVerificationTokenApp{
 		tokenGenerator: tokenGenerator,
