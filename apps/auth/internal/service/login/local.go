@@ -1,4 +1,4 @@
-package authsvc
+package loginsvc
 
 import (
 	"context"
@@ -7,20 +7,20 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"mandacode.com/accounts/auth/internal/domain/dto"
 	repodomain "mandacode.com/accounts/auth/internal/domain/repository"
-	authdomain "mandacode.com/accounts/auth/internal/domain/service/auth"
+	logindomain "mandacode.com/accounts/auth/internal/domain/service/login"
 )
 
-type LocalAuthService struct {
+type LocalLoginService struct {
 	localUser repodomain.LocalUserRepository
 }
 
-func NewLocalAuthService(localAuth repodomain.LocalUserRepository) authdomain.LocalAuthService {
-	return &LocalAuthService{
+func NewLocalLoginService(localAuth repodomain.LocalUserRepository) logindomain.LocalLoginService {
+	return &LocalLoginService{
 		localUser: localAuth,
 	}
 }
 
-func (s *LocalAuthService) LoginLocalUser(ctx context.Context, email string, password string) (*dto.LocalUser, error) {
+func (s *LocalLoginService) LoginLocalUser(ctx context.Context, email string, password string) (*dto.LocalUser, error) {
 	user, err := s.localUser.GetUserByEmail(email)
 	if err != nil {
 		return nil, err

@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"mandacode.com/accounts/auth/internal/app/user"
 	"mandacode.com/accounts/auth/internal/util"
-	oauthuserv1 "mandacode.com/accounts/auth/proto/user/oauth/v1"
+	oauthuserv1 "mandacode.com/accounts/proto/auth/user/oauth/v1"
 )
 
 type OAuthUserHandler struct {

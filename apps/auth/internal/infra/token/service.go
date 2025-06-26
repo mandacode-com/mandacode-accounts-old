@@ -4,7 +4,7 @@ import (
 	"context"
 
 	tokendomain "mandacode.com/accounts/auth/internal/domain/service/token"
-	tokenv1 "mandacode.com/accounts/auth/proto/third_party/token/token/v1"
+	tokenv1 "mandacode.com/accounts/proto/token/v1"
 )
 
 type TokenService struct {

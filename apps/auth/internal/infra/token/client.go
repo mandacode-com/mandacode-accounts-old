@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	tokenv1 "mandacode.com/accounts/auth/proto/third_party/token/token/v1"
+	tokenv1 "mandacode.com/accounts/proto/token/v1"
 )
 
 func NewGRPCClient(addr string) (tokenv1.TokenServiceClient, *grpc.ClientConn, error) {

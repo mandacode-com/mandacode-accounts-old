@@ -1,4 +1,4 @@
-package authsvc
+package loginsvc
 
 import (
 	"context"
@@ -7,20 +7,20 @@ import (
 	"mandacode.com/accounts/auth/ent/oauthuser"
 	"mandacode.com/accounts/auth/internal/domain/dto"
 	repodomain "mandacode.com/accounts/auth/internal/domain/repository"
-	authdomain "mandacode.com/accounts/auth/internal/domain/service/auth"
+	logindomain "mandacode.com/accounts/auth/internal/domain/service/login"
 )
 
-type OAuthAuthService struct {
+type OAuthLoginService struct {
 	oauthUser repodomain.OAuthUserRepository
 }
 
-func NewOAuthAuthService(oauthAuth repodomain.OAuthUserRepository) authdomain.OAuthAuthService {
-	return &OAuthAuthService{
+func NewOAuthLoginService(oauthAuth repodomain.OAuthUserRepository) logindomain.OAuthLoginService {
+	return &OAuthLoginService{
 		oauthUser: oauthAuth,
 	}
 }
 
-func (s *OAuthAuthService) LoginOAuthUser(ctx context.Context, provider oauthuser.Provider, providerID string) (*dto.OAuthUser, error) {
+func (s *OAuthLoginService) LoginOAuthUser(ctx context.Context, provider oauthuser.Provider, providerID string) (*dto.OAuthUser, error) {
 	user, err := s.oauthUser.GetUserByProvider(provider, providerID)
 	if err != nil {
 		return nil, err

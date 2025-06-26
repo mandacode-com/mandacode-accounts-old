@@ -1,25 +1,25 @@
-package auth
+package login
 
 import (
 	"context"
 
-	authdomain "mandacode.com/accounts/auth/internal/domain/service/auth"
+	logindomain "mandacode.com/accounts/auth/internal/domain/service/login"
 	tokendomain "mandacode.com/accounts/auth/internal/domain/service/token"
 )
 
-type LocalAuthApp struct {
+type LocalLoginApp struct {
 	tokenService     tokendomain.TokenService
-	localAuthService authdomain.LocalAuthService
+	localAuthService logindomain.LocalLoginService
 }
 
-func NewLocalAuthApp(tokenService tokendomain.TokenService, localAuthService authdomain.LocalAuthService) *LocalAuthApp {
-	return &LocalAuthApp{
+func NewLocalLoginApp(tokenService tokendomain.TokenService, localAuthService logindomain.LocalLoginService) *LocalLoginApp {
+	return &LocalLoginApp{
 		tokenService:     tokenService,
 		localAuthService: localAuthService,
 	}
 }
 
-func (a *LocalAuthApp) LoginLocalUser(ctx context.Context, email, password string) (*string, *string, *string, error) {
+func (a *LocalLoginApp) LoginLocalUser(ctx context.Context, email, password string) (*string, *string, *string, error) {
 	user, err := a.localAuthService.LoginLocalUser(ctx, email, password)
 	if err != nil {
 		return nil, nil, nil, err

@@ -1,4 +1,4 @@
-package authhandler
+package loginhandler
 
 import (
 	"context"
@@ -7,31 +7,31 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"mandacode.com/accounts/auth/internal/app/auth"
-	oauthauthv1 "mandacode.com/accounts/auth/proto/auth/oauth/v1"
+	"mandacode.com/accounts/auth/internal/app/login"
+	oauthloginv1 "mandacode.com/accounts/proto/auth/login/oauth/v1"
 )
 
-type OAuthAuthHandler struct {
-	oauthauthv1.UnimplementedOAuthAuthServiceServer
-	app    *auth.OAuthAuthApp
+type OAuthLoginHandler struct {
+	oauthloginv1.UnimplementedOAuthLoginServiceServer
+	app    *login.OAuthLoginApp
 	logger *zap.Logger
 }
 
-// NewOAuthAuthHandler returns a new OAuth authentication service handler
-func NewOAuthAuthHandler(app *auth.OAuthAuthApp, logger *zap.Logger) (oauthauthv1.OAuthAuthServiceServer, error) {
+// NewOAuthLoginHandler returns a new OAuth authentication service handler
+func NewOAuthLoginHandler(app *login.OAuthLoginApp, logger *zap.Logger) (oauthloginv1.OAuthLoginServiceServer, error) {
 	if app == nil {
 		return nil, errors.New("OAuthAuthApp cannot be nil")
 	}
 	if logger == nil {
 		return nil, errors.New("logger cannot be nil")
 	}
-	return &OAuthAuthHandler{
+	return &OAuthLoginHandler{
 		app:    app,
 		logger: logger,
 	}, nil
 }
 
-func (h *OAuthAuthHandler) Login(ctx context.Context, req *oauthauthv1.OAuthLoginRequest) (*oauthauthv1.OAuthLoginResponse, error) {
+func (h *OAuthLoginHandler) Login(ctx context.Context, req *oauthloginv1.LoginRequest) (*oauthloginv1.LoginResponse, error) {
 	// Validate the request parameters
 	if err := req.ValidateAll(); err != nil {
 		h.logger.Error("invalid request parameters", zap.Error(err))
@@ -49,7 +49,7 @@ func (h *OAuthAuthHandler) Login(ctx context.Context, req *oauthauthv1.OAuthLogi
 		return nil, status.Error(codes.Internal, "missing tokens or user ID after OAuth login")
 	}
 
-	return &oauthauthv1.OAuthLoginResponse{
+	return &oauthloginv1.LoginResponse{
 		UserId:       *userID,
 		AccessToken:  *accessToken,
 		RefreshToken: *refreshToken,

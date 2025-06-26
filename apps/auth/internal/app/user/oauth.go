@@ -10,7 +10,7 @@ import (
 	oauthdomain "mandacode.com/accounts/auth/internal/domain/service/oauth"
 	userdomain "mandacode.com/accounts/auth/internal/domain/service/user"
 	"mandacode.com/accounts/auth/internal/util"
-	providerv1 "mandacode.com/accounts/auth/proto/common/provider/v1"
+	providerv1 "mandacode.com/accounts/proto/common/provider/v1"
 )
 
 type OAuthUserApp struct {

@@ -1,4 +1,4 @@
-package authdomain
+package logindomain
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"mandacode.com/accounts/auth/internal/domain/dto"
 )
 
-type LocalAuthService interface {
+type LocalLoginService interface {
 	// LoginLocalUser logs in a user with email and password.
 	//
 	// Parameters:

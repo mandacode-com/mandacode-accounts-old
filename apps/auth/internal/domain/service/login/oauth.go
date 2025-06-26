@@ -1,4 +1,4 @@
-package authdomain
+package logindomain
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"mandacode.com/accounts/auth/internal/domain/dto"
 )
 
-type OAuthAuthService interface {
+type OAuthLoginService interface {
 	// LoginOAuthUser logs in a user using OAuth provider and code.
 	//
 	// Parameters:

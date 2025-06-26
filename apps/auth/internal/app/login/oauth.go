@@ -1,35 +1,35 @@
-package auth
+package login
 
 import (
 	"context"
 	"errors"
 
 	"mandacode.com/accounts/auth/ent/oauthuser"
-	authdomain "mandacode.com/accounts/auth/internal/domain/service/auth"
+	logindomain "mandacode.com/accounts/auth/internal/domain/service/login"
 	oauthdomain "mandacode.com/accounts/auth/internal/domain/service/oauth"
 	tokendomain "mandacode.com/accounts/auth/internal/domain/service/token"
 	"mandacode.com/accounts/auth/internal/util"
-	providerv1 "mandacode.com/accounts/auth/proto/common/provider/v1"
+	providerv1 "mandacode.com/accounts/proto/common/provider/v1"
 )
 
-type OAuthAuthApp struct {
+type OAuthLoginApp struct {
 	providers        *map[oauthuser.Provider]oauthdomain.OAuthService
 	tokenService     tokendomain.TokenService
-	oauthAuthService authdomain.OAuthAuthService
+	oauthAuthService logindomain.OAuthLoginService
 }
 
-func NewOAuthAuthApp(
+func NewOAuthLoginApp(
 	providers *map[oauthuser.Provider]oauthdomain.OAuthService,
 	tokenService tokendomain.TokenService,
-	oauthAuthService authdomain.OAuthAuthService) *OAuthAuthApp {
-	return &OAuthAuthApp{
+	oauthAuthService logindomain.OAuthLoginService) *OAuthLoginApp {
+	return &OAuthLoginApp{
 		providers:        providers,
 		tokenService:     tokenService,
 		oauthAuthService: oauthAuthService,
 	}
 }
 
-func (a *OAuthAuthApp) LoginOAuthUser(ctx context.Context, provider providerv1.OAuthProvider, oauthAccessToken string) (*string, *string, *string, error) {
+func (a *OAuthLoginApp) LoginOAuthUser(ctx context.Context, provider providerv1.OAuthProvider, oauthAccessToken string) (*string, *string, *string, error) {
 	providerEnum, err := util.FromProtoToProvider(provider)
 	if err != nil {
 		return nil, nil, nil, err

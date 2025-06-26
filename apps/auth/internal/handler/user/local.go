@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"mandacode.com/accounts/auth/internal/app/user"
-	localuserv1 "mandacode.com/accounts/auth/proto/user/local/v1"
+	localuserv1 "mandacode.com/accounts/proto/auth/user/local/v1"
 )
 
 type LocalUserHandler struct {
