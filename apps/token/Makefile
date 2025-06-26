@@ -1,40 +1,58 @@
 -include .make.env
 
-REGISTRY ?=
-APP_NAME ?=
-TAG ?=
+# ──────────────────────────────
+# 📦 Application Build Variables
+# ──────────────────────────────
+MODULE_NAME        ?= mandacode.com/accounts/token
+REGISTRY           ?=
+APP_NAME           ?=
+TAG                ?=
+APP_IMAGE          := $(REGISTRY)/$(APP_NAME)
 
-IMAGE_NAME := $(REGISTRY)/$(APP_NAME)
+# ──────────────────────────────
+# 📁 Directory Paths
+# ──────────────────────────────
+DOCKER_CONTEXT     := ./docker
 
-PROTO_SRC := proto
-DOCKER_CONTEXT := .
-
-.PHONY: all build-app push-app test generate-proto clean-proto check-tag
-
+# ──────────────────────────────
+# 🎯 Default Target
+# ──────────────────────────────
 all: build-app
 
+# ──────────────────────────────
+# 🚀 Run Application
+# ──────────────────────────────
+run:
+	go run ./cmd/server
+
+# ──────────────────────────────
+# 🐳 Build & Push App Image
+# ──────────────────────────────
+build-app: check-tag
+	docker build -t $(APP_IMAGE):$(TAG) -f $(DOCKER_CONTEXT)/app.Dockerfile .
+
+push-app: build-app
+	docker push $(APP_IMAGE):$(TAG)
+
+# ──────────────────────────────
+# 🧪 Unit Tests
+# ──────────────────────────────
+test-unit:
+	go test ./test/unit/...
+
+# ──────────────────────────────
+# 🛑 Validation Helpers
+# ──────────────────────────────
 check-tag:
 ifndef TAG
 	$(error TAG is required. Usage: make TAG=v1.2.3)
 endif
 
-build-app: check-tag
-	docker build -t $(IMAGE_NAME):$(TAG) $(DOCKER_CONTEXT)
-
-push-app: build-app
-	docker push $(IMAGE_NAME):$(TAG)
-
-generate-proto:
-	protoc \
-		-I $(PROTO_SRC) \
-		--go_out=paths=source_relative:$(PROTO_SRC) \
-		--go-grpc_out=paths=source_relative:$(PROTO_SRC) \
-		--validate_out=lang=go,paths=source_relative:$(PROTO_SRC) \
-		$$(find $(PROTO_SRC) -name "*.proto")
-
-clean-proto:
-	find $(PROTO_SRC) -name "*.pb.go" -delete
-	find $(PROTO_SRC) -name "*.pb.validate.go" -delete
-
-test:
-	go test ./test/...
+# ──────────────────────────────
+# 🧾 PHONY Targets
+# ──────────────────────────────
+.PHONY: \
+	all run \
+	build-app push-app \
+	test-unit \
+	check-tag

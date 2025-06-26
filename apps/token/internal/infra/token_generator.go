@@ -3,12 +3,15 @@ package infra
 import (
 	"crypto/rsa"
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	svcdomain "mandacode.com/accounts/token/internal/domain/service"
+	"mandacode.com/accounts/token/internal/util"
 )
 
 // jwtGenerator is the concrete implementation of TokenGenerator
-type tokenGenerator struct {
+type TokenGenerator struct {
 	publicKey  *rsa.PublicKey
 	privateKey *rsa.PrivateKey
 	expiresIn  time.Duration
@@ -21,19 +24,19 @@ type tokenGenerator struct {
 //   - expiresIn: the duration after which the token will expire
 //
 // Returns:
-//   - *tokenGenerator: a pointer to the newly created tokenGenerator instance
-//   - error: an error if any of the parameters are invalid or if key parsing fails
+//   - svcdomain.TokenGenerator: an instance of TokenGenerator
+//   - error: an error if the private key is nil or expiresIn is not greater than zero
 func NewTokenGenerator(
 	privateKey *rsa.PrivateKey,
-	expiresIn time.Duration) (*tokenGenerator, error) {
+	expiresIn time.Duration) (svcdomain.TokenGenerator, error) {
 	if privateKey == nil {
 		return nil, errors.New("private key cannot be nil")
 	}
 	if expiresIn <= 0 {
-		return nil, errors.New("expiration duration must be greater than zero")
+		return nil, errors.New("expiresIn must be greater than zero")
 	}
 
-	return &tokenGenerator{
+	return &TokenGenerator{
 		publicKey:  &privateKey.PublicKey,
 		privateKey: privateKey,
 		expiresIn:  expiresIn,
@@ -43,35 +46,37 @@ func NewTokenGenerator(
 // NewTokenGeneratorByStr creates a new tokenGenerator using RSA keys provided as PEM formatted strings
 //
 // Parameters:
-//   - privateKeyStr: the PEM formatted RSA private key string
+//   - privateKeyStr: the PEM formatted RSA private key string used for signing the token
 //   - expiresIn: the duration after which the token will expiresIn
 //
 // Returns:
-//   - *tokenGenerator: a pointer to the newly created tokenGenerator instance
-//   - error: an error if any of the parameters are invalid or if key parsing fails
+//   - svcdomain.TokenGenerator: an instance of TokenGenerator
+//   - error: an error if the private key string is invalid or expiresIn is not greater than zero
 func NewTokenGeneratorByStr(
 	privateKeyStr string,
-	expiresIn time.Duration) (*tokenGenerator, error) {
-	privateKey, err := LoadRSAPrivateKeyFromPEM(privateKeyStr)
+	expiresIn time.Duration) (svcdomain.TokenGenerator, error) {
+	privateKey, err := util.LoadRSAPrivateKeyFromPEM(privateKeyStr)
+
 	if err != nil {
 		return nil, err
 	}
-	return NewTokenGenerator(privateKey, expiresIn)
+	if privateKey == nil {
+		return nil, errors.New("private key cannot be nil")
+	}
+	if expiresIn <= 0 {
+		return nil, errors.New("expiresIn must be greater than zero")
+	}
+
+	return &TokenGenerator{
+		publicKey:  &privateKey.PublicKey,
+		privateKey: privateKey,
+		expiresIn:  expiresIn,
+	}, nil
 }
 
-// GenerateToken generates a signed JWT token with the provided claims
-//
-// Parameters:
-//   - claims: a map of additional claims to include in the token
-//
-// Returns:
-//   - token: the generated JWT token as a string
-//   - expiresAt: the Unix timestamp (in seconds) indicating the expiration time of the token
-//   - error: an error if token generation fails (e.g., if the private key is not initialized or signing fails
-func (j *tokenGenerator) GenerateToken(
+func (j *TokenGenerator) GenerateToken(
 	claims map[string]string,
 ) (string, int64, error) {
-
 	if j.privateKey == nil {
 		return "", 0, errors.New("private key is not initialized")
 	}
@@ -97,18 +102,9 @@ func (j *tokenGenerator) GenerateToken(
 	return signedToken, expiresAt.Unix(), nil
 }
 
-// VerifyToken verifies the provided JWT token and extracts the claims
-//
-// Parameters:
-//   - token: the JWT token to verify
-//
-// Returns:
-//   - claims: a map of claims extracted from the token if valid
-//   - error: an error if verification fails (e.g., if the public key is not initialized or parsing fails)
-func (j *tokenGenerator) VerifyToken(
+func (j *TokenGenerator) VerifyToken(
 	token string,
 ) (map[string]string, error) {
-
 	if j.publicKey == nil {
 		return nil, errors.New("public key is not initialized")
 	}

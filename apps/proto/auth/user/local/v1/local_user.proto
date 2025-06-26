@@ -1,0 +1,140 @@
+syntax = "proto3";
+
+package auth.user.local.v1;
+
+import "google/protobuf/timestamp.proto";
+import "third_party/validate/validate.proto";
+
+option go_package = "mandacode.com/accounts/proto/auth/user/local/v1;localuserv1";
+
+service LocalUserService {
+  // Gets a local user by user ID
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
+  // Enrolls a local user with email and password
+  rpc EnrollUser(EnrollUserRequest) returns (EnrollUserResponse);
+
+  // Deletes a local user by user ID
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+
+  // Updates a local user's email
+  rpc UpdateEmail(UpdateEmailRequest) returns (UpdateEmailResponse);
+
+  // Updates a local user's password
+  rpc UpdatePassword(UpdatePasswordRequest)
+      returns (UpdatePasswordResponse);
+
+  // Updates a local user's active status
+  rpc UpdateActiveStatus(UpdateActiveStatusRequest)
+      returns (UpdateActiveStatusResponse);
+
+  // Updates a local user's verified status
+  rpc UpdateVerifiedStatus(UpdateVerifiedStatusRequest)
+      returns (UpdateVerifiedStatusResponse);
+}
+
+//
+// Get local user messages
+//
+message GetUserRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+}
+message GetUserResponse {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  string email = 2 [ (validate.rules).string = {email : true} ];
+  bool is_active = 3;                       // Indicates if the user is active
+  bool is_verified = 4;                     // Indicates if the user is verified
+  google.protobuf.Timestamp created_at = 5; // User creation timestamp
+  google.protobuf.Timestamp updated_at = 6; // User last update timestamp
+}
+
+//
+// Enroll local user messages
+//
+message EnrollUserRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  string email = 2 [ (validate.rules).string = {email : true} ];
+  string password = 3 [
+    (validate.rules).string = {min_len : 8 max_len : 64}
+  ]; // Password must be between 8 and 64 characters
+  optional bool is_active = 4;
+  optional bool is_verified = 5;
+}
+message EnrollUserResponse {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  string email = 2 [ (validate.rules).string = {email : true} ];
+  bool is_active = 3;                       // Indicates if the user is active
+  bool is_verified = 4;                     // Indicates if the user is verified
+  google.protobuf.Timestamp created_at = 5; // User creation timestamp
+  google.protobuf.Timestamp updated_at = 6; // User last update timestamp
+}
+
+//
+// Delete local user messages
+//
+message DeleteUserRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+}
+message DeleteUserResponse {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  google.protobuf.Timestamp deleted_at = 2; // Timestamp of the deletion
+}
+
+//
+// Update local user email messages
+//
+message UpdateEmailRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  string email = 2 [ (validate.rules).string = {email : true} ];
+}
+message UpdateEmailResponse {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  string email = 2
+      [ (validate.rules).string = {email : true} ]; // Updated email
+  google.protobuf.Timestamp updated_at = 3; // Timestamp of the last update
+}
+
+//
+// Update local user password messages
+//
+message UpdatePasswordRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  string current_password = 2 [
+    (validate.rules).string = {min_len : 8 max_len : 64}
+  ]; // Current password must be between 8 and 64 characters
+  string new_password = 3 [
+    (validate.rules).string = {min_len : 8 max_len : 64}
+  ]; // New password must be between 8 and 64 characters
+}
+message UpdatePasswordResponse {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  google.protobuf.Timestamp updated_at = 2; // Timestamp of the last update
+}
+
+//
+// Update local user active status messages
+//
+message UpdateActiveStatusRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  bool is_active = 2; // New active status
+}
+message UpdateActiveStatusResponse {
+  string user_id = 1
+      [ (validate.rules).string = {uuid : true} ]; // Updated user ID
+  bool is_active = 2;                              // Updated active status
+  google.protobuf.Timestamp updated_at = 3; // Timestamp of the last update
+}
+
+//
+// Update local user verified status messages
+//
+message UpdateVerifiedStatusRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  bool is_verified = 2; // New verified status
+}
+message UpdateVerifiedStatusResponse {
+  string user_id = 1
+      [ (validate.rules).string = {uuid : true} ]; // Updated user ID
+  bool is_verified = 2;                            // Updated verified status
+  google.protobuf.Timestamp updated_at = 3; // Timestamp of the last update
+}

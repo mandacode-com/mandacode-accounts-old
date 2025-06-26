@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package auth.login.local.v1;
+
+import "third_party/validate/validate.proto";
+
+option go_package = "mandacode.com/accounts/proto/auth/login/local/v1;localloginv1";
+
+service LocalLoginService {
+  // Login a user with email and password
+  rpc Login(LoginRequest) returns (LoginResponse);
+}
+
+//
+// Login messages
+//
+message LoginRequest {
+  string email = 1 [ (validate.rules).string = {email : true} ];
+  string password = 2 [ (validate.rules).string = {min_len : 8 max_len : 64} ];
+}
+
+message LoginResponse {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  string access_token = 2 [ (validate.rules).string = {min_len : 1} ];
+  string refresh_token = 3 [ (validate.rules).string = {min_len : 1} ];
+}
