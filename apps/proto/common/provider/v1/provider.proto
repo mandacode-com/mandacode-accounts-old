@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package common.provider.v1;
+
+option go_package = "mandacode.com/accounts/proto/common/provider/v1;providerv1";
+
+enum OAuthProvider {
+  O_AUTH_PROVIDER_UNSPECIFIED = 0; // Unspecified provider
+  O_AUTH_PROVIDER_GOOGLE = 1;      // Google OAuth provider
+  O_AUTH_PROVIDER_FACEBOOK = 2;    // Facebook OAuth provider
+  O_AUTH_PROVIDER_GITHUB = 3;      // GitHub OAuth provider
+  O_AUTH_PROVIDER_KAKAO = 4;       // Kakao OAuth provider
+  O_AUTH_PROVIDER_NAVER = 5;       // Naver OAuth provider
+  O_AUTH_PROVIDER_APPLE = 6;       // Apple OAuth provider
+}

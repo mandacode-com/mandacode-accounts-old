@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package auth.user.oauth.v1;
+
+import "common/provider/v1/provider.proto";
+import "google/protobuf/timestamp.proto";
+import "third_party/validate/validate.proto";
+
+option go_package = "mandacode.com/accounts/proto/auth/user/oauth/v1;oauthuserv1";
+
+service OAuthUserService {
+  // Gets a user by user ID and OAuth provider
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
+  // Enrolls a user with OAuth provider
+  rpc EnrollUser(EnrollUserRequest) returns (EnrollUserResponse);
+
+  // Deletes a user by user ID
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+
+  // Syncs a user with OAuth provider
+  rpc SyncUser(SyncUserRequest) returns (SyncUserResponse);
+
+  // Updates a user's active status
+  rpc UpdateActiveStatus(UpdateActiveStatusRequest)
+      returns (UpdateActiveStatusResponse);
+
+  // Updates a user's verified status
+  rpc UpdateVerifiedStatus(UpdateVerifiedStatusRequest)
+      returns (UpdateVerifiedStatusResponse);
+}
+
+//
+// Get OAuth user messages
+//
+message GetUserRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
+}
+message GetUserResponse {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
+  string provider_id = 3                           /* OAuth provider ID */
+      [ (validate.rules).string = {min_len : 1} ]; // OAuth provider ID
+  string email = 4
+      [ (validate.rules).string = {email : true} ]; // User's email address
+  bool is_active = 5;                               // User's active status
+  bool is_verified = 6;                             // User's verified status
+  google.protobuf.Timestamp created_at = 7;         // User's creation timestamp
+  google.protobuf.Timestamp updated_at = 8; // User's last update timestamp
+}
+
+//
+// Enroll OAuth user messages
+//
+message EnrollUserRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  string access_token = 2
+      [ (validate.rules).string = {min_len : 1} ]; // OAuth access token
+  common.provider.v1.OAuthProvider provider = 3;   // OAuth provider enum
+  optional bool is_active = 4;
+  optional bool is_verified = 5;
+}
+message EnrollUserResponse {
+  string user_id = 1
+      [ (validate.rules).string = {uuid : true} ]; // Enrolled user ID
+  common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
+  string provider_id = 3                           /* OAuth provider ID */
+      [ (validate.rules).string = {min_len : 1} ]; // OAuth provider ID
+  string email = 4
+      [ (validate.rules).string = {email : true} ]; // User's email address
+  bool is_active = 5;                               // User's active status
+  bool is_verified = 6;                             // User's verified status
+  google.protobuf.Timestamp created_at = 7;         // User's creation timestamp
+  google.protobuf.Timestamp updated_at = 8; // User's last update timestamp
+}
+
+//
+// Delete OAuth user messages
+//
+message DeleteUserRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  optional common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
+}
+message DeleteUserResponse {
+  string user_id = 1
+      [ (validate.rules).string = {uuid : true} ]; // Deleted user ID
+  common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
+  google.protobuf.Timestamp deleted_at = 3;        // Timestamp of the deletion
+}
+
+//
+// Sync OAuth user messages
+//
+message SyncUserRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
+  string access_token = 3
+      [ (validate.rules).string = {min_len : 1} ]; // OAuth access token
+}
+message SyncUserResponse {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
+  string provider_id = 3;                        // OAuth provider ID after sync
+  string email = 4 [
+    (validate.rules).string = {email : true}
+  ];                    // User's email address after sync
+  bool is_verified = 5; // User's verified status after sync
+  google.protobuf.Timestamp updated_at =
+      6; // User's last update timestamp after sync
+}
+
+//
+// Update OAuth user active status messages
+//
+message UpdateActiveStatusRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
+  bool is_active = 3;                            // New active status
+}
+message UpdateActiveStatusResponse {
+  string user_id = 1
+      [ (validate.rules).string = {uuid : true} ]; // Updated user ID
+  common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
+  bool is_active = 3;                              // Updated active status
+  google.protobuf.Timestamp updated_at = 4; // Timestamp of the last update
+}
+
+//
+// Update OAuth user verified status messages
+//
+message UpdateVerifiedStatusRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
+  bool is_verified = 3;                          // New verified status
+}
+message UpdateVerifiedStatusResponse {
+  string user_id = 1
+      [ (validate.rules).string = {uuid : true} ]; // Updated user ID
+  common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
+  bool is_verified = 3;                            // Updated verified status
+  google.protobuf.Timestamp updated_at = 4; // Timestamp of the last update
+}
