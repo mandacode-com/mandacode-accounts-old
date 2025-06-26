@@ -1,4 +1,4 @@
-package authsvc_test
+package loginsvc_test
 
 import (
 	"context"
@@ -12,20 +12,20 @@ import (
 	"mandacode.com/accounts/auth/ent"
 	"mandacode.com/accounts/auth/ent/oauthuser"
 	"mandacode.com/accounts/auth/internal/domain/dto"
-	authdomain "mandacode.com/accounts/auth/internal/domain/service/auth"
-	authsvc "mandacode.com/accounts/auth/internal/service/auth"
+	logindomain "mandacode.com/accounts/auth/internal/domain/service/login"
+	loginsvc "mandacode.com/accounts/auth/internal/service/login"
 	mock_repodomain "mandacode.com/accounts/auth/test/mock/domain/repository"
 )
 
 type MockOAuthAuthService struct {
 	mockRepo *mock_repodomain.MockOAuthUserRepository
-	svc      authdomain.OAuthAuthService
+	svc      logindomain.OAuthLoginService
 }
 
 func (s *MockOAuthAuthService) Setup(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	s.mockRepo = mock_repodomain.NewMockOAuthUserRepository(ctrl)
-	s.svc = authsvc.NewOAuthAuthService(s.mockRepo)
+	s.svc = loginsvc.NewOAuthLoginService(s.mockRepo)
 }
 
 func (s *MockOAuthAuthService) Teardown() {

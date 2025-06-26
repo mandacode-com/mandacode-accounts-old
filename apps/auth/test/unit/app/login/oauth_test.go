@@ -1,4 +1,4 @@
-package auth_test
+package login_test
 
 import (
 	"context"
@@ -9,23 +9,23 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
 	"mandacode.com/accounts/auth/ent/oauthuser"
-	"mandacode.com/accounts/auth/internal/app/auth"
+	"mandacode.com/accounts/auth/internal/app/login"
 	"mandacode.com/accounts/auth/internal/domain/dto"
 	oauthdomain "mandacode.com/accounts/auth/internal/domain/service/oauth"
-	providerv1 "mandacode.com/accounts/auth/proto/common/provider/v1"
-	mock_authdomain "mandacode.com/accounts/auth/test/mock/domain/service/auth"
+	mock_logindomain "mandacode.com/accounts/auth/test/mock/domain/service/login"
 	mock_oauthdomain "mandacode.com/accounts/auth/test/mock/domain/service/oauth"
 	mock_tokendomain "mandacode.com/accounts/auth/test/mock/domain/service/token"
+	providerv1 "mandacode.com/accounts/proto/common/provider/v1"
 )
 
-type MockOAuthAuthApp struct {
-	mockProviders        map[oauthuser.Provider]oauthdomain.OAuthService
-	mockTokenService     *mock_tokendomain.MockTokenService
-	mockOAuthAuthService *mock_authdomain.MockOAuthAuthService
-	app                  *auth.OAuthAuthApp
+type MockOAuthLoginApp struct {
+	mockProviders         map[oauthuser.Provider]oauthdomain.OAuthService
+	mockTokenService      *mock_tokendomain.MockTokenService
+	mockOAuthLoginService *mock_logindomain.MockOAuthLoginService
+	app                   *login.OAuthLoginApp
 }
 
-func (m *MockOAuthAuthApp) Setup() {
+func (m *MockOAuthLoginApp) Setup() {
 	ctrl := gomock.NewController(nil)
 	m.mockProviders = map[oauthuser.Provider]oauthdomain.OAuthService{
 		oauthuser.ProviderGoogle: mock_oauthdomain.NewMockOAuthService(ctrl),
@@ -33,22 +33,22 @@ func (m *MockOAuthAuthApp) Setup() {
 		oauthuser.ProviderKakao:  mock_oauthdomain.NewMockOAuthService(ctrl),
 	}
 	m.mockTokenService = mock_tokendomain.NewMockTokenService(ctrl)
-	m.mockOAuthAuthService = mock_authdomain.NewMockOAuthAuthService(ctrl)
-	m.app = auth.NewOAuthAuthApp(&m.mockProviders, m.mockTokenService, m.mockOAuthAuthService)
+	m.mockOAuthLoginService = mock_logindomain.NewMockOAuthLoginService(ctrl)
+	m.app = login.NewOAuthLoginApp(&m.mockProviders, m.mockTokenService, m.mockOAuthLoginService)
 }
 
-func (m *MockOAuthAuthApp) Teardown() {
+func (m *MockOAuthLoginApp) Teardown() {
 	m.mockTokenService = nil
-	m.mockOAuthAuthService = nil
+	m.mockOAuthLoginService = nil
 	m.app = nil
 }
 
-func (m *MockOAuthAuthApp) GetApp() *auth.OAuthAuthApp {
+func (m *MockOAuthLoginApp) GetApp() *login.OAuthLoginApp {
 	return m.app
 }
 
 func TestOAuthAuthApp_LoginOAuthUser(t *testing.T) {
-	mock := &MockOAuthAuthApp{}
+	mock := &MockOAuthLoginApp{}
 	mock.Setup()
 	defer mock.Teardown()
 
@@ -79,7 +79,7 @@ func TestOAuthAuthApp_LoginOAuthUser(t *testing.T) {
 		}
 
 		mock.mockProviders[providerEnum].(*mock_oauthdomain.MockOAuthService).EXPECT().GetUserInfo(oauthAccessToken).Return(oauthUserInfo, nil)
-		mock.mockOAuthAuthService.EXPECT().LoginOAuthUser(ctx, providerEnum, providerID).Return(dtoUser, nil)
+		mock.mockOAuthLoginService.EXPECT().LoginOAuthUser(ctx, providerEnum, providerID).Return(dtoUser, nil)
 		mock.mockTokenService.EXPECT().GenerateAccessToken(ctx, id.String()).Return("access-token", time.Now().Unix(), nil)
 		mock.mockTokenService.EXPECT().GenerateRefreshToken(ctx, id.String()).Return("refresh-token", time.Now().Unix(), nil)
 

@@ -1,62 +1,54 @@
 -include .make.env
 
-# ----------------------------
-# Application image settings
-# ----------------------------
-REGISTRY ?=
-APP_NAME ?=
-TAG ?=
+# ──────────────────────────────
+# 📦 Application Build Variables
+# ──────────────────────────────
+MODULE_NAME        ?= mandacode.com/accounts/auth
+REGISTRY           ?=
+APP_NAME           ?=
+TAG                ?=
+APP_IMAGE          := $(REGISTRY)/$(APP_NAME)
 
-MIGRATE_NAME ?=
-MIGRATE_DEV_URL ?=
+# ──────────────────────────────
+# 🛠 Migration Image Variables
+# ──────────────────────────────
+MIGRATE_NAME       ?=
+MIGRATE_DEV_URL    ?=
+MIGRATE_REGISTRY   ?= $(REGISTRY)
+MIGRATE_TAG        ?= $(TAG)
+MIGRATE_IMAGE      := $(MIGRATE_REGISTRY)/$(MIGRATE_NAME)-migrate
 
-APP_IMAGE := $(REGISTRY)/$(APP_NAME)
+# ──────────────────────────────
+# 📁 Directory Paths
+# ──────────────────────────────
+PROTO_SRC          := proto
+DOCKER_CONTEXT     := ./docker
+MOCK_DST_DIR       := test/mock
+MOCK_TARGET_DIR    ?=
 
-# ----------------------------
-# Migration image settings
-# ----------------------------
-MIGRATE_REGISTRY ?= $(REGISTRY)
-MIGRATE_NAME ?= $(APP_NAME)-migrate
-MIGRATE_TAG ?= $(TAG)
-
-MIGRATE_IMAGE := $(MIGRATE_REGISTRY)/$(MIGRATE_NAME)
-
-# ----------------------------
-# Directory paths
-# ----------------------------
-PROTO_SRC := proto
-DOCKER_CONTEXT := ./docker
-
-MOCK_DST_DIR := test/mock
-MOCK_TARGET_DIR ?=
-
-# ----------------------------
-# Default target
-# ----------------------------
-.PHONY: all
+# ──────────────────────────────
+# 🎯 Default Target
+# ──────────────────────────────
 all: build-app
 
-# ----------------------------
-#  Run the application
-#  ----------------------------
-.PHONY: run
+# ──────────────────────────────
+# 🚀 Run Application
+# ──────────────────────────────
 run:
 	go run ./cmd/server
 
-# ----------------------------
-# Build & push app image
-# ----------------------------
-.PHONY: build-app push-app
+# ──────────────────────────────
+# 🐳 Build & Push App Image
+# ──────────────────────────────
 build-app: check-tag
 	docker build -t $(APP_IMAGE):$(TAG) -f $(DOCKER_CONTEXT)/app.Dockerfile .
 
 push-app: build-app
 	docker push $(APP_IMAGE):$(TAG)
 
-# ----------------------------
-# Build & push migration image
-# ----------------------------
-.PHONY: generate-migrate apply-migrate build-migrate push-migrate
+# ──────────────────────────────
+# 🔧 Migrations (Atlas)
+# ──────────────────────────────
 generate-migrate: check-migrate-name
 	atlas migrate diff $(MIGRATE_NAME) \
 		--dev-url $(MIGRATE_DEV_URL) \
@@ -74,10 +66,9 @@ build-migrate: check-tag
 push-migrate: build-migrate
 	docker push $(MIGRATE_IMAGE):$(MIGRATE_TAG)
 
-# ----------------------------
-# Generate and clean proto files
-# ----------------------------
-.PHONY: generate-proto clean-proto
+# ──────────────────────────────
+# 📜 Generate & Clean Protobuf
+# ──────────────────────────────
 generate-proto:
 	protoc \
 		-I $(PROTO_SRC) \
@@ -90,45 +81,53 @@ clean-proto:
 	find $(PROTO_SRC) -name "*.pb.go" -delete
 	find $(PROTO_SRC) -name "*.pb.validate.go" -delete
 
-# ----------------------------
-# Ent schema generation
-# ----------------------------
-.PHONY: generate-ent
+# ──────────────────────────────
+# 🧬 Ent Schema Generation
+# ──────────────────────────────
 generate-ent:
 	@echo "Generating Ent schema..."
 	go generate ./ent
 
-# ----------------------------
-# Run unit tests
-# ----------------------------
-.PHONY: test-unit
+# ──────────────────────────────
+# 🧪 Unit Tests
+# ──────────────────────────────
 test-unit:
 	go test ./test/unit/...
 
-# ----------------------------
-# Check that the image tag is set
-# ----------------------------
-.PHONY: check-tag
+# ──────────────────────────────
+# 🔍 Interface Mocks
+# ──────────────────────────────
+generate-mocks: check-mock-target-dir
+	./scripts/generate-mocks.sh \
+		-d $(MOCK_DST_DIR) \
+		-t $(MOCK_TARGET_DIR) \
+		-m $(MODULE_NAME)
+
+# ──────────────────────────────
+# 🛑 Validation Helpers
+# ──────────────────────────────
 check-tag:
 ifndef TAG
 	$(error TAG is required. Usage: make TAG=v1.2.3)
 endif
 
-.PHONY: check-migrate-name
 check-migrate-name:
 ifndef MIGRATE_NAME
 	$(error MIGRATE_NAME is required. Usage: make MIGRATE_NAME=migrate)
 endif
 
-# ----------------------------
-#  Generate mocks for interfaces
-#  ----------------------------
-.PHONY: generate-mocks check-mock-target-dir
-generate-mocks: check-mock-target-dir
-	./scripts/generate-mocks.sh $(MOCK_DST_DIR) $(MOCK_TARGET_DIR)
-
-
 check-mock-target-dir:
 ifndef MOCK_TARGET_DIR
 	$(error MOCK_TARGET_DIR is required. Usage: make MOCK_TARGET_DIR=path/to/target)
 endif
+
+# ──────────────────────────────
+# 🧾 PHONY Targets
+# ──────────────────────────────
+.PHONY: \
+	all run \
+	build-app push-app \
+	generate-migrate apply-migrate build-migrate push-migrate \
+	generate-proto clean-proto \
+	generate-ent test-unit \
+	generate-mocks check-tag check-migrate-name check-mock-target-dir

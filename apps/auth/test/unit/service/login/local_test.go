@@ -1,4 +1,4 @@
-package authsvc_test
+package loginsvc_test
 
 import (
 	"context"
@@ -12,20 +12,20 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"mandacode.com/accounts/auth/ent"
 	"mandacode.com/accounts/auth/internal/domain/dto"
-	authdomain "mandacode.com/accounts/auth/internal/domain/service/auth"
-	authsvc "mandacode.com/accounts/auth/internal/service/auth"
+	logindomain "mandacode.com/accounts/auth/internal/domain/service/login"
+	loginsvc "mandacode.com/accounts/auth/internal/service/login"
 	mock_repodomain "mandacode.com/accounts/auth/test/mock/domain/repository"
 )
 
 type MockLocalAuthService struct {
 	mockRepo *mock_repodomain.MockLocalUserRepository
-	svc      authdomain.LocalAuthService
+	svc      logindomain.LocalLoginService
 }
 
 func (s *MockLocalAuthService) Setup(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	s.mockRepo = mock_repodomain.NewMockLocalUserRepository(ctrl)
-	s.svc = authsvc.NewLocalAuthService(s.mockRepo)
+	s.svc = loginsvc.NewLocalLoginService(s.mockRepo)
 }
 
 func (s *MockLocalAuthService) Teardown() {

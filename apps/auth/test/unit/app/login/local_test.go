@@ -1,4 +1,4 @@
-package auth_test
+package login_test
 
 import (
 	"context"
@@ -8,33 +8,33 @@ import (
 
 	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
-	"mandacode.com/accounts/auth/internal/app/auth"
+	"mandacode.com/accounts/auth/internal/app/login"
 	"mandacode.com/accounts/auth/internal/domain/dto"
-	mock_authdomain "mandacode.com/accounts/auth/test/mock/domain/service/auth"
+	mock_logindomain "mandacode.com/accounts/auth/test/mock/domain/service/login"
 	mock_tokendomain "mandacode.com/accounts/auth/test/mock/domain/service/token"
 )
 
-type MockLocalAuthApp struct {
-	mockTokenService     *mock_tokendomain.MockTokenService
-	mockLocalAuthService *mock_authdomain.MockLocalAuthService
-	app                  *auth.LocalAuthApp
+type MockLocalLoginApp struct {
+	mockTokenService      *mock_tokendomain.MockTokenService
+	mockLocalLoginService *mock_logindomain.MockLocalLoginService
+	app                   *login.LocalLoginApp
 }
 
-func (m *MockLocalAuthApp) Setup(t *testing.T) {
+func (m *MockLocalLoginApp) Setup(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	m.mockTokenService = mock_tokendomain.NewMockTokenService(ctrl)
-	m.mockLocalAuthService = mock_authdomain.NewMockLocalAuthService(ctrl)
-	m.app = auth.NewLocalAuthApp(m.mockTokenService, m.mockLocalAuthService)
+	m.mockLocalLoginService = mock_logindomain.NewMockLocalLoginService(ctrl)
+	m.app = login.NewLocalLoginApp(m.mockTokenService, m.mockLocalLoginService)
 }
 
-func (m *MockLocalAuthApp) Teardown() {
+func (m *MockLocalLoginApp) Teardown() {
 	m.mockTokenService = nil
-	m.mockLocalAuthService = nil
+	m.mockLocalLoginService = nil
 	m.app = nil
 }
 
 func TestLocalAuthApp_LoginLocalUser(t *testing.T) {
-	mock := &MockLocalAuthApp{}
+	mock := &MockLocalLoginApp{}
 	mock.Setup(t)
 	defer mock.Teardown()
 
@@ -53,7 +53,7 @@ func TestLocalAuthApp_LoginLocalUser(t *testing.T) {
 			UpdatedAt:  time.Now(),
 		}
 
-		mock.mockLocalAuthService.EXPECT().LoginLocalUser(ctx, email, password).Return(dtoUser, nil)
+		mock.mockLocalLoginService.EXPECT().LoginLocalUser(ctx, email, password).Return(dtoUser, nil)
 		mock.mockTokenService.EXPECT().GenerateAccessToken(ctx, id.String()).Return("access-token", time.Now().Unix(), nil)
 		mock.mockTokenService.EXPECT().GenerateRefreshToken(ctx, id.String()).Return("refresh-token", time.Now().Unix(), nil)
 
@@ -71,7 +71,7 @@ func TestLocalAuthApp_LoginLocalUser(t *testing.T) {
 	})
 
 	t.Run("Login Failure", func(t *testing.T) {
-		mock.mockLocalAuthService.EXPECT().LoginLocalUser(ctx, email, password).Return(nil, errors.New("login failed"))
+		mock.mockLocalLoginService.EXPECT().LoginLocalUser(ctx, email, password).Return(nil, errors.New("login failed"))
 
 		userID, accessToken, refreshToken, err := mock.app.LoginLocalUser(ctx, email, password)
 		if err == nil {
