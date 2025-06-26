@@ -3,11 +3,11 @@ package main
 import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	tokenv1 "mandacode.com/accounts/proto/token/v1"
 	"mandacode.com/accounts/token/internal/app/token"
 	"mandacode.com/accounts/token/internal/config"
 	tokenhandler "mandacode.com/accounts/token/internal/handler/token"
 	"mandacode.com/accounts/token/internal/infra"
-	tokenv1 "mandacode.com/accounts/token/proto/token/v1"
 )
 
 func registerHandlers(
