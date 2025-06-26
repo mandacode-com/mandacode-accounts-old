@@ -6,7 +6,7 @@ import (
 	"mandacode.com/accounts/auth/internal/app/user"
 	"mandacode.com/accounts/auth/internal/config"
 	"mandacode.com/accounts/auth/internal/database"
-	authrepository "mandacode.com/accounts/auth/internal/database/repository"
+	"mandacode.com/accounts/auth/internal/database/repository"
 	oauthdomain "mandacode.com/accounts/auth/internal/domain/service/oauth"
 	loginhandler "mandacode.com/accounts/auth/internal/handler/login"
 	userhandler "mandacode.com/accounts/auth/internal/handler/user"
@@ -37,8 +37,8 @@ func registerHandlers(server *grpc.Server, cfg *config.Config, logger *zap.Logge
 	}
 
 	// Repositories
-	localRepo := authrepository.NewLocalUserRepository(entClient)
-	oauthRepo := authrepository.NewOAuthUserRepository(entClient)
+	localRepo := repository.NewLocalUserRepository(entClient)
+	oauthRepo := repository.NewOAuthUserRepository(entClient)
 
 	// Token service
 	tokenService := token.New(tokenClient)
