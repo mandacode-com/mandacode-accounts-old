@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -60,6 +61,34 @@ func (luc *LocalUserCreate) SetNillableIsVerified(b *bool) *LocalUserCreate {
 	return luc
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (luc *LocalUserCreate) SetCreatedAt(t time.Time) *LocalUserCreate {
+	luc.mutation.SetCreatedAt(t)
+	return luc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (luc *LocalUserCreate) SetNillableCreatedAt(t *time.Time) *LocalUserCreate {
+	if t != nil {
+		luc.SetCreatedAt(*t)
+	}
+	return luc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (luc *LocalUserCreate) SetUpdatedAt(t time.Time) *LocalUserCreate {
+	luc.mutation.SetUpdatedAt(t)
+	return luc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (luc *LocalUserCreate) SetNillableUpdatedAt(t *time.Time) *LocalUserCreate {
+	if t != nil {
+		luc.SetUpdatedAt(*t)
+	}
+	return luc
+}
+
 // SetID sets the "id" field.
 func (luc *LocalUserCreate) SetID(u uuid.UUID) *LocalUserCreate {
 	luc.mutation.SetID(u)
@@ -109,6 +138,14 @@ func (luc *LocalUserCreate) defaults() {
 		v := localuser.DefaultIsVerified
 		luc.mutation.SetIsVerified(v)
 	}
+	if _, ok := luc.mutation.CreatedAt(); !ok {
+		v := localuser.DefaultCreatedAt()
+		luc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := luc.mutation.UpdatedAt(); !ok {
+		v := localuser.DefaultUpdatedAt()
+		luc.mutation.SetUpdatedAt(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -134,6 +171,12 @@ func (luc *LocalUserCreate) check() error {
 	}
 	if _, ok := luc.mutation.IsVerified(); !ok {
 		return &ValidationError{Name: "is_verified", err: errors.New(`ent: missing required field "LocalUser.is_verified"`)}
+	}
+	if _, ok := luc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "LocalUser.created_at"`)}
+	}
+	if _, ok := luc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "LocalUser.updated_at"`)}
 	}
 	return nil
 }
@@ -186,6 +229,14 @@ func (luc *LocalUserCreate) createSpec() (*LocalUser, *sqlgraph.CreateSpec) {
 	if value, ok := luc.mutation.IsVerified(); ok {
 		_spec.SetField(localuser.FieldIsVerified, field.TypeBool, value)
 		_node.IsVerified = value
+	}
+	if value, ok := luc.mutation.CreatedAt(); ok {
+		_spec.SetField(localuser.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := luc.mutation.UpdatedAt(); ok {
+		_spec.SetField(localuser.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
 	return _node, _spec
 }

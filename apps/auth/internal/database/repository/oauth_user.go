@@ -34,7 +34,7 @@ func (r *OAuthAuthRepository) GetUserByProvider(provider oauthuser.Provider, pro
 	return user, nil
 }
 
-func (r *OAuthAuthRepository) CreateOAuthUser(userID uuid.UUID, provider oauthuser.Provider, providerID string, email string, isActive *bool, isVerified *bool) (*ent.OAuthUser, error) {
+func (r *OAuthAuthRepository) CreateUser(userID uuid.UUID, provider oauthuser.Provider, providerID string, email string, isActive *bool, isVerified *bool) (*ent.OAuthUser, error) {
 	create := r.db.OAuthUser.Create()
 
 	create.SetID(userID)
@@ -56,7 +56,7 @@ func (r *OAuthAuthRepository) CreateOAuthUser(userID uuid.UUID, provider oauthus
 	return user, nil
 }
 
-func (r *OAuthAuthRepository) DeleteOAuthUser(userID uuid.UUID) error {
+func (r *OAuthAuthRepository) DeleteUser(userID uuid.UUID) error {
 	_, err := r.db.OAuthUser.Delete().Where(
 		oauthuser.ID(userID),
 	).Exec(context.Background())
@@ -68,7 +68,7 @@ func (r *OAuthAuthRepository) DeleteOAuthUser(userID uuid.UUID) error {
 	return nil
 }
 
-func (r *OAuthAuthRepository) DeleteOAuthUserByProvider(userID uuid.UUID, provider oauthuser.Provider) error {
+func (r *OAuthAuthRepository) DeleteUserByProvider(userID uuid.UUID, provider oauthuser.Provider) error {
 	user, err := r.db.OAuthUser.Query().Where(
 		oauthuser.ID(userID),
 		oauthuser.ProviderEQ(provider),
@@ -91,29 +91,32 @@ func (r *OAuthAuthRepository) DeleteOAuthUserByProvider(userID uuid.UUID, provid
 	return nil
 }
 
-func (r *OAuthAuthRepository) UpdateOAuthUser(userID uuid.UUID, provider *oauthuser.Provider, providerID *string, email *string, isActive *bool, isVerified *bool) (*ent.OAuthUser, error) {
-	builder := r.db.OAuthUser.UpdateOneID(userID)
-
-	if provider != nil {
-		builder.SetProvider(*provider)
-	}
-	if providerID != nil {
-		builder.SetProviderID(*providerID)
-	}
-	if email != nil {
-		builder.SetEmail(*email)
-	}
-	if isActive != nil {
-		builder.SetIsActive(*isActive)
-	}
-	if isVerified != nil {
-		builder.SetIsVerified(*isVerified)
-	}
-
-	user, err := builder.Save(context.Background())
+func (r *OAuthAuthRepository) UpdateUser(userID uuid.UUID, provider oauthuser.Provider, providerID *string, email *string, isActive *bool, isVerified *bool) (*ent.OAuthUser, error) {
+	user, err := r.db.OAuthUser.Query().
+		Where(
+			oauthuser.ID(userID),
+			oauthuser.ProviderEQ(provider),
+		).
+		Only(context.Background())
 	if err != nil {
 		return nil, err
 	}
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
 
-	return user, nil
+	update := r.db.OAuthUser.UpdateOne(user)
+	if providerID != nil {
+		update.SetProviderID(*providerID)
+	}
+	if email != nil {
+		update.SetEmail(*email)
+	}
+	if isActive != nil {
+		update.SetIsActive(*isActive)
+	}
+	if isVerified != nil {
+		update.SetIsVerified(*isVerified)
+	}
+	return update.Save(context.Background())
 }

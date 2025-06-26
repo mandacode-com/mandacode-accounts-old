@@ -68,10 +68,11 @@ func (s *GoogleOAuthService) GetUserInfo(accessToken string) (*dto.OAuthUserInfo
 		return nil, fmt.Errorf("user info indicates email is not verified")
 	}
 
-	return &dto.OAuthUserInfo{
-		ProviderID:    rawUserInfo.Sub,
-		Email:         rawUserInfo.Email,
-		Name:          rawUserInfo.Name,
-		EmailVerified: rawUserInfo.EmailVerified,
-	}, nil
+	oauthUserInfo := dto.NewOAuthUserInfo(
+		rawUserInfo.Sub,
+		rawUserInfo.Email,
+		rawUserInfo.Name,
+		rawUserInfo.EmailVerified,
+	)
+	return oauthUserInfo, nil
 }

@@ -2,6 +2,7 @@ package usersvc
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"mandacode.com/accounts/auth/ent/oauthuser"
@@ -21,49 +22,95 @@ func NewOAuthUserService(oauthUser repodomain.OAuthUserRepository) userdomain.OA
 	}
 }
 
-func (s *OAuthUserService) CreateOAuthUser(
+func (s *OAuthUserService) CreateUser(
 	userID uuid.UUID, provider oauthuser.Provider, providerID string, email string, isActive *bool, isVerified *bool) (*dto.OAuthUser, error) {
-	user, error := s.oauthUser.CreateOAuthUser(userID, provider, providerID, email, isActive, isVerified)
+	user, error := s.oauthUser.CreateUser(userID, provider, providerID, email, isActive, isVerified)
 	if error != nil {
 		return nil, error
 	}
+	if user == nil {
+		return nil, errors.New("failed to create user")
+	}
 
-	return &dto.OAuthUser{
-		ID:         user.ID,
-		Provider:   user.Provider,
-		ProviderID: user.ProviderID,
-		Email:      user.Email,
-		IsActive:   user.IsActive,
-		IsVerified: user.IsVerified,
-	}, nil
+	oauthUser := dto.NewOAuthUserFromEntity(user)
+	return oauthUser, nil
 }
 
-func (s *OAuthUserService) DeleteOAuthUser(userID uuid.UUID) error {
-	return s.oauthUser.DeleteOAuthUser(userID)
-}
-
-func (s *OAuthUserService) DeleteOAuthUserByProvider(userID uuid.UUID, provider oauthuser.Provider) error {
-	return s.oauthUser.DeleteOAuthUserByProvider(userID, provider)
-}
-
-func (s *OAuthUserService) UpdateOAuthUser(
-	userID uuid.UUID, provider *oauthuser.Provider, providerID *string, email *string, isActive *bool, isVerified *bool) (*dto.OAuthUser, error) {
-	user, err := s.oauthUser.UpdateOAuthUser(userID, provider, providerID, email, isActive, isVerified)
+func (s *OAuthUserService) GetUserByProvider(userID uuid.UUID, provider oauthuser.Provider) (*dto.OAuthUser, error) {
+	user, err := s.oauthUser.GetUserByProvider(provider, userID.String())
 	if err != nil {
 		return nil, err
 	}
 	if user == nil {
 		return nil, errors.New("user not found")
 	}
-	if user.Provider.String() == "" || user.ProviderID == "" || user.Email == "" {
-		return nil, errors.New("user data cannot be empty")
+
+	oauthUser := dto.NewOAuthUserFromEntity(user)
+	return oauthUser, nil
+}
+
+func (s *OAuthUserService) DeleteUser(userID uuid.UUID) (*dto.OAuthDeletedUser, error) {
+	err := s.oauthUser.DeleteUser(userID)
+	if err != nil {
+		return nil, err
 	}
-	return &dto.OAuthUser{
-		ID:         userID,
-		Provider:   user.Provider,
-		ProviderID: user.ProviderID,
-		Email:      user.Email,
-		IsActive:   user.IsActive,
-		IsVerified: user.IsVerified,
+
+	return &dto.OAuthDeletedUser{
+		ID:        userID,
+		DeletedAt: time.Now(),
 	}, nil
+
+}
+
+func (s *OAuthUserService) DeleteUserByProvider(userID uuid.UUID, provider oauthuser.Provider) (*dto.OAuthDeletedUser, error) {
+	err := s.oauthUser.DeleteUserByProvider(userID, provider)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.OAuthDeletedUser{
+		ID:        userID,
+		Provider:  &provider,
+		DeletedAt: time.Now(),
+	}, nil
+}
+
+func (s *OAuthUserService) UpdateUserBase(
+	userID uuid.UUID, provider oauthuser.Provider, providerID string, email string, isVerified bool) (*dto.OAuthUser, error) {
+	user, err := s.oauthUser.UpdateUser(userID, provider, &providerID, &email, nil, &isVerified)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
+
+	oauthUser := dto.NewOAuthUserFromEntity(user)
+	return oauthUser, nil
+}
+
+func (s *OAuthUserService) UpdateActiveStatus(userID uuid.UUID, provider oauthuser.Provider, isActive bool) (*dto.OAuthUser, error) {
+	user, err := s.oauthUser.UpdateUser(userID, provider, nil, nil, &isActive, nil)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
+
+	oauthUser := dto.NewOAuthUserFromEntity(user)
+	return oauthUser, nil
+}
+
+func (s *OAuthUserService) UpdateVerifiedStatus(userID uuid.UUID, provider oauthuser.Provider, isVerified bool) (*dto.OAuthUser, error) {
+	user, err := s.oauthUser.UpdateUser(userID, provider, nil, nil, nil, &isVerified)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
+
+	oauthUser := dto.NewOAuthUserFromEntity(user)
+	return oauthUser, nil
 }

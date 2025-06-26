@@ -25,7 +25,7 @@ func NewOAuthUserApp(providers *map[oauthuser.Provider]oauthdomain.OAuthService,
 	}
 }
 
-func (a *OAuthUserApp) CreateOAuthUser(ctx context.Context, userID string, provider providerv1.OAuthProvider, accessToken string, isActive *bool, isVerified *bool) (*dto.OAuthUser, error) {
+func (a *OAuthUserApp) CreateUser(ctx context.Context, userID string, provider providerv1.OAuthProvider, accessToken string, isActive *bool, isVerified *bool) (*dto.OAuthUser, error) {
 	providerEnum, err := util.FromProtoToProvider(provider)
 	if err != nil {
 		return nil, err
@@ -55,58 +55,91 @@ func (a *OAuthUserApp) CreateOAuthUser(ctx context.Context, userID string, provi
 	if err != nil {
 		return nil, err
 	}
-	user, err := a.oauthUserService.CreateOAuthUser(userUUID, providerEnum, userInfo.ProviderID, userInfo.Email, isActive, isVerified)
+	return a.oauthUserService.CreateUser(userUUID, providerEnum, userInfo.ProviderID, userInfo.Email, isActive, isVerified)
+}
+
+func (a *OAuthUserApp) GetUser(ctx context.Context, userID string, provider providerv1.OAuthProvider) (*dto.OAuthUser, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+	providerEnum, err := util.FromProtoToProvider(provider)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return a.oauthUserService.GetUserByProvider(userUUID, providerEnum)
 }
 
-func (a *OAuthUserApp) DeleteOAuthUser(ctx context.Context, userID string, provider *providerv1.OAuthProvider) error {
+func (a *OAuthUserApp) DeleteUser(ctx context.Context, userID string, provider *providerv1.OAuthProvider) (*dto.OAuthDeletedUser, error) {
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// If provider is nil, delete the user regardless of the provider
 	if provider == nil {
-		return a.oauthUserService.DeleteOAuthUser(userUUID)
+		return a.oauthUserService.DeleteUser(userUUID)
 	}
 
 	providerEnum, err := util.FromProtoToProvider(*provider)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return a.oauthUserService.DeleteOAuthUserByProvider(userUUID, providerEnum)
+
+	return a.oauthUserService.DeleteUserByProvider(userUUID, providerEnum)
 }
 
-func (a *OAuthUserApp) UpdateOAuthUser(
-	ctx context.Context,
-	userID string,
-	provider *providerv1.OAuthProvider,
-	providerID *string,
-	email *string,
-	isActive *bool,
-	isVerified *bool,
-) (*dto.OAuthUser, error) {
-	var providerEnum *oauthuser.Provider
-	if provider != nil {
-		providerEnumValue, err := util.FromProtoToProvider(*provider)
-		if err != nil {
-			return nil, err
-		}
-		providerEnum = &providerEnumValue
+func (a *OAuthUserApp) SyncUser(ctx context.Context, userID string, provider providerv1.OAuthProvider, accessToken string) (*dto.OAuthUser, error) {
+	providerEnum, err := util.FromProtoToProvider(provider)
+	if err != nil {
+		return nil, err
+	}
+
+	oauthService, exists := (*a.providers)[providerEnum]
+	if !exists {
+		return nil, errors.New("unsupported provider")
+	}
+
+	userInfo, err := oauthService.GetUserInfo(accessToken)
+	if err != nil {
+		return nil, err
 	}
 
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, err
 	}
-	user, err := a.oauthUserService.UpdateOAuthUser(userUUID, providerEnum, providerID, email, isActive, isVerified)
+
+	return a.oauthUserService.UpdateUserBase(userUUID, providerEnum, userInfo.ProviderID, userInfo.Email, userInfo.EmailVerified)
+}
+
+// Update Active Status
+func (a *OAuthUserApp) UpdateActiveStatus(ctx context.Context, userID string, provider providerv1.OAuthProvider, isActive bool) (*dto.OAuthUser, error) {
+	providerEnum, err := util.FromProtoToProvider(provider)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.oauthUserService.UpdateActiveStatus(userUUID, providerEnum, isActive)
+}
+
+// Update Verified Status
+func (a *OAuthUserApp) UpdateVerifiedStatus(ctx context.Context, userID string, provider providerv1.OAuthProvider, isVerified bool) (*dto.OAuthUser, error) {
+	providerEnum, err := util.FromProtoToProvider(provider)
+	if err != nil {
+		return nil, err
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.oauthUserService.UpdateVerifiedStatus(userUUID, providerEnum, isVerified)
 }

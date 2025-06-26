@@ -12,11 +12,11 @@ type OAuthUserRepository interface {
 		provider oauthuser.Provider,
 		providerID string,
 	) (*ent.OAuthUser, error)
-	CreateOAuthUser(userID uuid.UUID, provider oauthuser.Provider, providerID string, email string, isActive *bool, isVerified *bool) (*ent.OAuthUser, error)
-	DeleteOAuthUser(userID uuid.UUID) error
-	DeleteOAuthUserByProvider(
+	CreateUser(userID uuid.UUID, provider oauthuser.Provider, providerID string, email string, isActive *bool, isVerified *bool) (*ent.OAuthUser, error)
+	DeleteUser(userID uuid.UUID) error
+	DeleteUserByProvider(
 		userID uuid.UUID,
 		provider oauthuser.Provider,
 	) error
-	UpdateOAuthUser(userID uuid.UUID, provider *oauthuser.Provider, providerID *string, email *string, isActive *bool, isVerified *bool) (*ent.OAuthUser, error)
+	UpdateUser(userID uuid.UUID, provider oauthuser.Provider, providerID *string, email *string, isActive *bool, isVerified *bool) (*ent.OAuthUser, error)
 }

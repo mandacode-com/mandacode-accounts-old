@@ -67,10 +67,11 @@ func (s *NaverOAuthService) GetUserInfo(accessToken string) (*dto.OAuthUserInfo,
 		return nil, fmt.Errorf("user info does not contain a valid name")
 	}
 
-	return &dto.OAuthUserInfo{
-		ProviderID:    rawUserInfo.ID,
-		Email:         rawUserInfo.Email,
-		Name:          rawUserInfo.Name,
-		EmailVerified: true, // Naver does not provide email verification status
-	}, nil
+	oauthUserInfo := dto.NewOAuthUserInfo(
+		rawUserInfo.ID,
+		rawUserInfo.Email,
+		rawUserInfo.Name,
+		true, // Naver does not provide email verification status, assuming true
+	)
+	return oauthUserInfo, nil
 }

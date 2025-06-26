@@ -18,36 +18,65 @@ func NewLocalUserApp(localUserService userdomain.LocalUserService) *LocalUserApp
 	}
 }
 
-func (a *LocalUserApp) CreateLocalUser(ctx context.Context, userID string, email string, password string, isActive *bool, isVerified *bool) (*dto.LocalUser, error) {
+// Create a new local user
+func (a *LocalUserApp) CreateUser(ctx context.Context, userID string, email string, password string, isActive *bool, isVerified *bool) (*dto.LocalUser, error) {
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, err
 	}
-	user, err := a.localUserService.CreateLocalUser(userUUID, email, password, isActive, isVerified)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return a.localUserService.CreateUser(userUUID, email, password, isActive, isVerified)
 }
 
-func (a *LocalUserApp) DeleteLocalUser(ctx context.Context, userID string) error {
+// Get user by id
+func (a *LocalUserApp) GetUser(ctx context.Context, userID string) (*dto.LocalUser, error) {
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return a.localUserService.DeleteLocalUser(userUUID)
+	return a.localUserService.GetUserByID(userUUID)
 }
 
-func (a *LocalUserApp) UpdateLocalUser(ctx context.Context, userID string, email *string, password *string, isActive *bool, isVerified *bool) (*dto.LocalUser, error) {
+// Delete user
+func (a *LocalUserApp) DeleteUser(ctx context.Context, userID string) (*dto.LocalDeletedUser, error) {
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, err
 	}
-	user, err := a.localUserService.UpdateLocalUser(userUUID, email, password, isActive, isVerified)
+	return a.localUserService.DeleteUser(userUUID)
+}
+
+// Update email
+func (a *LocalUserApp) UpdateEmail(ctx context.Context, userID string, email string) (*dto.LocalUser, error) {
+	userUUID, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, err
 	}
+	return a.localUserService.UpdateEmail(userUUID, email)
+}
 
-	return user, nil
+// Update password
+func (a *LocalUserApp) UpdatePassword(ctx context.Context, userID string, currentPassword string, newPassword string) (*dto.LocalUser, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+	return a.localUserService.UpdatePassword(userUUID, currentPassword, newPassword)
+}
+
+// Update active status
+func (a *LocalUserApp) UpdateActiveStatus(ctx context.Context, userID string, isActive bool) (*dto.LocalUser, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+	return a.localUserService.UpdateActiveStatus(userUUID, isActive)
+}
+
+// Update verified status
+func (a *LocalUserApp) UpdateVerifiedStatus(ctx context.Context, userID string, isVerified bool) (*dto.LocalUser, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+	return a.localUserService.UpdateVerifiedStatus(userUUID, isVerified)
 }

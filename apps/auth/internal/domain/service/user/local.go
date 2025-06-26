@@ -6,7 +6,7 @@ import (
 )
 
 type LocalUserService interface {
-	// CreateLocalUser creates a new local user with the given details.
+	// CreateUser creates a new local user with the given details.
 	//
 	// Parameters:
 	//   - userID: The unique identifier for the user.
@@ -18,28 +18,80 @@ type LocalUserService interface {
 	// Returns:
 	//   - user: The created local user if the creation is successful.
 	//	 - error: An error if the creation fails, otherwise nil.
-	CreateLocalUser(userID uuid.UUID, email, password string, isActive, isVerified *bool) (*dto.LocalUser, error)
+	CreateUser(userID uuid.UUID, email, password string, isActive, isVerified *bool) (*dto.LocalUser, error)
 
-	// DeleteLocalUser deletes a local user by their userID.
+	// GetUserByEmail retrieves a local user by their email address.
+	//
+	// Parameters:
+	//   - email: The email address of the user to be retrieved.
+	//
+	// Returns:
+	//   - user: The local user if found, otherwise nil.
+	//   - error: An error if the retrieval fails, otherwise nil.
+	GetUserByEmail(email string) (*dto.LocalUser, error)
+
+	// GetUserByID retrieves a local user by their userID.
+	//
+	// Parameters:
+	//   - userID: The unique identifier of the user to be retrieved.
+	//
+	// Returns:
+	//   - user: The local user if found, otherwise nil.
+	//   - error: An error if the retrieval fails, otherwise nil.
+	GetUserByID(userID uuid.UUID) (*dto.LocalUser, error)
+
+	// DeleteUser deletes a local user by their userID.
 	//
 	// Parameters:
 	//   - userID: The unique identifier of the user to be deleted.
 	//
 	// Returns:
+	//	 - user: The deleted local user if the deletion is successful.
 	//   - error: An error if the deletion fails, otherwise nil.
-	DeleteLocalUser(userID uuid.UUID) error
+	DeleteUser(userID uuid.UUID) (*dto.LocalDeletedUser, error)
 
-	// UpdateLocalUser updates the details of a local user.
+	// UpdateEmail updates the email address of a local user.
 	//
 	// Parameters:
-	//   - userID: The unique identifier of the user to be updated.
-	//   - email: A pointer to the new email address (nil if not updating).
-	//   - password: A pointer to the new password (nil if not updating).
-	//   - isActive: A pointer to a boolean indicating if the user is active (nil if not updating).
-	//   - isVerified: A pointer to a boolean indicating if the user's email is verified (nil if not updating).
+	//   - userID: The unique identifier of the user whose email is to be updated.
+	//   - newEmail: The new email address to set for the user.
 	//
 	// Returns:
 	//   - user: The updated local user if the update is successful.
 	//   - error: An error if the update fails, otherwise nil.
-	UpdateLocalUser(userID uuid.UUID, email, password *string, isActive, isVerified *bool) (*dto.LocalUser, error)
+	UpdateEmail(userID uuid.UUID, newEmail string) (*dto.LocalUser, error)
+
+	// UpdatePassword updates the password of a local user.
+	//
+	// Parameters:
+	//   - userID: The unique identifier of the user whose password is to be updated.
+	//   - currentPassword: The current password of the user (for verification).
+	//   - newPassword: The new password to set for the user.
+	//
+	// Returns:
+	//   - user: The updated local user if the update is successful.
+	//   - error: An error if the update fails, otherwise nil.
+	UpdatePassword(userID uuid.UUID, currentPassword, newPassword string) (*dto.LocalUser, error)
+
+	// UpdateActiveStatus updates the active status of a local user.
+	//
+	// Parameters:
+	//   - userID: The unique identifier of the user whose active status is to be updated.
+	//   - isActive: A boolean indicating if the user is active.
+
+	// Returns:
+	//   - user: The updated local user if the update is successful.
+	//   - error: An error if the update fails, otherwise nil.
+	UpdateActiveStatus(userID uuid.UUID, isActive bool) (*dto.LocalUser, error)
+
+	// UpdateVerifiedStatus updates the verified status of a local user.
+	//
+	// Parameters:
+	//   - userID: The unique identifier of the user whose verified status is to be updated.
+	//   - isVerified: A boolean indicating if the user's email is verified.
+	//
+	// Returns:
+	//   - user: The updated local user if the update is successful.
+	//   - error: An error if the update fails, otherwise nil.
+	UpdateVerifiedStatus(userID uuid.UUID, isVerified bool) (*dto.LocalUser, error)
 }

@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"time"
+
 	"mandacode.com/accounts/auth/ent/localuser"
 	"mandacode.com/accounts/auth/ent/oauthuser"
 	"mandacode.com/accounts/auth/ent/schema"
@@ -30,6 +32,16 @@ func init() {
 	localuserDescIsVerified := localuserFields[4].Descriptor()
 	// localuser.DefaultIsVerified holds the default value on creation for the is_verified field.
 	localuser.DefaultIsVerified = localuserDescIsVerified.Default.(bool)
+	// localuserDescCreatedAt is the schema descriptor for created_at field.
+	localuserDescCreatedAt := localuserFields[5].Descriptor()
+	// localuser.DefaultCreatedAt holds the default value on creation for the created_at field.
+	localuser.DefaultCreatedAt = localuserDescCreatedAt.Default.(func() time.Time)
+	// localuserDescUpdatedAt is the schema descriptor for updated_at field.
+	localuserDescUpdatedAt := localuserFields[6].Descriptor()
+	// localuser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	localuser.DefaultUpdatedAt = localuserDescUpdatedAt.Default.(func() time.Time)
+	// localuser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	localuser.UpdateDefaultUpdatedAt = localuserDescUpdatedAt.UpdateDefault.(func() time.Time)
 	oauthuserFields := schema.OAuthUser{}.Fields()
 	_ = oauthuserFields
 	// oauthuserDescEmail is the schema descriptor for email field.
@@ -48,4 +60,14 @@ func init() {
 	oauthuserDescIsVerified := oauthuserFields[5].Descriptor()
 	// oauthuser.DefaultIsVerified holds the default value on creation for the is_verified field.
 	oauthuser.DefaultIsVerified = oauthuserDescIsVerified.Default.(bool)
+	// oauthuserDescCreatedAt is the schema descriptor for created_at field.
+	oauthuserDescCreatedAt := oauthuserFields[6].Descriptor()
+	// oauthuser.DefaultCreatedAt holds the default value on creation for the created_at field.
+	oauthuser.DefaultCreatedAt = oauthuserDescCreatedAt.Default.(func() time.Time)
+	// oauthuserDescUpdatedAt is the schema descriptor for updated_at field.
+	oauthuserDescUpdatedAt := oauthuserFields[7].Descriptor()
+	// oauthuser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	oauthuser.DefaultUpdatedAt = oauthuserDescUpdatedAt.Default.(func() time.Time)
+	// oauthuser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	oauthuser.UpdateDefaultUpdatedAt = oauthuserDescUpdatedAt.UpdateDefault.(func() time.Time)
 }

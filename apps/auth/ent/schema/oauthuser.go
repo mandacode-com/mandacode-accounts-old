@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
@@ -24,12 +26,32 @@ func (OAuthUser) Annotations() []schema.Annotation {
 // Fields of the OAuthUser.
 func (OAuthUser) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.UUID{}).Immutable(),
-		field.String("email").NotEmpty(),
-		field.Enum("provider").Values("google", "github", "facebook", "kakao", "naver", "apple"),
-		field.String("provider_id").NotEmpty(),
-		field.Bool("is_active").Default(true),
-		field.Bool("is_verified").Default(true),
+		field.UUID("id", uuid.UUID{}).
+			Immutable().
+			Comment("The unique identifier for the OAuth user"),
+		field.String("email").
+			NotEmpty().
+			Comment("The email address associated with the OAuth user"),
+		field.Enum("provider").
+			Values("google", "github", "facebook", "kakao", "naver", "apple").
+			Comment("The OAuth provider used for authentication"),
+		field.String("provider_id").
+			NotEmpty().
+			Comment("The unique identifier provided by the OAuth provider for the user"),
+		field.Bool("is_active").
+			Default(true).
+			Comment("Indicates if the OAuth user is active and can log in"),
+		field.Bool("is_verified").
+			Default(true).
+			Comment("Indicates if the OAuth user has verified their email address"),
+		field.Time("created_at").
+			Default(time.Now).
+			Immutable().
+			Comment("The time when the OAuth user was created"),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now).
+			Comment("The time when the OAuth user was last updated"),
 	}
 }
 

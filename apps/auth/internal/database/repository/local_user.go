@@ -30,7 +30,20 @@ func (r *LocalUserRepository) GetUserByEmail(email string) (*ent.LocalUser, erro
 	return user, nil
 }
 
-func (r *LocalUserRepository) CreateLocalUser(userID uuid.UUID, email string, password string, isActive *bool, isVerified *bool) (*ent.LocalUser, error) {
+func (r *LocalUserRepository) GetUserByID(userID uuid.UUID) (*ent.LocalUser, error) {
+	user, err := r.db.LocalUser.
+		Query().
+		Where(localuser.IDEQ(userID)).
+		Only(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (r *LocalUserRepository) CreateUser(userID uuid.UUID, email string, password string, isActive *bool, isVerified *bool) (*ent.LocalUser, error) {
 	create := r.db.LocalUser.Create()
 
 	create.SetID(userID)
@@ -51,7 +64,7 @@ func (r *LocalUserRepository) CreateLocalUser(userID uuid.UUID, email string, pa
 	return user, nil
 }
 
-func (r *LocalUserRepository) DeleteLocalUser(userID uuid.UUID) error {
+func (r *LocalUserRepository) DeleteUser(userID uuid.UUID) error {
 	err := r.db.LocalUser.DeleteOneID(userID).Exec(context.Background())
 	if err != nil {
 		return err
@@ -60,7 +73,7 @@ func (r *LocalUserRepository) DeleteLocalUser(userID uuid.UUID) error {
 	return nil
 }
 
-func (r *LocalUserRepository) UpdateLocalUser(userID uuid.UUID, email *string, password *string, isActive *bool, isVerified *bool) (*ent.LocalUser, error) {
+func (r *LocalUserRepository) UpdateUser(userID uuid.UUID, email *string, password *string, isActive *bool, isVerified *bool) (*ent.LocalUser, error) {
 	update := r.db.LocalUser.UpdateOneID(userID)
 
 	if email != nil {

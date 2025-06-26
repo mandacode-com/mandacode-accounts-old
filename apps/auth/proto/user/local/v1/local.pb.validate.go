@@ -38,6 +38,370 @@ var (
 // define the regex for a UUID once up-front
 var _local_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
+// Validate checks the field values on GetUserRequest with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *GetUserRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetUserRequestMultiError,
+// or nil if none found.
+func (m *GetUserRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = GetUserRequestValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetUserRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserRequest) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetUserRequestMultiError is an error wrapping multiple validation errors
+// returned by GetUserRequest.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserRequestMultiError) AllErrors() []error { return m }
+
+// GetUserRequestValidationError is the validation error returned by
+// GetUserRequest.Validate if the designated constraints aren't met.
+type GetUserRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserRequestValidationError) ErrorName() string { return "GetUserRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetUserRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserRequestValidationError{}
+
+// Validate checks the field values on GetUserResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetUserResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUserResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUserResponseMultiError, or nil if none found.
+func (m *GetUserResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUserResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = GetUserResponseValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		err = GetUserResponseValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for IsActive
+
+	// no validation rules for IsVerified
+
+	if all {
+		switch v := interface{}(m.GetCreatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetUserResponseValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetUserResponseValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetUserResponseValidationError{
+				field:  "CreatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetUserResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetUserResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetUserResponseValidationError{
+				field:  "UpdatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetUserResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetUserResponse) _validateHostname(host string) error {
+	s := strings.ToLower(strings.TrimSuffix(host, "."))
+
+	if len(host) > 253 {
+		return errors.New("hostname cannot exceed 253 characters")
+	}
+
+	for _, part := range strings.Split(s, ".") {
+		if l := len(part); l == 0 || l > 63 {
+			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
+		}
+
+		if part[0] == '-' {
+			return errors.New("hostname parts cannot begin with hyphens")
+		}
+
+		if part[len(part)-1] == '-' {
+			return errors.New("hostname parts cannot end with hyphens")
+		}
+
+		for _, r := range part {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *GetUserResponse) _validateEmail(addr string) error {
+	a, err := mail.ParseAddress(addr)
+	if err != nil {
+		return err
+	}
+	addr = a.Address
+
+	if len(addr) > 254 {
+		return errors.New("email addresses cannot exceed 254 characters")
+	}
+
+	parts := strings.SplitN(addr, "@", 2)
+
+	if len(parts[0]) > 64 {
+		return errors.New("email address local phrase cannot exceed 64 characters")
+	}
+
+	return m._validateHostname(parts[1])
+}
+
+func (m *GetUserResponse) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// GetUserResponseMultiError is an error wrapping multiple validation errors
+// returned by GetUserResponse.ValidateAll() if the designated constraints
+// aren't met.
+type GetUserResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUserResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUserResponseMultiError) AllErrors() []error { return m }
+
+// GetUserResponseValidationError is the validation error returned by
+// GetUserResponse.Validate if the designated constraints aren't met.
+type GetUserResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUserResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUserResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUserResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUserResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUserResponseValidationError) ErrorName() string { return "GetUserResponseValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetUserResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUserResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUserResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUserResponseValidationError{}
+
 // Validate checks the field values on EnrollUserRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -263,10 +627,152 @@ func (m *EnrollUserResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Success
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = EnrollUserResponseValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		err = EnrollUserResponseValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for IsActive
+
+	// no validation rules for IsVerified
+
+	if all {
+		switch v := interface{}(m.GetCreatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, EnrollUserResponseValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, EnrollUserResponseValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return EnrollUserResponseValidationError{
+				field:  "CreatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, EnrollUserResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, EnrollUserResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return EnrollUserResponseValidationError{
+				field:  "UpdatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return EnrollUserResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *EnrollUserResponse) _validateHostname(host string) error {
+	s := strings.ToLower(strings.TrimSuffix(host, "."))
+
+	if len(host) > 253 {
+		return errors.New("hostname cannot exceed 253 characters")
+	}
+
+	for _, part := range strings.Split(s, ".") {
+		if l := len(part); l == 0 || l > 63 {
+			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
+		}
+
+		if part[0] == '-' {
+			return errors.New("hostname parts cannot begin with hyphens")
+		}
+
+		if part[len(part)-1] == '-' {
+			return errors.New("hostname parts cannot end with hyphens")
+		}
+
+		for _, r := range part {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *EnrollUserResponse) _validateEmail(addr string) error {
+	a, err := mail.ParseAddress(addr)
+	if err != nil {
+		return err
+	}
+	addr = a.Address
+
+	if len(addr) > 254 {
+		return errors.New("email addresses cannot exceed 254 characters")
+	}
+
+	parts := strings.SplitN(addr, "@", 2)
+
+	if len(parts[0]) > 64 {
+		return errors.New("email address local phrase cannot exceed 64 characters")
+	}
+
+	return m._validateHostname(parts[1])
+}
+
+func (m *EnrollUserResponse) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -489,10 +995,57 @@ func (m *DeleteUserResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Success
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = DeleteUserResponseValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetDeletedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, DeleteUserResponseValidationError{
+					field:  "DeletedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, DeleteUserResponseValidationError{
+					field:  "DeletedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDeletedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return DeleteUserResponseValidationError{
+				field:  "DeletedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return DeleteUserResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *DeleteUserResponse) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -571,22 +1124,22 @@ var _ interface {
 	ErrorName() string
 } = DeleteUserResponseValidationError{}
 
-// Validate checks the field values on UpdateUserRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *UpdateUserRequest) Validate() error {
+// Validate checks the field values on UpdateEmailRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateEmailRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UpdateUserRequest with the rules
+// ValidateAll checks the field values on UpdateEmailRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UpdateUserRequestMultiError, or nil if none found.
-func (m *UpdateUserRequest) ValidateAll() error {
+// UpdateEmailRequestMultiError, or nil if none found.
+func (m *UpdateEmailRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UpdateUserRequest) validate(all bool) error {
+func (m *UpdateEmailRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -594,7 +1147,7 @@ func (m *UpdateUserRequest) validate(all bool) error {
 	var errors []error
 
 	if err := m._validateUuid(m.GetUserId()); err != nil {
-		err = UpdateUserRequestValidationError{
+		err = UpdateEmailRequestValidationError{
 			field:  "UserId",
 			reason: "value must be a valid UUID",
 			cause:  err,
@@ -605,53 +1158,26 @@ func (m *UpdateUserRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.Email != nil {
-
-		if err := m._validateEmail(m.GetEmail()); err != nil {
-			err = UpdateUserRequestValidationError{
-				field:  "Email",
-				reason: "value must be a valid email address",
-				cause:  err,
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		err = UpdateEmailRequestValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
 		}
-
-	}
-
-	if m.Password != nil {
-
-		if l := utf8.RuneCountInString(m.GetPassword()); l < 8 || l > 64 {
-			err := UpdateUserRequestValidationError{
-				field:  "Password",
-				reason: "value length must be between 8 and 64 runes, inclusive",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+		if !all {
+			return err
 		}
-
-	}
-
-	if m.IsActive != nil {
-		// no validation rules for IsActive
-	}
-
-	if m.IsVerified != nil {
-		// no validation rules for IsVerified
+		errors = append(errors, err)
 	}
 
 	if len(errors) > 0 {
-		return UpdateUserRequestMultiError(errors)
+		return UpdateEmailRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-func (m *UpdateUserRequest) _validateHostname(host string) error {
+func (m *UpdateEmailRequest) _validateHostname(host string) error {
 	s := strings.ToLower(strings.TrimSuffix(host, "."))
 
 	if len(host) > 253 {
@@ -681,7 +1207,7 @@ func (m *UpdateUserRequest) _validateHostname(host string) error {
 	return nil
 }
 
-func (m *UpdateUserRequest) _validateEmail(addr string) error {
+func (m *UpdateEmailRequest) _validateEmail(addr string) error {
 	a, err := mail.ParseAddress(addr)
 	if err != nil {
 		return err
@@ -701,7 +1227,7 @@ func (m *UpdateUserRequest) _validateEmail(addr string) error {
 	return m._validateHostname(parts[1])
 }
 
-func (m *UpdateUserRequest) _validateUuid(uuid string) error {
+func (m *UpdateEmailRequest) _validateUuid(uuid string) error {
 	if matched := _local_uuidPattern.MatchString(uuid); !matched {
 		return errors.New("invalid uuid format")
 	}
@@ -709,13 +1235,13 @@ func (m *UpdateUserRequest) _validateUuid(uuid string) error {
 	return nil
 }
 
-// UpdateUserRequestMultiError is an error wrapping multiple validation errors
-// returned by UpdateUserRequest.ValidateAll() if the designated constraints
+// UpdateEmailRequestMultiError is an error wrapping multiple validation errors
+// returned by UpdateEmailRequest.ValidateAll() if the designated constraints
 // aren't met.
-type UpdateUserRequestMultiError []error
+type UpdateEmailRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UpdateUserRequestMultiError) Error() string {
+func (m UpdateEmailRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -724,11 +1250,11 @@ func (m UpdateUserRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UpdateUserRequestMultiError) AllErrors() []error { return m }
+func (m UpdateEmailRequestMultiError) AllErrors() []error { return m }
 
-// UpdateUserRequestValidationError is the validation error returned by
-// UpdateUserRequest.Validate if the designated constraints aren't met.
-type UpdateUserRequestValidationError struct {
+// UpdateEmailRequestValidationError is the validation error returned by
+// UpdateEmailRequest.Validate if the designated constraints aren't met.
+type UpdateEmailRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -736,24 +1262,24 @@ type UpdateUserRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateUserRequestValidationError) Field() string { return e.field }
+func (e UpdateEmailRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateUserRequestValidationError) Reason() string { return e.reason }
+func (e UpdateEmailRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateUserRequestValidationError) Cause() error { return e.cause }
+func (e UpdateEmailRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateUserRequestValidationError) Key() bool { return e.key }
+func (e UpdateEmailRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateUserRequestValidationError) ErrorName() string {
-	return "UpdateUserRequestValidationError"
+func (e UpdateEmailRequestValidationError) ErrorName() string {
+	return "UpdateEmailRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateUserRequestValidationError) Error() string {
+func (e UpdateEmailRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -765,14 +1291,14 @@ func (e UpdateUserRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateUserRequest.%s: %s%s",
+		"invalid %sUpdateEmailRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateUserRequestValidationError{}
+var _ error = UpdateEmailRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -780,46 +1306,155 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateUserRequestValidationError{}
+} = UpdateEmailRequestValidationError{}
 
-// Validate checks the field values on UpdateUserResponse with the rules
+// Validate checks the field values on UpdateEmailResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UpdateUserResponse) Validate() error {
+func (m *UpdateEmailResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UpdateUserResponse with the rules
+// ValidateAll checks the field values on UpdateEmailResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UpdateUserResponseMultiError, or nil if none found.
-func (m *UpdateUserResponse) ValidateAll() error {
+// UpdateEmailResponseMultiError, or nil if none found.
+func (m *UpdateEmailResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UpdateUserResponse) validate(all bool) error {
+func (m *UpdateEmailResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Success
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = UpdateEmailResponseValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		err = UpdateEmailResponseValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateEmailResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateEmailResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateEmailResponseValidationError{
+				field:  "UpdatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
-		return UpdateUserResponseMultiError(errors)
+		return UpdateEmailResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// UpdateUserResponseMultiError is an error wrapping multiple validation errors
-// returned by UpdateUserResponse.ValidateAll() if the designated constraints
-// aren't met.
-type UpdateUserResponseMultiError []error
+func (m *UpdateEmailResponse) _validateHostname(host string) error {
+	s := strings.ToLower(strings.TrimSuffix(host, "."))
+
+	if len(host) > 253 {
+		return errors.New("hostname cannot exceed 253 characters")
+	}
+
+	for _, part := range strings.Split(s, ".") {
+		if l := len(part); l == 0 || l > 63 {
+			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
+		}
+
+		if part[0] == '-' {
+			return errors.New("hostname parts cannot begin with hyphens")
+		}
+
+		if part[len(part)-1] == '-' {
+			return errors.New("hostname parts cannot end with hyphens")
+		}
+
+		for _, r := range part {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateEmailResponse) _validateEmail(addr string) error {
+	a, err := mail.ParseAddress(addr)
+	if err != nil {
+		return err
+	}
+	addr = a.Address
+
+	if len(addr) > 254 {
+		return errors.New("email addresses cannot exceed 254 characters")
+	}
+
+	parts := strings.SplitN(addr, "@", 2)
+
+	if len(parts[0]) > 64 {
+		return errors.New("email address local phrase cannot exceed 64 characters")
+	}
+
+	return m._validateHostname(parts[1])
+}
+
+func (m *UpdateEmailResponse) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// UpdateEmailResponseMultiError is an error wrapping multiple validation
+// errors returned by UpdateEmailResponse.ValidateAll() if the designated
+// constraints aren't met.
+type UpdateEmailResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UpdateUserResponseMultiError) Error() string {
+func (m UpdateEmailResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -828,11 +1463,11 @@ func (m UpdateUserResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UpdateUserResponseMultiError) AllErrors() []error { return m }
+func (m UpdateEmailResponseMultiError) AllErrors() []error { return m }
 
-// UpdateUserResponseValidationError is the validation error returned by
-// UpdateUserResponse.Validate if the designated constraints aren't met.
-type UpdateUserResponseValidationError struct {
+// UpdateEmailResponseValidationError is the validation error returned by
+// UpdateEmailResponse.Validate if the designated constraints aren't met.
+type UpdateEmailResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -840,24 +1475,24 @@ type UpdateUserResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateUserResponseValidationError) Field() string { return e.field }
+func (e UpdateEmailResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateUserResponseValidationError) Reason() string { return e.reason }
+func (e UpdateEmailResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateUserResponseValidationError) Cause() error { return e.cause }
+func (e UpdateEmailResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateUserResponseValidationError) Key() bool { return e.key }
+func (e UpdateEmailResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateUserResponseValidationError) ErrorName() string {
-	return "UpdateUserResponseValidationError"
+func (e UpdateEmailResponseValidationError) ErrorName() string {
+	return "UpdateEmailResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateUserResponseValidationError) Error() string {
+func (e UpdateEmailResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -869,14 +1504,14 @@ func (e UpdateUserResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateUserResponse.%s: %s%s",
+		"invalid %sUpdateEmailResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateUserResponseValidationError{}
+var _ error = UpdateEmailResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -884,4 +1519,855 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateUserResponseValidationError{}
+} = UpdateEmailResponseValidationError{}
+
+// Validate checks the field values on UpdatePasswordRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdatePasswordRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdatePasswordRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdatePasswordRequestMultiError, or nil if none found.
+func (m *UpdatePasswordRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdatePasswordRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = UpdatePasswordRequestValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetCurrentPassword()); l < 8 || l > 64 {
+		err := UpdatePasswordRequestValidationError{
+			field:  "CurrentPassword",
+			reason: "value length must be between 8 and 64 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if l := utf8.RuneCountInString(m.GetNewPassword()); l < 8 || l > 64 {
+		err := UpdatePasswordRequestValidationError{
+			field:  "NewPassword",
+			reason: "value length must be between 8 and 64 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return UpdatePasswordRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UpdatePasswordRequest) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// UpdatePasswordRequestMultiError is an error wrapping multiple validation
+// errors returned by UpdatePasswordRequest.ValidateAll() if the designated
+// constraints aren't met.
+type UpdatePasswordRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdatePasswordRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdatePasswordRequestMultiError) AllErrors() []error { return m }
+
+// UpdatePasswordRequestValidationError is the validation error returned by
+// UpdatePasswordRequest.Validate if the designated constraints aren't met.
+type UpdatePasswordRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdatePasswordRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdatePasswordRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdatePasswordRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdatePasswordRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdatePasswordRequestValidationError) ErrorName() string {
+	return "UpdatePasswordRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdatePasswordRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdatePasswordRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdatePasswordRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdatePasswordRequestValidationError{}
+
+// Validate checks the field values on UpdatePasswordResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdatePasswordResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdatePasswordResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdatePasswordResponseMultiError, or nil if none found.
+func (m *UpdatePasswordResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdatePasswordResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = UpdatePasswordResponseValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdatePasswordResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdatePasswordResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdatePasswordResponseValidationError{
+				field:  "UpdatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return UpdatePasswordResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UpdatePasswordResponse) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// UpdatePasswordResponseMultiError is an error wrapping multiple validation
+// errors returned by UpdatePasswordResponse.ValidateAll() if the designated
+// constraints aren't met.
+type UpdatePasswordResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdatePasswordResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdatePasswordResponseMultiError) AllErrors() []error { return m }
+
+// UpdatePasswordResponseValidationError is the validation error returned by
+// UpdatePasswordResponse.Validate if the designated constraints aren't met.
+type UpdatePasswordResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdatePasswordResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdatePasswordResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdatePasswordResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdatePasswordResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdatePasswordResponseValidationError) ErrorName() string {
+	return "UpdatePasswordResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdatePasswordResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdatePasswordResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdatePasswordResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdatePasswordResponseValidationError{}
+
+// Validate checks the field values on UpdateActiveStatusRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateActiveStatusRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateActiveStatusRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateActiveStatusRequestMultiError, or nil if none found.
+func (m *UpdateActiveStatusRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateActiveStatusRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = UpdateActiveStatusRequestValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for IsActive
+
+	if len(errors) > 0 {
+		return UpdateActiveStatusRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UpdateActiveStatusRequest) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// UpdateActiveStatusRequestMultiError is an error wrapping multiple validation
+// errors returned by UpdateActiveStatusRequest.ValidateAll() if the
+// designated constraints aren't met.
+type UpdateActiveStatusRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateActiveStatusRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateActiveStatusRequestMultiError) AllErrors() []error { return m }
+
+// UpdateActiveStatusRequestValidationError is the validation error returned by
+// UpdateActiveStatusRequest.Validate if the designated constraints aren't met.
+type UpdateActiveStatusRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateActiveStatusRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateActiveStatusRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateActiveStatusRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateActiveStatusRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateActiveStatusRequestValidationError) ErrorName() string {
+	return "UpdateActiveStatusRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateActiveStatusRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateActiveStatusRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateActiveStatusRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateActiveStatusRequestValidationError{}
+
+// Validate checks the field values on UpdateActiveStatusResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateActiveStatusResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateActiveStatusResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateActiveStatusResponseMultiError, or nil if none found.
+func (m *UpdateActiveStatusResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateActiveStatusResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = UpdateActiveStatusResponseValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for IsActive
+
+	if all {
+		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateActiveStatusResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateActiveStatusResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateActiveStatusResponseValidationError{
+				field:  "UpdatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return UpdateActiveStatusResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UpdateActiveStatusResponse) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// UpdateActiveStatusResponseMultiError is an error wrapping multiple
+// validation errors returned by UpdateActiveStatusResponse.ValidateAll() if
+// the designated constraints aren't met.
+type UpdateActiveStatusResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateActiveStatusResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateActiveStatusResponseMultiError) AllErrors() []error { return m }
+
+// UpdateActiveStatusResponseValidationError is the validation error returned
+// by UpdateActiveStatusResponse.Validate if the designated constraints aren't met.
+type UpdateActiveStatusResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateActiveStatusResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateActiveStatusResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateActiveStatusResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateActiveStatusResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateActiveStatusResponseValidationError) ErrorName() string {
+	return "UpdateActiveStatusResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateActiveStatusResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateActiveStatusResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateActiveStatusResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateActiveStatusResponseValidationError{}
+
+// Validate checks the field values on UpdateVerifiedStatusRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateVerifiedStatusRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateVerifiedStatusRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateVerifiedStatusRequestMultiError, or nil if none found.
+func (m *UpdateVerifiedStatusRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateVerifiedStatusRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = UpdateVerifiedStatusRequestValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for IsVerified
+
+	if len(errors) > 0 {
+		return UpdateVerifiedStatusRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UpdateVerifiedStatusRequest) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// UpdateVerifiedStatusRequestMultiError is an error wrapping multiple
+// validation errors returned by UpdateVerifiedStatusRequest.ValidateAll() if
+// the designated constraints aren't met.
+type UpdateVerifiedStatusRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateVerifiedStatusRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateVerifiedStatusRequestMultiError) AllErrors() []error { return m }
+
+// UpdateVerifiedStatusRequestValidationError is the validation error returned
+// by UpdateVerifiedStatusRequest.Validate if the designated constraints
+// aren't met.
+type UpdateVerifiedStatusRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateVerifiedStatusRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateVerifiedStatusRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateVerifiedStatusRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateVerifiedStatusRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateVerifiedStatusRequestValidationError) ErrorName() string {
+	return "UpdateVerifiedStatusRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateVerifiedStatusRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateVerifiedStatusRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateVerifiedStatusRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateVerifiedStatusRequestValidationError{}
+
+// Validate checks the field values on UpdateVerifiedStatusResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateVerifiedStatusResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateVerifiedStatusResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateVerifiedStatusResponseMultiError, or nil if none found.
+func (m *UpdateVerifiedStatusResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateVerifiedStatusResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = UpdateVerifiedStatusResponseValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for IsVerified
+
+	if all {
+		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateVerifiedStatusResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateVerifiedStatusResponseValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateVerifiedStatusResponseValidationError{
+				field:  "UpdatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return UpdateVerifiedStatusResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UpdateVerifiedStatusResponse) _validateUuid(uuid string) error {
+	if matched := _local_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// UpdateVerifiedStatusResponseMultiError is an error wrapping multiple
+// validation errors returned by UpdateVerifiedStatusResponse.ValidateAll() if
+// the designated constraints aren't met.
+type UpdateVerifiedStatusResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateVerifiedStatusResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateVerifiedStatusResponseMultiError) AllErrors() []error { return m }
+
+// UpdateVerifiedStatusResponseValidationError is the validation error returned
+// by UpdateVerifiedStatusResponse.Validate if the designated constraints
+// aren't met.
+type UpdateVerifiedStatusResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateVerifiedStatusResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateVerifiedStatusResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateVerifiedStatusResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateVerifiedStatusResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateVerifiedStatusResponseValidationError) ErrorName() string {
+	return "UpdateVerifiedStatusResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateVerifiedStatusResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateVerifiedStatusResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateVerifiedStatusResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateVerifiedStatusResponseValidationError{}

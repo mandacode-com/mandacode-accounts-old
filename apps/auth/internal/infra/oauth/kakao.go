@@ -36,7 +36,7 @@ func (s *KakaoOAuthService) GetUserInfo(accessToken string) (*dto.OAuthUserInfo,
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
-	 
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch user info: %w", err)
@@ -65,10 +65,11 @@ func (s *KakaoOAuthService) GetUserInfo(accessToken string) (*dto.OAuthUserInfo,
 		return nil, fmt.Errorf("user info does not contain a valid name")
 	}
 
-	return &dto.OAuthUserInfo{
-		ProviderID:    rawUserInfo.ID,
-		Email:         rawUserInfo.Email,
-		Name:          rawUserInfo.Name,
-		EmailVerified: rawUserInfo.EmailValid && rawUserInfo.EmailVerified,
-	}, nil
+	oauthUserInfo := dto.NewOAuthUserInfo(
+		rawUserInfo.ID,
+		rawUserInfo.Email,
+		rawUserInfo.Name,
+		rawUserInfo.EmailValid && rawUserInfo.EmailVerified,
+	)
+	return oauthUserInfo, nil
 }

@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -17,14 +18,18 @@ type LocalUser struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
-	// Email holds the value of the "email" field.
+	// The email address of the user, must be unique
 	Email string `json:"email,omitempty"`
-	// Password holds the value of the "password" field.
+	// The hashed password of the user
 	Password string `json:"password,omitempty"`
-	// IsActive holds the value of the "is_active" field.
+	// The user is active and can log in
 	IsActive bool `json:"is_active,omitempty"`
-	// IsVerified holds the value of the "is_verified" field.
-	IsVerified   bool `json:"is_verified,omitempty"`
+	// The user has verified their email address
+	IsVerified bool `json:"is_verified,omitempty"`
+	// The time when the profile was created
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// The time when the profile was last updated
+	UpdatedAt    time.Time `json:"updated_at,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -37,6 +42,8 @@ func (*LocalUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case localuser.FieldEmail, localuser.FieldPassword:
 			values[i] = new(sql.NullString)
+		case localuser.FieldCreatedAt, localuser.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		case localuser.FieldID:
 			values[i] = new(uuid.UUID)
 		default:
@@ -83,6 +90,18 @@ func (lu *LocalUser) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_verified", values[i])
 			} else if value.Valid {
 				lu.IsVerified = value.Bool
+			}
+		case localuser.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				lu.CreatedAt = value.Time
+			}
+		case localuser.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				lu.UpdatedAt = value.Time
 			}
 		default:
 			lu.selectValues.Set(columns[i], values[i])
@@ -131,6 +150,12 @@ func (lu *LocalUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_verified=")
 	builder.WriteString(fmt.Sprintf("%v", lu.IsVerified))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(lu.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(lu.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

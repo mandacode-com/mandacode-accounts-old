@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -16,17 +17,22 @@ import (
 type OAuthUser struct {
 	config `json:"-"`
 	// ID of the ent.
+	// The unique identifier for the OAuth user
 	ID uuid.UUID `json:"id,omitempty"`
-	// Email holds the value of the "email" field.
+	// The email address associated with the OAuth user
 	Email string `json:"email,omitempty"`
-	// Provider holds the value of the "provider" field.
+	// The OAuth provider used for authentication
 	Provider oauthuser.Provider `json:"provider,omitempty"`
-	// ProviderID holds the value of the "provider_id" field.
+	// The unique identifier provided by the OAuth provider for the user
 	ProviderID string `json:"provider_id,omitempty"`
-	// IsActive holds the value of the "is_active" field.
+	// Indicates if the OAuth user is active and can log in
 	IsActive bool `json:"is_active,omitempty"`
-	// IsVerified holds the value of the "is_verified" field.
-	IsVerified   bool `json:"is_verified,omitempty"`
+	// Indicates if the OAuth user has verified their email address
+	IsVerified bool `json:"is_verified,omitempty"`
+	// The time when the OAuth user was created
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// The time when the OAuth user was last updated
+	UpdatedAt    time.Time `json:"updated_at,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -39,6 +45,8 @@ func (*OAuthUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case oauthuser.FieldEmail, oauthuser.FieldProvider, oauthuser.FieldProviderID:
 			values[i] = new(sql.NullString)
+		case oauthuser.FieldCreatedAt, oauthuser.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		case oauthuser.FieldID:
 			values[i] = new(uuid.UUID)
 		default:
@@ -92,6 +100,18 @@ func (ou *OAuthUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				ou.IsVerified = value.Bool
 			}
+		case oauthuser.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				ou.CreatedAt = value.Time
+			}
+		case oauthuser.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				ou.UpdatedAt = value.Time
+			}
 		default:
 			ou.selectValues.Set(columns[i], values[i])
 		}
@@ -142,6 +162,12 @@ func (ou *OAuthUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_verified=")
 	builder.WriteString(fmt.Sprintf("%v", ou.IsVerified))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(ou.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(ou.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

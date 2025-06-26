@@ -44,3 +44,22 @@ func FromProtoToProvider(provider providerv1.OAuthProvider) (oauthuser.Provider,
 		return "", errors.New("unsupported provider: " + provider.String())
 	}
 }
+
+func FromProviderToProto(provider oauthuser.Provider) (providerv1.OAuthProvider, error) {
+	switch provider {
+	case oauthuser.ProviderGoogle:
+		return providerv1.OAuthProvider_O_AUTH_PROVIDER_GOOGLE, nil
+	case oauthuser.ProviderKakao:
+		return providerv1.OAuthProvider_O_AUTH_PROVIDER_KAKAO, nil
+	case oauthuser.ProviderNaver:
+		return providerv1.OAuthProvider_O_AUTH_PROVIDER_NAVER, nil
+	case oauthuser.ProviderFacebook:
+		return providerv1.OAuthProvider_O_AUTH_PROVIDER_FACEBOOK, nil
+	case oauthuser.ProviderGithub:
+		return providerv1.OAuthProvider_O_AUTH_PROVIDER_GITHUB, nil
+	case oauthuser.ProviderApple:
+		return providerv1.OAuthProvider_O_AUTH_PROVIDER_APPLE, nil
+	default:
+		return providerv1.OAuthProvider_O_AUTH_PROVIDER_UNSPECIFIED, errors.New("unsupported provider: " + provider.String())
+	}
+}

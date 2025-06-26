@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -66,6 +67,34 @@ func (ouc *OAuthUserCreate) SetNillableIsVerified(b *bool) *OAuthUserCreate {
 	return ouc
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (ouc *OAuthUserCreate) SetCreatedAt(t time.Time) *OAuthUserCreate {
+	ouc.mutation.SetCreatedAt(t)
+	return ouc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (ouc *OAuthUserCreate) SetNillableCreatedAt(t *time.Time) *OAuthUserCreate {
+	if t != nil {
+		ouc.SetCreatedAt(*t)
+	}
+	return ouc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ouc *OAuthUserCreate) SetUpdatedAt(t time.Time) *OAuthUserCreate {
+	ouc.mutation.SetUpdatedAt(t)
+	return ouc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (ouc *OAuthUserCreate) SetNillableUpdatedAt(t *time.Time) *OAuthUserCreate {
+	if t != nil {
+		ouc.SetUpdatedAt(*t)
+	}
+	return ouc
+}
+
 // SetID sets the "id" field.
 func (ouc *OAuthUserCreate) SetID(u uuid.UUID) *OAuthUserCreate {
 	ouc.mutation.SetID(u)
@@ -115,6 +144,14 @@ func (ouc *OAuthUserCreate) defaults() {
 		v := oauthuser.DefaultIsVerified
 		ouc.mutation.SetIsVerified(v)
 	}
+	if _, ok := ouc.mutation.CreatedAt(); !ok {
+		v := oauthuser.DefaultCreatedAt()
+		ouc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := ouc.mutation.UpdatedAt(); !ok {
+		v := oauthuser.DefaultUpdatedAt()
+		ouc.mutation.SetUpdatedAt(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -148,6 +185,12 @@ func (ouc *OAuthUserCreate) check() error {
 	}
 	if _, ok := ouc.mutation.IsVerified(); !ok {
 		return &ValidationError{Name: "is_verified", err: errors.New(`ent: missing required field "OAuthUser.is_verified"`)}
+	}
+	if _, ok := ouc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "OAuthUser.created_at"`)}
+	}
+	if _, ok := ouc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "OAuthUser.updated_at"`)}
 	}
 	return nil
 }
@@ -204,6 +247,14 @@ func (ouc *OAuthUserCreate) createSpec() (*OAuthUser, *sqlgraph.CreateSpec) {
 	if value, ok := ouc.mutation.IsVerified(); ok {
 		_spec.SetField(oauthuser.FieldIsVerified, field.TypeBool, value)
 		_node.IsVerified = value
+	}
+	if value, ok := ouc.mutation.CreatedAt(); ok {
+		_spec.SetField(oauthuser.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := ouc.mutation.UpdatedAt(); ok {
+		_spec.SetField(oauthuser.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
 	return _node, _spec
 }

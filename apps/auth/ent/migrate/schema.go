@@ -15,6 +15,8 @@ var (
 		{Name: "password", Type: field.TypeString},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "is_verified", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
 	}
 	// LocalUsersTable holds the schema information for the "local_users" table.
 	LocalUsersTable = &schema.Table{
@@ -30,6 +32,8 @@ var (
 		{Name: "provider_id", Type: field.TypeString},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "is_verified", Type: field.TypeBool, Default: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
 	}
 	// OauthUsersTable holds the schema information for the "oauth_users" table.
 	OauthUsersTable = &schema.Table{

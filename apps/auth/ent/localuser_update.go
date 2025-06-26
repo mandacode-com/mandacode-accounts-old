@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -84,6 +85,12 @@ func (luu *LocalUserUpdate) SetNillableIsVerified(b *bool) *LocalUserUpdate {
 	return luu
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (luu *LocalUserUpdate) SetUpdatedAt(t time.Time) *LocalUserUpdate {
+	luu.mutation.SetUpdatedAt(t)
+	return luu
+}
+
 // Mutation returns the LocalUserMutation object of the builder.
 func (luu *LocalUserUpdate) Mutation() *LocalUserMutation {
 	return luu.mutation
@@ -91,6 +98,7 @@ func (luu *LocalUserUpdate) Mutation() *LocalUserMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (luu *LocalUserUpdate) Save(ctx context.Context) (int, error) {
+	luu.defaults()
 	return withHooks(ctx, luu.sqlSave, luu.mutation, luu.hooks)
 }
 
@@ -113,6 +121,14 @@ func (luu *LocalUserUpdate) Exec(ctx context.Context) error {
 func (luu *LocalUserUpdate) ExecX(ctx context.Context) {
 	if err := luu.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (luu *LocalUserUpdate) defaults() {
+	if _, ok := luu.mutation.UpdatedAt(); !ok {
+		v := localuser.UpdateDefaultUpdatedAt()
+		luu.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -154,6 +170,9 @@ func (luu *LocalUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := luu.mutation.IsVerified(); ok {
 		_spec.SetField(localuser.FieldIsVerified, field.TypeBool, value)
+	}
+	if value, ok := luu.mutation.UpdatedAt(); ok {
+		_spec.SetField(localuser.FieldUpdatedAt, field.TypeTime, value)
 	}
 	_spec.Node.Schema = luu.schemaConfig.LocalUser
 	ctx = internal.NewSchemaConfigContext(ctx, luu.schemaConfig)
@@ -233,6 +252,12 @@ func (luuo *LocalUserUpdateOne) SetNillableIsVerified(b *bool) *LocalUserUpdateO
 	return luuo
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (luuo *LocalUserUpdateOne) SetUpdatedAt(t time.Time) *LocalUserUpdateOne {
+	luuo.mutation.SetUpdatedAt(t)
+	return luuo
+}
+
 // Mutation returns the LocalUserMutation object of the builder.
 func (luuo *LocalUserUpdateOne) Mutation() *LocalUserMutation {
 	return luuo.mutation
@@ -253,6 +278,7 @@ func (luuo *LocalUserUpdateOne) Select(field string, fields ...string) *LocalUse
 
 // Save executes the query and returns the updated LocalUser entity.
 func (luuo *LocalUserUpdateOne) Save(ctx context.Context) (*LocalUser, error) {
+	luuo.defaults()
 	return withHooks(ctx, luuo.sqlSave, luuo.mutation, luuo.hooks)
 }
 
@@ -275,6 +301,14 @@ func (luuo *LocalUserUpdateOne) Exec(ctx context.Context) error {
 func (luuo *LocalUserUpdateOne) ExecX(ctx context.Context) {
 	if err := luuo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (luuo *LocalUserUpdateOne) defaults() {
+	if _, ok := luuo.mutation.UpdatedAt(); !ok {
+		v := localuser.UpdateDefaultUpdatedAt()
+		luuo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -333,6 +367,9 @@ func (luuo *LocalUserUpdateOne) sqlSave(ctx context.Context) (_node *LocalUser, 
 	}
 	if value, ok := luuo.mutation.IsVerified(); ok {
 		_spec.SetField(localuser.FieldIsVerified, field.TypeBool, value)
+	}
+	if value, ok := luuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(localuser.FieldUpdatedAt, field.TypeTime, value)
 	}
 	_spec.Node.Schema = luuo.schemaConfig.LocalUser
 	ctx = internal.NewSchemaConfigContext(ctx, luuo.schemaConfig)

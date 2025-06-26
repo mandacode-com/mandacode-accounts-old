@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -98,6 +99,12 @@ func (ouu *OAuthUserUpdate) SetNillableIsVerified(b *bool) *OAuthUserUpdate {
 	return ouu
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (ouu *OAuthUserUpdate) SetUpdatedAt(t time.Time) *OAuthUserUpdate {
+	ouu.mutation.SetUpdatedAt(t)
+	return ouu
+}
+
 // Mutation returns the OAuthUserMutation object of the builder.
 func (ouu *OAuthUserUpdate) Mutation() *OAuthUserMutation {
 	return ouu.mutation
@@ -105,6 +112,7 @@ func (ouu *OAuthUserUpdate) Mutation() *OAuthUserMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (ouu *OAuthUserUpdate) Save(ctx context.Context) (int, error) {
+	ouu.defaults()
 	return withHooks(ctx, ouu.sqlSave, ouu.mutation, ouu.hooks)
 }
 
@@ -127,6 +135,14 @@ func (ouu *OAuthUserUpdate) Exec(ctx context.Context) error {
 func (ouu *OAuthUserUpdate) ExecX(ctx context.Context) {
 	if err := ouu.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (ouu *OAuthUserUpdate) defaults() {
+	if _, ok := ouu.mutation.UpdatedAt(); !ok {
+		v := oauthuser.UpdateDefaultUpdatedAt()
+		ouu.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -176,6 +192,9 @@ func (ouu *OAuthUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ouu.mutation.IsVerified(); ok {
 		_spec.SetField(oauthuser.FieldIsVerified, field.TypeBool, value)
+	}
+	if value, ok := ouu.mutation.UpdatedAt(); ok {
+		_spec.SetField(oauthuser.FieldUpdatedAt, field.TypeTime, value)
 	}
 	_spec.Node.Schema = ouu.schemaConfig.OAuthUser
 	ctx = internal.NewSchemaConfigContext(ctx, ouu.schemaConfig)
@@ -269,6 +288,12 @@ func (ouuo *OAuthUserUpdateOne) SetNillableIsVerified(b *bool) *OAuthUserUpdateO
 	return ouuo
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (ouuo *OAuthUserUpdateOne) SetUpdatedAt(t time.Time) *OAuthUserUpdateOne {
+	ouuo.mutation.SetUpdatedAt(t)
+	return ouuo
+}
+
 // Mutation returns the OAuthUserMutation object of the builder.
 func (ouuo *OAuthUserUpdateOne) Mutation() *OAuthUserMutation {
 	return ouuo.mutation
@@ -289,6 +314,7 @@ func (ouuo *OAuthUserUpdateOne) Select(field string, fields ...string) *OAuthUse
 
 // Save executes the query and returns the updated OAuthUser entity.
 func (ouuo *OAuthUserUpdateOne) Save(ctx context.Context) (*OAuthUser, error) {
+	ouuo.defaults()
 	return withHooks(ctx, ouuo.sqlSave, ouuo.mutation, ouuo.hooks)
 }
 
@@ -311,6 +337,14 @@ func (ouuo *OAuthUserUpdateOne) Exec(ctx context.Context) error {
 func (ouuo *OAuthUserUpdateOne) ExecX(ctx context.Context) {
 	if err := ouuo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (ouuo *OAuthUserUpdateOne) defaults() {
+	if _, ok := ouuo.mutation.UpdatedAt(); !ok {
+		v := oauthuser.UpdateDefaultUpdatedAt()
+		ouuo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -377,6 +411,9 @@ func (ouuo *OAuthUserUpdateOne) sqlSave(ctx context.Context) (_node *OAuthUser, 
 	}
 	if value, ok := ouuo.mutation.IsVerified(); ok {
 		_spec.SetField(oauthuser.FieldIsVerified, field.TypeBool, value)
+	}
+	if value, ok := ouuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(oauthuser.FieldUpdatedAt, field.TypeTime, value)
 	}
 	_spec.Node.Schema = ouuo.schemaConfig.OAuthUser
 	ctx = internal.NewSchemaConfigContext(ctx, ouuo.schemaConfig)
