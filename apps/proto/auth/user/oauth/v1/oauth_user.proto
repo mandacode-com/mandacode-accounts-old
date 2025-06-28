@@ -30,14 +30,7 @@ service OAuthUserService {
       returns (UpdateVerifiedStatusResponse);
 }
 
-//
-// Get OAuth user messages
-//
-message GetUserRequest {
-  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
-  common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
-}
-message GetUserResponse {
+message OAuthUser {
   string user_id = 1 [ (validate.rules).string = {uuid : true} ];
   common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
   string provider_id = 3                           /* OAuth provider ID */
@@ -48,6 +41,17 @@ message GetUserResponse {
   bool is_verified = 6;                             // User's verified status
   google.protobuf.Timestamp created_at = 7;         // User's creation timestamp
   google.protobuf.Timestamp updated_at = 8; // User's last update timestamp
+}
+
+//
+// Get OAuth user messages
+//
+message GetUserRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
+}
+message GetUserResponse {
+  OAuthUser user = 1; // User details
 }
 
 //
@@ -62,17 +66,7 @@ message EnrollUserRequest {
   optional bool is_verified = 5;
 }
 message EnrollUserResponse {
-  string user_id = 1
-      [ (validate.rules).string = {uuid : true} ]; // Enrolled user ID
-  common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
-  string provider_id = 3                           /* OAuth provider ID */
-      [ (validate.rules).string = {min_len : 1} ]; // OAuth provider ID
-  string email = 4
-      [ (validate.rules).string = {email : true} ]; // User's email address
-  bool is_active = 5;                               // User's active status
-  bool is_verified = 6;                             // User's verified status
-  google.protobuf.Timestamp created_at = 7;         // User's creation timestamp
-  google.protobuf.Timestamp updated_at = 8; // User's last update timestamp
+  OAuthUser user = 1; // Enrolled user details
 }
 
 //
@@ -99,15 +93,7 @@ message SyncUserRequest {
       [ (validate.rules).string = {min_len : 1} ]; // OAuth access token
 }
 message SyncUserResponse {
-  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
-  common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
-  string provider_id = 3;                        // OAuth provider ID after sync
-  string email = 4 [
-    (validate.rules).string = {email : true}
-  ];                    // User's email address after sync
-  bool is_verified = 5; // User's verified status after sync
-  google.protobuf.Timestamp updated_at =
-      6; // User's last update timestamp after sync
+  OAuthUser user = 1; // Synchronized user details
 }
 
 //
@@ -119,11 +105,7 @@ message UpdateActiveStatusRequest {
   bool is_active = 3;                            // New active status
 }
 message UpdateActiveStatusResponse {
-  string user_id = 1
-      [ (validate.rules).string = {uuid : true} ]; // Updated user ID
-  common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
-  bool is_active = 3;                              // Updated active status
-  google.protobuf.Timestamp updated_at = 4; // Timestamp of the last update
+  OAuthUser user = 1; // Updated user details
 }
 
 //
@@ -135,9 +117,5 @@ message UpdateVerifiedStatusRequest {
   bool is_verified = 3;                          // New verified status
 }
 message UpdateVerifiedStatusResponse {
-  string user_id = 1
-      [ (validate.rules).string = {uuid : true} ]; // Updated user ID
-  common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
-  bool is_verified = 3;                            // Updated verified status
-  google.protobuf.Timestamp updated_at = 4; // Timestamp of the last update
+  OAuthUser user = 1; // Updated user details
 }

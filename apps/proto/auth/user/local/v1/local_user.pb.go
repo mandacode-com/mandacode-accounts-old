@@ -23,6 +23,90 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type LocalUser struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	IsActive      bool                   `protobuf:"varint,3,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`       // Indicates if the user is active
+	IsVerified    bool                   `protobuf:"varint,4,opt,name=is_verified,json=isVerified,proto3" json:"is_verified,omitempty"` // Indicates if the user is verified
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`     // User creation timestamp
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`     // User last update timestamp
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LocalUser) Reset() {
+	*x = LocalUser{}
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LocalUser) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LocalUser) ProtoMessage() {}
+
+func (x *LocalUser) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LocalUser.ProtoReflect.Descriptor instead.
+func (*LocalUser) Descriptor() ([]byte, []int) {
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *LocalUser) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *LocalUser) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *LocalUser) GetIsActive() bool {
+	if x != nil {
+		return x.IsActive
+	}
+	return false
+}
+
+func (x *LocalUser) GetIsVerified() bool {
+	if x != nil {
+		return x.IsVerified
+	}
+	return false
+}
+
+func (x *LocalUser) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *LocalUser) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 // Get local user messages
 type GetUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -33,7 +117,7 @@ type GetUserRequest struct {
 
 func (x *GetUserRequest) Reset() {
 	*x = GetUserRequest{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[0]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +129,7 @@ func (x *GetUserRequest) String() string {
 func (*GetUserRequest) ProtoMessage() {}
 
 func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[0]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +142,7 @@ func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
 func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{0}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetUserRequest) GetUserId() string {
@@ -70,19 +154,14 @@ func (x *GetUserRequest) GetUserId() string {
 
 type GetUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	IsActive      bool                   `protobuf:"varint,3,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`       // Indicates if the user is active
-	IsVerified    bool                   `protobuf:"varint,4,opt,name=is_verified,json=isVerified,proto3" json:"is_verified,omitempty"` // Indicates if the user is verified
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`     // User creation timestamp
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`     // User last update timestamp
+	User          *LocalUser             `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"` // User
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetUserResponse) Reset() {
 	*x = GetUserResponse{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[1]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -94,7 +173,7 @@ func (x *GetUserResponse) String() string {
 func (*GetUserResponse) ProtoMessage() {}
 
 func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[1]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -107,47 +186,12 @@ func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserResponse.ProtoReflect.Descriptor instead.
 func (*GetUserResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{1}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetUserResponse) GetUserId() string {
+func (x *GetUserResponse) GetUser() *LocalUser {
 	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *GetUserResponse) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
-}
-
-func (x *GetUserResponse) GetIsActive() bool {
-	if x != nil {
-		return x.IsActive
-	}
-	return false
-}
-
-func (x *GetUserResponse) GetIsVerified() bool {
-	if x != nil {
-		return x.IsVerified
-	}
-	return false
-}
-
-func (x *GetUserResponse) GetCreatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return nil
-}
-
-func (x *GetUserResponse) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
+		return x.User
 	}
 	return nil
 }
@@ -166,7 +210,7 @@ type EnrollUserRequest struct {
 
 func (x *EnrollUserRequest) Reset() {
 	*x = EnrollUserRequest{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[2]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -178,7 +222,7 @@ func (x *EnrollUserRequest) String() string {
 func (*EnrollUserRequest) ProtoMessage() {}
 
 func (x *EnrollUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[2]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -191,7 +235,7 @@ func (x *EnrollUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnrollUserRequest.ProtoReflect.Descriptor instead.
 func (*EnrollUserRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{2}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *EnrollUserRequest) GetUserId() string {
@@ -231,19 +275,14 @@ func (x *EnrollUserRequest) GetIsVerified() bool {
 
 type EnrollUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	IsActive      bool                   `protobuf:"varint,3,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`       // Indicates if the user is active
-	IsVerified    bool                   `protobuf:"varint,4,opt,name=is_verified,json=isVerified,proto3" json:"is_verified,omitempty"` // Indicates if the user is verified
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`     // User creation timestamp
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`     // User last update timestamp
+	User          *LocalUser             `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"` // User
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EnrollUserResponse) Reset() {
 	*x = EnrollUserResponse{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[3]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -255,7 +294,7 @@ func (x *EnrollUserResponse) String() string {
 func (*EnrollUserResponse) ProtoMessage() {}
 
 func (x *EnrollUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[3]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -268,47 +307,12 @@ func (x *EnrollUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnrollUserResponse.ProtoReflect.Descriptor instead.
 func (*EnrollUserResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{3}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *EnrollUserResponse) GetUserId() string {
+func (x *EnrollUserResponse) GetUser() *LocalUser {
 	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *EnrollUserResponse) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
-}
-
-func (x *EnrollUserResponse) GetIsActive() bool {
-	if x != nil {
-		return x.IsActive
-	}
-	return false
-}
-
-func (x *EnrollUserResponse) GetIsVerified() bool {
-	if x != nil {
-		return x.IsVerified
-	}
-	return false
-}
-
-func (x *EnrollUserResponse) GetCreatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return nil
-}
-
-func (x *EnrollUserResponse) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
+		return x.User
 	}
 	return nil
 }
@@ -323,7 +327,7 @@ type DeleteUserRequest struct {
 
 func (x *DeleteUserRequest) Reset() {
 	*x = DeleteUserRequest{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[4]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -335,7 +339,7 @@ func (x *DeleteUserRequest) String() string {
 func (*DeleteUserRequest) ProtoMessage() {}
 
 func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[4]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -348,7 +352,7 @@ func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUserRequest.ProtoReflect.Descriptor instead.
 func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{4}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeleteUserRequest) GetUserId() string {
@@ -368,7 +372,7 @@ type DeleteUserResponse struct {
 
 func (x *DeleteUserResponse) Reset() {
 	*x = DeleteUserResponse{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[5]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -380,7 +384,7 @@ func (x *DeleteUserResponse) String() string {
 func (*DeleteUserResponse) ProtoMessage() {}
 
 func (x *DeleteUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[5]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -393,7 +397,7 @@ func (x *DeleteUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUserResponse.ProtoReflect.Descriptor instead.
 func (*DeleteUserResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{5}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteUserResponse) GetUserId() string {
@@ -421,7 +425,7 @@ type UpdateEmailRequest struct {
 
 func (x *UpdateEmailRequest) Reset() {
 	*x = UpdateEmailRequest{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[6]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -433,7 +437,7 @@ func (x *UpdateEmailRequest) String() string {
 func (*UpdateEmailRequest) ProtoMessage() {}
 
 func (x *UpdateEmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[6]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +450,7 @@ func (x *UpdateEmailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEmailRequest.ProtoReflect.Descriptor instead.
 func (*UpdateEmailRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{6}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpdateEmailRequest) GetUserId() string {
@@ -465,16 +469,14 @@ func (x *UpdateEmailRequest) GetEmail() string {
 
 type UpdateEmailResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`                          // Updated email
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // Timestamp of the last update
+	User          *LocalUser             `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"` // Updated user
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateEmailResponse) Reset() {
 	*x = UpdateEmailResponse{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[7]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -486,7 +488,7 @@ func (x *UpdateEmailResponse) String() string {
 func (*UpdateEmailResponse) ProtoMessage() {}
 
 func (x *UpdateEmailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[7]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -499,26 +501,12 @@ func (x *UpdateEmailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEmailResponse.ProtoReflect.Descriptor instead.
 func (*UpdateEmailResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{7}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *UpdateEmailResponse) GetUserId() string {
+func (x *UpdateEmailResponse) GetUser() *LocalUser {
 	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *UpdateEmailResponse) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
-}
-
-func (x *UpdateEmailResponse) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
+		return x.User
 	}
 	return nil
 }
@@ -535,7 +523,7 @@ type UpdatePasswordRequest struct {
 
 func (x *UpdatePasswordRequest) Reset() {
 	*x = UpdatePasswordRequest{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[8]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -547,7 +535,7 @@ func (x *UpdatePasswordRequest) String() string {
 func (*UpdatePasswordRequest) ProtoMessage() {}
 
 func (x *UpdatePasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[8]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -560,7 +548,7 @@ func (x *UpdatePasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdatePasswordRequest.ProtoReflect.Descriptor instead.
 func (*UpdatePasswordRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{8}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdatePasswordRequest) GetUserId() string {
@@ -586,15 +574,14 @@ func (x *UpdatePasswordRequest) GetNewPassword() string {
 
 type UpdatePasswordResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // Timestamp of the last update
+	User          *LocalUser             `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"` // Updated user
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdatePasswordResponse) Reset() {
 	*x = UpdatePasswordResponse{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[9]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -606,7 +593,7 @@ func (x *UpdatePasswordResponse) String() string {
 func (*UpdatePasswordResponse) ProtoMessage() {}
 
 func (x *UpdatePasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[9]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -619,19 +606,12 @@ func (x *UpdatePasswordResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdatePasswordResponse.ProtoReflect.Descriptor instead.
 func (*UpdatePasswordResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{9}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *UpdatePasswordResponse) GetUserId() string {
+func (x *UpdatePasswordResponse) GetUser() *LocalUser {
 	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *UpdatePasswordResponse) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
+		return x.User
 	}
 	return nil
 }
@@ -647,7 +627,7 @@ type UpdateActiveStatusRequest struct {
 
 func (x *UpdateActiveStatusRequest) Reset() {
 	*x = UpdateActiveStatusRequest{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[10]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -659,7 +639,7 @@ func (x *UpdateActiveStatusRequest) String() string {
 func (*UpdateActiveStatusRequest) ProtoMessage() {}
 
 func (x *UpdateActiveStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[10]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -672,7 +652,7 @@ func (x *UpdateActiveStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateActiveStatusRequest.ProtoReflect.Descriptor instead.
 func (*UpdateActiveStatusRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{10}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpdateActiveStatusRequest) GetUserId() string {
@@ -691,16 +671,14 @@ func (x *UpdateActiveStatusRequest) GetIsActive() bool {
 
 type UpdateActiveStatusResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`          // Updated user ID
-	IsActive      bool                   `protobuf:"varint,2,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`   // Updated active status
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // Timestamp of the last update
+	User          *LocalUser             `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"` // Updated user
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateActiveStatusResponse) Reset() {
 	*x = UpdateActiveStatusResponse{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[11]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -712,7 +690,7 @@ func (x *UpdateActiveStatusResponse) String() string {
 func (*UpdateActiveStatusResponse) ProtoMessage() {}
 
 func (x *UpdateActiveStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[11]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -725,26 +703,12 @@ func (x *UpdateActiveStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateActiveStatusResponse.ProtoReflect.Descriptor instead.
 func (*UpdateActiveStatusResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{11}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *UpdateActiveStatusResponse) GetUserId() string {
+func (x *UpdateActiveStatusResponse) GetUser() *LocalUser {
 	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *UpdateActiveStatusResponse) GetIsActive() bool {
-	if x != nil {
-		return x.IsActive
-	}
-	return false
-}
-
-func (x *UpdateActiveStatusResponse) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
+		return x.User
 	}
 	return nil
 }
@@ -760,7 +724,7 @@ type UpdateVerifiedStatusRequest struct {
 
 func (x *UpdateVerifiedStatusRequest) Reset() {
 	*x = UpdateVerifiedStatusRequest{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[12]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -772,7 +736,7 @@ func (x *UpdateVerifiedStatusRequest) String() string {
 func (*UpdateVerifiedStatusRequest) ProtoMessage() {}
 
 func (x *UpdateVerifiedStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[12]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -785,7 +749,7 @@ func (x *UpdateVerifiedStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateVerifiedStatusRequest.ProtoReflect.Descriptor instead.
 func (*UpdateVerifiedStatusRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{12}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateVerifiedStatusRequest) GetUserId() string {
@@ -804,16 +768,14 @@ func (x *UpdateVerifiedStatusRequest) GetIsVerified() bool {
 
 type UpdateVerifiedStatusResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`              // Updated user ID
-	IsVerified    bool                   `protobuf:"varint,2,opt,name=is_verified,json=isVerified,proto3" json:"is_verified,omitempty"` // Updated verified status
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`     // Timestamp of the last update
+	User          *LocalUser             `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"` // Updated user
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateVerifiedStatusResponse) Reset() {
 	*x = UpdateVerifiedStatusResponse{}
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[13]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -825,7 +787,7 @@ func (x *UpdateVerifiedStatusResponse) String() string {
 func (*UpdateVerifiedStatusResponse) ProtoMessage() {}
 
 func (x *UpdateVerifiedStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[13]
+	mi := &file_auth_user_local_v1_local_user_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -838,26 +800,12 @@ func (x *UpdateVerifiedStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateVerifiedStatusResponse.ProtoReflect.Descriptor instead.
 func (*UpdateVerifiedStatusResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{13}
+	return file_auth_user_local_v1_local_user_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *UpdateVerifiedStatusResponse) GetUserId() string {
+func (x *UpdateVerifiedStatusResponse) GetUser() *LocalUser {
 	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *UpdateVerifiedStatusResponse) GetIsVerified() bool {
-	if x != nil {
-		return x.IsVerified
-	}
-	return false
-}
-
-func (x *UpdateVerifiedStatusResponse) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
+		return x.User
 	}
 	return nil
 }
@@ -866,10 +814,8 @@ var File_auth_user_local_v1_local_user_proto protoreflect.FileDescriptor
 
 const file_auth_user_local_v1_local_user_proto_rawDesc = "" +
 	"\n" +
-	"#auth/user/local/v1/local_user.proto\x12\x12auth.user.local.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#third_party/validate/validate.proto\"3\n" +
-	"\x0eGetUserRequest\x12!\n" +
-	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\"\x87\x02\n" +
-	"\x0fGetUserResponse\x12!\n" +
+	"#auth/user/local/v1/local_user.proto\x12\x12auth.user.local.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#third_party/validate/validate.proto\"\x81\x02\n" +
+	"\tLocalUser\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\x1d\n" +
 	"\x05email\x18\x02 \x01(\tB\a\xfaB\x04r\x02`\x01R\x05email\x12\x1b\n" +
 	"\tis_active\x18\x03 \x01(\bR\bisActive\x12\x1f\n" +
@@ -878,7 +824,11 @@ const file_auth_user_local_v1_local_user_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xe2\x01\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"3\n" +
+	"\x0eGetUserRequest\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\"D\n" +
+	"\x0fGetUserResponse\x121\n" +
+	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.local.v1.LocalUserR\x04user\"\xe2\x01\n" +
 	"\x11EnrollUserRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\x1d\n" +
 	"\x05email\x18\x02 \x01(\tB\a\xfaB\x04r\x02`\x01R\x05email\x12%\n" +
@@ -888,17 +838,9 @@ const file_auth_user_local_v1_local_user_proto_rawDesc = "" +
 	"isVerified\x88\x01\x01B\f\n" +
 	"\n" +
 	"_is_activeB\x0e\n" +
-	"\f_is_verified\"\x8a\x02\n" +
-	"\x12EnrollUserResponse\x12!\n" +
-	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\x1d\n" +
-	"\x05email\x18\x02 \x01(\tB\a\xfaB\x04r\x02`\x01R\x05email\x12\x1b\n" +
-	"\tis_active\x18\x03 \x01(\bR\bisActive\x12\x1f\n" +
-	"\vis_verified\x18\x04 \x01(\bR\n" +
-	"isVerified\x129\n" +
-	"\n" +
-	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
-	"\n" +
-	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"6\n" +
+	"\f_is_verified\"G\n" +
+	"\x12EnrollUserResponse\x121\n" +
+	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.local.v1.LocalUserR\x04user\"6\n" +
 	"\x11DeleteUserRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\"r\n" +
 	"\x12DeleteUserResponse\x12!\n" +
@@ -907,38 +849,26 @@ const file_auth_user_local_v1_local_user_proto_rawDesc = "" +
 	"deleted_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tdeletedAt\"V\n" +
 	"\x12UpdateEmailRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\x1d\n" +
-	"\x05email\x18\x02 \x01(\tB\a\xfaB\x04r\x02`\x01R\x05email\"\x92\x01\n" +
-	"\x13UpdateEmailResponse\x12!\n" +
-	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\x1d\n" +
-	"\x05email\x18\x02 \x01(\tB\a\xfaB\x04r\x02`\x01R\x05email\x129\n" +
-	"\n" +
-	"updated_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x9e\x01\n" +
+	"\x05email\x18\x02 \x01(\tB\a\xfaB\x04r\x02`\x01R\x05email\"H\n" +
+	"\x13UpdateEmailResponse\x121\n" +
+	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.local.v1.LocalUserR\x04user\"\x9e\x01\n" +
 	"\x15UpdatePasswordRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x124\n" +
 	"\x10current_password\x18\x02 \x01(\tB\t\xfaB\x06r\x04\x10\b\x18@R\x0fcurrentPassword\x12,\n" +
-	"\fnew_password\x18\x03 \x01(\tB\t\xfaB\x06r\x04\x10\b\x18@R\vnewPassword\"v\n" +
-	"\x16UpdatePasswordResponse\x12!\n" +
-	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x129\n" +
-	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"[\n" +
+	"\fnew_password\x18\x03 \x01(\tB\t\xfaB\x06r\x04\x10\b\x18@R\vnewPassword\"K\n" +
+	"\x16UpdatePasswordResponse\x121\n" +
+	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.local.v1.LocalUserR\x04user\"[\n" +
 	"\x19UpdateActiveStatusRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\x1b\n" +
-	"\tis_active\x18\x02 \x01(\bR\bisActive\"\x97\x01\n" +
-	"\x1aUpdateActiveStatusResponse\x12!\n" +
-	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\x1b\n" +
-	"\tis_active\x18\x02 \x01(\bR\bisActive\x129\n" +
-	"\n" +
-	"updated_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"a\n" +
+	"\tis_active\x18\x02 \x01(\bR\bisActive\"O\n" +
+	"\x1aUpdateActiveStatusResponse\x121\n" +
+	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.local.v1.LocalUserR\x04user\"a\n" +
 	"\x1bUpdateVerifiedStatusRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\x1f\n" +
 	"\vis_verified\x18\x02 \x01(\bR\n" +
-	"isVerified\"\x9d\x01\n" +
-	"\x1cUpdateVerifiedStatusResponse\x12!\n" +
-	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\x1f\n" +
-	"\vis_verified\x18\x02 \x01(\bR\n" +
-	"isVerified\x129\n" +
-	"\n" +
-	"updated_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xd9\x05\n" +
+	"isVerified\"Q\n" +
+	"\x1cUpdateVerifiedStatusResponse\x121\n" +
+	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.local.v1.LocalUserR\x04user2\xd9\x05\n" +
 	"\x10LocalUserService\x12R\n" +
 	"\aGetUser\x12\".auth.user.local.v1.GetUserRequest\x1a#.auth.user.local.v1.GetUserResponse\x12[\n" +
 	"\n" +
@@ -962,48 +892,49 @@ func file_auth_user_local_v1_local_user_proto_rawDescGZIP() []byte {
 	return file_auth_user_local_v1_local_user_proto_rawDescData
 }
 
-var file_auth_user_local_v1_local_user_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_auth_user_local_v1_local_user_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_auth_user_local_v1_local_user_proto_goTypes = []any{
-	(*GetUserRequest)(nil),               // 0: auth.user.local.v1.GetUserRequest
-	(*GetUserResponse)(nil),              // 1: auth.user.local.v1.GetUserResponse
-	(*EnrollUserRequest)(nil),            // 2: auth.user.local.v1.EnrollUserRequest
-	(*EnrollUserResponse)(nil),           // 3: auth.user.local.v1.EnrollUserResponse
-	(*DeleteUserRequest)(nil),            // 4: auth.user.local.v1.DeleteUserRequest
-	(*DeleteUserResponse)(nil),           // 5: auth.user.local.v1.DeleteUserResponse
-	(*UpdateEmailRequest)(nil),           // 6: auth.user.local.v1.UpdateEmailRequest
-	(*UpdateEmailResponse)(nil),          // 7: auth.user.local.v1.UpdateEmailResponse
-	(*UpdatePasswordRequest)(nil),        // 8: auth.user.local.v1.UpdatePasswordRequest
-	(*UpdatePasswordResponse)(nil),       // 9: auth.user.local.v1.UpdatePasswordResponse
-	(*UpdateActiveStatusRequest)(nil),    // 10: auth.user.local.v1.UpdateActiveStatusRequest
-	(*UpdateActiveStatusResponse)(nil),   // 11: auth.user.local.v1.UpdateActiveStatusResponse
-	(*UpdateVerifiedStatusRequest)(nil),  // 12: auth.user.local.v1.UpdateVerifiedStatusRequest
-	(*UpdateVerifiedStatusResponse)(nil), // 13: auth.user.local.v1.UpdateVerifiedStatusResponse
-	(*timestamppb.Timestamp)(nil),        // 14: google.protobuf.Timestamp
+	(*LocalUser)(nil),                    // 0: auth.user.local.v1.LocalUser
+	(*GetUserRequest)(nil),               // 1: auth.user.local.v1.GetUserRequest
+	(*GetUserResponse)(nil),              // 2: auth.user.local.v1.GetUserResponse
+	(*EnrollUserRequest)(nil),            // 3: auth.user.local.v1.EnrollUserRequest
+	(*EnrollUserResponse)(nil),           // 4: auth.user.local.v1.EnrollUserResponse
+	(*DeleteUserRequest)(nil),            // 5: auth.user.local.v1.DeleteUserRequest
+	(*DeleteUserResponse)(nil),           // 6: auth.user.local.v1.DeleteUserResponse
+	(*UpdateEmailRequest)(nil),           // 7: auth.user.local.v1.UpdateEmailRequest
+	(*UpdateEmailResponse)(nil),          // 8: auth.user.local.v1.UpdateEmailResponse
+	(*UpdatePasswordRequest)(nil),        // 9: auth.user.local.v1.UpdatePasswordRequest
+	(*UpdatePasswordResponse)(nil),       // 10: auth.user.local.v1.UpdatePasswordResponse
+	(*UpdateActiveStatusRequest)(nil),    // 11: auth.user.local.v1.UpdateActiveStatusRequest
+	(*UpdateActiveStatusResponse)(nil),   // 12: auth.user.local.v1.UpdateActiveStatusResponse
+	(*UpdateVerifiedStatusRequest)(nil),  // 13: auth.user.local.v1.UpdateVerifiedStatusRequest
+	(*UpdateVerifiedStatusResponse)(nil), // 14: auth.user.local.v1.UpdateVerifiedStatusResponse
+	(*timestamppb.Timestamp)(nil),        // 15: google.protobuf.Timestamp
 }
 var file_auth_user_local_v1_local_user_proto_depIdxs = []int32{
-	14, // 0: auth.user.local.v1.GetUserResponse.created_at:type_name -> google.protobuf.Timestamp
-	14, // 1: auth.user.local.v1.GetUserResponse.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 2: auth.user.local.v1.EnrollUserResponse.created_at:type_name -> google.protobuf.Timestamp
-	14, // 3: auth.user.local.v1.EnrollUserResponse.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 4: auth.user.local.v1.DeleteUserResponse.deleted_at:type_name -> google.protobuf.Timestamp
-	14, // 5: auth.user.local.v1.UpdateEmailResponse.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 6: auth.user.local.v1.UpdatePasswordResponse.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 7: auth.user.local.v1.UpdateActiveStatusResponse.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 8: auth.user.local.v1.UpdateVerifiedStatusResponse.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 9: auth.user.local.v1.LocalUserService.GetUser:input_type -> auth.user.local.v1.GetUserRequest
-	2,  // 10: auth.user.local.v1.LocalUserService.EnrollUser:input_type -> auth.user.local.v1.EnrollUserRequest
-	4,  // 11: auth.user.local.v1.LocalUserService.DeleteUser:input_type -> auth.user.local.v1.DeleteUserRequest
-	6,  // 12: auth.user.local.v1.LocalUserService.UpdateEmail:input_type -> auth.user.local.v1.UpdateEmailRequest
-	8,  // 13: auth.user.local.v1.LocalUserService.UpdatePassword:input_type -> auth.user.local.v1.UpdatePasswordRequest
-	10, // 14: auth.user.local.v1.LocalUserService.UpdateActiveStatus:input_type -> auth.user.local.v1.UpdateActiveStatusRequest
-	12, // 15: auth.user.local.v1.LocalUserService.UpdateVerifiedStatus:input_type -> auth.user.local.v1.UpdateVerifiedStatusRequest
-	1,  // 16: auth.user.local.v1.LocalUserService.GetUser:output_type -> auth.user.local.v1.GetUserResponse
-	3,  // 17: auth.user.local.v1.LocalUserService.EnrollUser:output_type -> auth.user.local.v1.EnrollUserResponse
-	5,  // 18: auth.user.local.v1.LocalUserService.DeleteUser:output_type -> auth.user.local.v1.DeleteUserResponse
-	7,  // 19: auth.user.local.v1.LocalUserService.UpdateEmail:output_type -> auth.user.local.v1.UpdateEmailResponse
-	9,  // 20: auth.user.local.v1.LocalUserService.UpdatePassword:output_type -> auth.user.local.v1.UpdatePasswordResponse
-	11, // 21: auth.user.local.v1.LocalUserService.UpdateActiveStatus:output_type -> auth.user.local.v1.UpdateActiveStatusResponse
-	13, // 22: auth.user.local.v1.LocalUserService.UpdateVerifiedStatus:output_type -> auth.user.local.v1.UpdateVerifiedStatusResponse
+	15, // 0: auth.user.local.v1.LocalUser.created_at:type_name -> google.protobuf.Timestamp
+	15, // 1: auth.user.local.v1.LocalUser.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 2: auth.user.local.v1.GetUserResponse.user:type_name -> auth.user.local.v1.LocalUser
+	0,  // 3: auth.user.local.v1.EnrollUserResponse.user:type_name -> auth.user.local.v1.LocalUser
+	15, // 4: auth.user.local.v1.DeleteUserResponse.deleted_at:type_name -> google.protobuf.Timestamp
+	0,  // 5: auth.user.local.v1.UpdateEmailResponse.user:type_name -> auth.user.local.v1.LocalUser
+	0,  // 6: auth.user.local.v1.UpdatePasswordResponse.user:type_name -> auth.user.local.v1.LocalUser
+	0,  // 7: auth.user.local.v1.UpdateActiveStatusResponse.user:type_name -> auth.user.local.v1.LocalUser
+	0,  // 8: auth.user.local.v1.UpdateVerifiedStatusResponse.user:type_name -> auth.user.local.v1.LocalUser
+	1,  // 9: auth.user.local.v1.LocalUserService.GetUser:input_type -> auth.user.local.v1.GetUserRequest
+	3,  // 10: auth.user.local.v1.LocalUserService.EnrollUser:input_type -> auth.user.local.v1.EnrollUserRequest
+	5,  // 11: auth.user.local.v1.LocalUserService.DeleteUser:input_type -> auth.user.local.v1.DeleteUserRequest
+	7,  // 12: auth.user.local.v1.LocalUserService.UpdateEmail:input_type -> auth.user.local.v1.UpdateEmailRequest
+	9,  // 13: auth.user.local.v1.LocalUserService.UpdatePassword:input_type -> auth.user.local.v1.UpdatePasswordRequest
+	11, // 14: auth.user.local.v1.LocalUserService.UpdateActiveStatus:input_type -> auth.user.local.v1.UpdateActiveStatusRequest
+	13, // 15: auth.user.local.v1.LocalUserService.UpdateVerifiedStatus:input_type -> auth.user.local.v1.UpdateVerifiedStatusRequest
+	2,  // 16: auth.user.local.v1.LocalUserService.GetUser:output_type -> auth.user.local.v1.GetUserResponse
+	4,  // 17: auth.user.local.v1.LocalUserService.EnrollUser:output_type -> auth.user.local.v1.EnrollUserResponse
+	6,  // 18: auth.user.local.v1.LocalUserService.DeleteUser:output_type -> auth.user.local.v1.DeleteUserResponse
+	8,  // 19: auth.user.local.v1.LocalUserService.UpdateEmail:output_type -> auth.user.local.v1.UpdateEmailResponse
+	10, // 20: auth.user.local.v1.LocalUserService.UpdatePassword:output_type -> auth.user.local.v1.UpdatePasswordResponse
+	12, // 21: auth.user.local.v1.LocalUserService.UpdateActiveStatus:output_type -> auth.user.local.v1.UpdateActiveStatusResponse
+	14, // 22: auth.user.local.v1.LocalUserService.UpdateVerifiedStatus:output_type -> auth.user.local.v1.UpdateVerifiedStatusResponse
 	16, // [16:23] is the sub-list for method output_type
 	9,  // [9:16] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
@@ -1016,14 +947,14 @@ func file_auth_user_local_v1_local_user_proto_init() {
 	if File_auth_user_local_v1_local_user_proto != nil {
 		return
 	}
-	file_auth_user_local_v1_local_user_proto_msgTypes[2].OneofWrappers = []any{}
+	file_auth_user_local_v1_local_user_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_user_local_v1_local_user_proto_rawDesc), len(file_auth_user_local_v1_local_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
