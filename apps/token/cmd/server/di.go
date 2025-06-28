@@ -7,7 +7,7 @@ import (
 	token "mandacode.com/accounts/token/internal/app"
 	"mandacode.com/accounts/token/internal/config"
 	"mandacode.com/accounts/token/internal/handler"
-	"mandacode.com/accounts/token/internal/infra"
+	"mandacode.com/accounts/token/internal/infra/service"
 )
 
 func registerHandlers(
@@ -15,21 +15,21 @@ func registerHandlers(
 	cfg *config.Config,
 	logger *zap.Logger,
 ) error {
-	accessTokenGen, err := infra.NewTokenGeneratorByStr(
+	accessTokenGen, err := service.NewTokenGeneratorByStr(
 		cfg.AccessPrivateKey,
 		cfg.AccessTokenDuration,
 	)
 	if err != nil {
 		return err
 	}
-	refreshTokenGen, err := infra.NewTokenGeneratorByStr(
+	refreshTokenGen, err := service.NewTokenGeneratorByStr(
 		cfg.RefreshPrivateKey,
 		cfg.RefreshTokenDuration,
 	)
 	if err != nil {
 		return err
 	}
-	emailVerificationTokenGen, err := infra.NewTokenGeneratorByStr(
+	emailVerificationTokenGen, err := service.NewTokenGeneratorByStr(
 		cfg.EmailVerificationPrivateKey,
 		cfg.EmailVerificationTokenDuration,
 	)
