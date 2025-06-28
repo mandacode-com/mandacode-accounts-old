@@ -12,7 +12,7 @@ import (
 	"mandacode.com/accounts/auth/ent"
 	"mandacode.com/accounts/auth/internal/domain/dto"
 	userdomain "mandacode.com/accounts/auth/internal/domain/service/user"
-	usersvc "mandacode.com/accounts/auth/internal/service/user"
+	usersvc "mandacode.com/accounts/auth/internal/infra/service/user"
 	mock_repodomain "mandacode.com/accounts/auth/test/mock/domain/repository"
 )
 

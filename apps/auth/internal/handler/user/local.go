@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"mandacode.com/accounts/auth/internal/app/user"
+	"mandacode.com/accounts/auth/internal/util"
 	localuserv1 "mandacode.com/accounts/proto/auth/user/local/v1"
 )
 
@@ -46,17 +47,18 @@ func (h *LocalUserHandler) GetUser(ctx context.Context, req *localuserv1.GetUser
 		return nil, status.Error(codes.Internal, "failed to get local user")
 	}
 	if user == nil {
-		h.logger.Warn("user not found", zap.String("user_id", req.UserId))
+		h.logger.Error("user not found", zap.String("user_id", req.UserId))
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
 
+	protoLocalUser, err := util.BuildProtoLocalUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto local user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto local user")
+	}
+
 	return &localuserv1.GetUserResponse{
-		UserId:     user.ID.String(),
-		Email:      user.Email,
-		IsActive:   user.IsActive,
-		IsVerified: user.IsVerified,
-		CreatedAt:  timestamppb.New(user.CreatedAt),
-		UpdatedAt:  timestamppb.New(user.UpdatedAt),
+		User: protoLocalUser,
 	}, nil
 }
 
@@ -78,13 +80,13 @@ func (h *LocalUserHandler) EnrollUser(ctx context.Context, req *localuserv1.Enro
 		return nil, status.Error(codes.Internal, "missing user ID after local enrollment")
 	}
 
+	protoLocalUser, err := util.BuildProtoLocalUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto local user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto local user")
+	}
 	return &localuserv1.EnrollUserResponse{
-		UserId:     user.ID.String(),
-		Email:      user.Email,
-		IsActive:   user.IsActive,
-		IsVerified: user.IsVerified,
-		CreatedAt:  timestamppb.New(user.CreatedAt),
-		UpdatedAt:  timestamppb.New(user.UpdatedAt),
+		User: protoLocalUser,
 	}, nil
 }
 
@@ -125,10 +127,13 @@ func (h *LocalUserHandler) UpdateEmail(ctx context.Context, req *localuserv1.Upd
 		return nil, status.Error(codes.Internal, "missing user ID after local email update")
 	}
 
+	protoLocalUser, err := util.BuildProtoLocalUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto local user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto local user")
+	}
 	return &localuserv1.UpdateEmailResponse{
-		UserId:    user.ID.String(),
-		Email:     user.Email,
-		UpdatedAt: timestamppb.New(user.UpdatedAt),
+		User: protoLocalUser,
 	}, nil
 }
 
@@ -150,9 +155,13 @@ func (h *LocalUserHandler) UpdatePassword(ctx context.Context, req *localuserv1.
 		return nil, status.Error(codes.Internal, "missing user ID after local password update")
 	}
 
+	protoLocalUser, err := util.BuildProtoLocalUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto local user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto local user")
+	}
 	return &localuserv1.UpdatePasswordResponse{
-		UserId:    user.ID.String(),
-		UpdatedAt: timestamppb.New(user.UpdatedAt),
+		User: protoLocalUser,
 	}, nil
 }
 
@@ -174,10 +183,13 @@ func (h *LocalUserHandler) UpdateActiveStatus(ctx context.Context, req *localuse
 		return nil, status.Error(codes.Internal, "missing user ID after local active status update")
 	}
 
+	protoLocalUser, err := util.BuildProtoLocalUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto local user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto local user")
+	}
 	return &localuserv1.UpdateActiveStatusResponse{
-		UserId:    user.ID.String(),
-		IsActive:  user.IsActive,
-		UpdatedAt: timestamppb.New(user.UpdatedAt),
+		User: protoLocalUser,
 	}, nil
 }
 
@@ -199,9 +211,12 @@ func (h *LocalUserHandler) UpdateVerifiedStatus(ctx context.Context, req *localu
 		return nil, status.Error(codes.Internal, "missing user ID after local verified status update")
 	}
 
+	protoLocalUser, err := util.BuildProtoLocalUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto local user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto local user")
+	}
 	return &localuserv1.UpdateVerifiedStatusResponse{
-		UserId:     user.ID.String(),
-		IsVerified: user.IsVerified,
-		UpdatedAt:  timestamppb.New(user.UpdatedAt),
+		User: protoLocalUser,
 	}, nil
 }

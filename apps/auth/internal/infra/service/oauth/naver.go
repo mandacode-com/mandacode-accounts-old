@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"mandacode.com/accounts/auth/internal/domain/dto"
 	oauthdomain "mandacode.com/accounts/auth/internal/domain/service/oauth"
-	"mandacode.com/accounts/auth/internal/infra/oauth/endpoint"
+	"mandacode.com/accounts/auth/internal/infra/service/oauth/endpoint"
 	"net/http"
 )
 

@@ -41,25 +41,24 @@ func (h *OAuthUserHandler) EnrollUser(ctx context.Context, req *oauthuserv1.Enro
 	}
 
 	// Create the OAuth user
-	userID, err := h.app.CreateUser(ctx, req.UserId, req.Provider, req.AccessToken, req.IsActive, req.IsVerified)
+	user, err := h.app.CreateUser(ctx, req.UserId, req.Provider, req.AccessToken, req.IsActive, req.IsVerified)
 	if err != nil {
 		h.logger.Error("failed to enroll OAuth user", zap.Error(err), zap.String("provider", req.Provider.String()))
 		return nil, status.Error(codes.Internal, "failed to enroll OAuth user")
 	}
-	if userID == nil {
-		h.logger.Error("missing user ID after OAuth enrollment", zap.String("provider", req.Provider.String()))
-		return nil, status.Error(codes.Internal, "missing user ID after OAuth enrollment")
+	if user == nil {
+		h.logger.Error("user not found or invalid data after enrollment", zap.String("user_id", req.UserId), zap.String("provider", req.Provider.String()))
+		return nil, status.Error(codes.NotFound, "user not found or invalid data after enrollment")
+	}
+
+	protoOAuthUser, err := util.BuildProtoOAuthUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto OAuth user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto OAuth user")
 	}
 
 	return &oauthuserv1.EnrollUserResponse{
-		UserId:     userID.ID.String(),
-		Provider:   req.Provider,
-		ProviderId: userID.ProviderID,
-		Email:      userID.Email,
-		IsActive:   userID.IsActive,
-		IsVerified: userID.IsVerified,
-		CreatedAt:  timestamppb.New(userID.CreatedAt),
-		UpdatedAt:  timestamppb.New(userID.UpdatedAt),
+		User: protoOAuthUser,
 	}, nil
 }
 
@@ -81,21 +80,13 @@ func (h *OAuthUserHandler) GetUser(ctx context.Context, req *oauthuserv1.GetUser
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
 
-	provider, err := util.FromProviderToProto(user.Provider)
+	protoOAuthUser, err := util.BuildProtoOAuthUser(user)
 	if err != nil {
-		h.logger.Error("failed to convert provider", zap.Error(err), zap.String("provider", user.Provider.String()))
-		return nil, status.Error(codes.Internal, "failed to convert provider")
+		h.logger.Error("failed to build proto OAuth user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto OAuth user")
 	}
-
 	return &oauthuserv1.GetUserResponse{
-		UserId:     user.ID.String(),
-		Provider:   provider,
-		ProviderId: user.ProviderID,
-		Email:      user.Email,
-		IsActive:   user.IsActive,
-		IsVerified: user.IsVerified,
-		CreatedAt:  timestamppb.New(user.CreatedAt),
-		UpdatedAt:  timestamppb.New(user.UpdatedAt),
+		User: protoOAuthUser,
 	}, nil
 }
 
@@ -138,15 +129,13 @@ func (h *OAuthUserHandler) SyncUser(ctx context.Context, req *oauthuserv1.SyncUs
 		return nil, status.Error(codes.NotFound, "user not found or invalid data after sync")
 	}
 
-	provider, err := util.FromProviderToProto(user.Provider)
-
+	protoOAuthUser, err := util.BuildProtoOAuthUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto OAuth user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto OAuth user")
+	}
 	return &oauthuserv1.SyncUserResponse{
-		UserId:     user.ID.String(),
-		Provider:   provider,
-		ProviderId: user.ProviderID,
-		Email:      user.Email,
-		IsVerified: user.IsVerified,
-		UpdatedAt:  timestamppb.New(user.UpdatedAt),
+		User: protoOAuthUser,
 	}, nil
 }
 
@@ -169,9 +158,13 @@ func (h *OAuthUserHandler) UpdateActiveStatus(ctx context.Context, req *oauthuse
 		return nil, status.Error(codes.NotFound, "user not found or invalid data after update")
 	}
 
+	protoOAuthUser, err := util.BuildProtoOAuthUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto OAuth user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto OAuth user")
+	}
 	return &oauthuserv1.UpdateActiveStatusResponse{
-		UserId:   user.ID.String(),
-		IsActive: user.IsActive,
+		User: protoOAuthUser,
 	}, nil
 }
 
@@ -194,8 +187,12 @@ func (h *OAuthUserHandler) UpdateVerifiedStatus(ctx context.Context, req *oauthu
 		return nil, status.Error(codes.NotFound, "user not found or invalid data after update")
 	}
 
+	protoOAuthUser, err := util.BuildProtoOAuthUser(user)
+	if err != nil {
+		h.logger.Error("failed to build proto OAuth user", zap.Error(err), zap.String("user_id", user.ID.String()))
+		return nil, status.Error(codes.Internal, "failed to build proto OAuth user")
+	}
 	return &oauthuserv1.UpdateVerifiedStatusResponse{
-		UserId:    user.ID.String(),
-		IsVerified: user.IsVerified,
+		User: protoOAuthUser,
 	}, nil
 }

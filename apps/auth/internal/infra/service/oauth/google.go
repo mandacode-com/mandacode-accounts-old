@@ -7,30 +7,29 @@ import (
 
 	"mandacode.com/accounts/auth/internal/domain/dto"
 	oauthdomain "mandacode.com/accounts/auth/internal/domain/service/oauth"
-	"mandacode.com/accounts/auth/internal/infra/oauth/endpoint"
+	"mandacode.com/accounts/auth/internal/infra/service/oauth/endpoint"
 )
 
-// KakaoOAuthService implements the OAuthService interface for Kakao.
-type KakaoOAuthService struct {
+// GoogleOAuthService implements the GoogleOAuthService interface.
+type GoogleOAuthService struct {
 	userInfoEndpoint string
 }
 
-// RawKakaoUserInfo represents the raw user info structure returned by Kakao OAuth.
-type RawKakaoUserInfo struct {
-	ID            string `json:"id"`
-	Email         string `json:"kakao_account.email"`
-	Name          string `json:"properties.nickname"`
-	EmailValid    bool   `json:"kakao_account.is_email_valid"`
-	EmailVerified bool   `json:"kakao_account.is_email_verified"`
+// RawGoogleUserInfo represents the raw user info structure returned by Google OAuth.
+type RawGoogleUserInfo struct {
+	Sub           string `json:"sub"`
+	Email         string `json:"email"`
+	Name          string `json:"name"`
+	EmailVerified bool   `json:"email_verified"`
 }
 
-func NewKakaoOAuthService() oauthdomain.OAuthService {
-	return &KakaoOAuthService{
-		userInfoEndpoint: endpoint.KakaoUserInfoEndpoint,
+func NewGoogleOAuthService() oauthdomain.OAuthService {
+	return &GoogleOAuthService{
+		userInfoEndpoint: endpoint.GoogleUserInfoEndpoint,
 	}
 }
 
-func (s *KakaoOAuthService) GetUserInfo(accessToken string) (*dto.OAuthUserInfo, error) {
+func (s *GoogleOAuthService) GetUserInfo(accessToken string) (*dto.OAuthUserInfo, error) {
 	req, err := http.NewRequest("GET", s.userInfoEndpoint, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
@@ -47,13 +46,13 @@ func (s *KakaoOAuthService) GetUserInfo(accessToken string) (*dto.OAuthUserInfo,
 		return nil, fmt.Errorf("failed to fetch user info: status code %d", resp.StatusCode)
 	}
 
-	// Decode the JSON response into the RawKakaoUserInfo struct
-	var rawUserInfo RawKakaoUserInfo
+	// Decode the JSON response into the RawGoogleUserInfo struct
+	var rawUserInfo RawGoogleUserInfo
 	if err := json.NewDecoder(resp.Body).Decode(&rawUserInfo); err != nil {
 		return nil, fmt.Errorf("failed to decode user info: %w", err)
 	}
 
-	if rawUserInfo.ID == "" {
+	if rawUserInfo.Sub == "" {
 		return nil, fmt.Errorf("user info does not contain a valid provider ID")
 	}
 
@@ -65,11 +64,15 @@ func (s *KakaoOAuthService) GetUserInfo(accessToken string) (*dto.OAuthUserInfo,
 		return nil, fmt.Errorf("user info does not contain a valid name")
 	}
 
+	if !rawUserInfo.EmailVerified {
+		return nil, fmt.Errorf("user info indicates email is not verified")
+	}
+
 	oauthUserInfo := dto.NewOAuthUserInfo(
-		rawUserInfo.ID,
+		rawUserInfo.Sub,
 		rawUserInfo.Email,
 		rawUserInfo.Name,
-		rawUserInfo.EmailValid && rawUserInfo.EmailVerified,
+		rawUserInfo.EmailVerified,
 	)
 	return oauthUserInfo, nil
 }

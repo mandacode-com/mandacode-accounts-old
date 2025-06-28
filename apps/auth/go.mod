@@ -4,7 +4,6 @@ go 1.24.4
 
 require (
 	entgo.io/ent v0.14.4
-	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
@@ -13,6 +12,7 @@ require (
 	golang.org/x/crypto v0.39.0
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
+	mandacode.com/accounts/proto v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -20,6 +20,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
+	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/go-openapi/inflect v0.21.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.23.0 // indirect
@@ -36,3 +37,5 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace mandacode.com/accounts/proto => ../proto
