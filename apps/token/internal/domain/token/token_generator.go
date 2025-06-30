@@ -1,4 +1,4 @@
-package svcdomain
+package tokengendomain
 
 type TokenGenerator interface {
 	// GenerateToken generates a signed JWT token with the provided claims

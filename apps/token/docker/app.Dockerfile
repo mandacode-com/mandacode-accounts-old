@@ -22,7 +22,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary (static)
-RUN go build -o server ./cmd/server
+RUN go build -o server ./cmd/server/main.go
 
 ############################
 # 2. Runtime Stage (scratch)

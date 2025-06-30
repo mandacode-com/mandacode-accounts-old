@@ -24,3 +24,4 @@ require (
 )
 
 replace mandacode.com/accounts/proto => ../proto
+replace mandacode.com/lib => ../lib

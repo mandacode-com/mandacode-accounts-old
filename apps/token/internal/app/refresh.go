@@ -3,11 +3,11 @@ package token
 import (
 	"errors"
 
-	svcdomain "mandacode.com/accounts/token/internal/domain/service"
+	tokengendomain "mandacode.com/accounts/token/internal/domain/token"
 )
 
 type RefreshTokenApp struct {
-	tokenGenerator svcdomain.TokenGenerator
+	tokenGenerator tokengendomain.TokenGenerator
 }
 
 // NewRefreshTokenApp creates a new instance of RefreshTokenApp with the provided TokenGenerator.
@@ -18,7 +18,7 @@ type RefreshTokenApp struct {
 // Returns:
 //   - RefreshTokenApp: a new instance of RefreshTokenApp.
 func NewRefreshTokenApp(
-	tokenGenerator svcdomain.TokenGenerator,
+	tokenGenerator tokengendomain.TokenGenerator,
 ) *RefreshTokenApp {
 	return &RefreshTokenApp{
 		tokenGenerator: tokenGenerator,
