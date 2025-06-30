@@ -7,18 +7,18 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"mandacode.com/accounts/auth/internal/app/login"
+	locallogin "mandacode.com/accounts/auth/internal/app/login/local"
 	localloginv1 "mandacode.com/accounts/proto/auth/login/local/v1"
 )
 
 type LocalLoginHandler struct {
 	localloginv1.UnimplementedLocalLoginServiceServer
-	app    *login.LocalLoginApp
+	app    locallogin.LocalLoginApp
 	logger *zap.Logger
 }
 
 // NewLocalLoginHandler returns a new local authentication service handler
-func NewLocalLoginHandler(app *login.LocalLoginApp, logger *zap.Logger) (localloginv1.LocalLoginServiceServer, error) {
+func NewLocalLoginHandler(app locallogin.LocalLoginApp, logger *zap.Logger) (localloginv1.LocalLoginServiceServer, error) {
 	if app == nil {
 		return nil, errors.New("LocalAuthApp cannot be nil")
 	}
@@ -39,19 +39,14 @@ func (h *LocalLoginHandler) Login(ctx context.Context, req *localloginv1.LoginRe
 	}
 
 	// Attempt to login the local user
-	userID, accessToken, refreshToken, err := h.app.LoginLocalUser(ctx, req.Email, req.Password)
+	loginToken, err := h.app.Login(ctx, req.Email, req.Password)
 	if err != nil {
 		h.logger.Error("failed to login local user", zap.Error(err), zap.String("email", req.Email))
 		return nil, status.Error(codes.Unauthenticated, "failed to login local user")
 	}
-	if userID == nil || accessToken == nil || refreshToken == nil {
-		h.logger.Error("missing tokens or user ID after local login", zap.String("email", req.Email))
-		return nil, status.Error(codes.Internal, "missing tokens or user ID after local login")
-	}
 
 	return &localloginv1.LoginResponse{
-		UserId:       *userID,
-		AccessToken:  *accessToken,
-		RefreshToken: *refreshToken,
+		AccessToken:  loginToken.AccessToken,
+		RefreshToken: loginToken.RefreshToken,
 	}, nil
 }
