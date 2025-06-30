@@ -14,14 +14,22 @@ type Server interface {
 
 type ServerManager struct {
 	Servers []Server
-	logger  *zap.Logger
+	Logger  *zap.Logger
+}
+
+// NewServerManager creates a new ServerManager with the provided servers and logger.
+func NewServerManager(servers []Server, logger *zap.Logger) *ServerManager {
+	return &ServerManager{
+		Servers: servers,
+		Logger:  logger,
+	}
 }
 
 func (sm *ServerManager) Run() {
 	for _, server := range sm.Servers {
 		go func(s Server) {
 			if err := s.Start(); err != nil {
-				sm.logger.Error("failed to start server", zap.Error(err))
+				sm.Logger.Error("failed to start server", zap.Error(err))
 			}
 		}(server)
 	}
@@ -31,10 +39,10 @@ func (sm *ServerManager) Run() {
 	for {
 		select {
 		case <-signalChan:
-			sm.logger.Info("received shutdown signal, stopping servers")
+			sm.Logger.Info("received shutdown signal, stopping servers")
 			for _, server := range sm.Servers {
 				if err := server.Stop(); err != nil {
-					sm.logger.Error("failed to stop server", zap.Error(err))
+					sm.Logger.Error("failed to stop server", zap.Error(err))
 				}
 			}
 			return

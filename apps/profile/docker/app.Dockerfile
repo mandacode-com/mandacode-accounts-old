@@ -23,7 +23,7 @@ COPY . .
 
 # Build the Go binary (static)
 # RUN go build -o server ./cmd/server
-RUN go build -o server ./cmd/main.go
+RUN go build -o server ./cmd/server/main.go
 
 
 ############################

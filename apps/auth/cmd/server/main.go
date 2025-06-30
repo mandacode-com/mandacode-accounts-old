@@ -99,9 +99,7 @@ func main() {
 	}
 
 	// Run the gRPC server
-	serverManager := &server.ServerManager{
-		Servers: []server.Server{grpcServer},
-	}
+	serverManager := server.NewServerManager([]server.Server{grpcServer}, logger)
 
 	serverManager.Run()
 

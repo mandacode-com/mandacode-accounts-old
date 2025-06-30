@@ -51,9 +51,7 @@ func main() {
 		logger.Fatal("failed to create HTTP server", zap.Error(err))
 	}
 
-	serverManager := &server.ServerManager{
-		Servers: []server.Server{grpcServer, httpServer},
-	}
+	serverManager := server.NewServerManager([]server.Server{grpcServer, httpServer}, logger)
 
 	serverManager.Run()
 
