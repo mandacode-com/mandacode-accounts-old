@@ -7,19 +7,19 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
 	token "mandacode.com/accounts/token/internal/app"
-	mock_svcdomain "mandacode.com/accounts/token/test/mock/domain/service"
+	mock_tokengendomain "mandacode.com/accounts/token/test/mock/domain/token"
 )
 
 type MockAccessTokenApp struct {
 	crtl           *gomock.Controller
-	tokenGenerator *mock_svcdomain.MockTokenGenerator
+	tokenGenerator *mock_tokengendomain.MockTokenGenerator
 	app            *token.AccessTokenApp
 }
 
 func (m *MockAccessTokenApp) Setup(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	m.crtl = ctrl
-	m.tokenGenerator = mock_svcdomain.NewMockTokenGenerator(ctrl)
+	m.tokenGenerator = mock_tokengendomain.NewMockTokenGenerator(ctrl)
 	m.app = token.NewAccessTokenApp(m.tokenGenerator)
 }
 

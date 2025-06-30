@@ -7,18 +7,18 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	svcdomain "mandacode.com/accounts/token/internal/domain/service"
-	"mandacode.com/accounts/token/internal/infra/service"
+	tokengendomain "mandacode.com/accounts/token/internal/domain/token"
+	tokengen "mandacode.com/accounts/token/internal/infra/token"
 )
 
 type MockTokenGenerator struct {
-	svc svcdomain.TokenGenerator
+	svc tokengendomain.TokenGenerator
 }
 
 func (m *MockTokenGenerator) Setup(t *testing.T) {
 	t.Helper()
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
-	m.svc, err = service.NewTokenGenerator(priv, time.Second)
+	m.svc, err = tokengen.NewTokenGenerator(priv, time.Second)
 	if err != nil {
 		t.Fatalf("failed to create token generator: %v", err)
 	}
