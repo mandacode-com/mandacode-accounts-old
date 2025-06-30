@@ -346,7 +346,7 @@ func (x *EnrollUserResponse) GetUser() *OAuthUser {
 type DeleteUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Provider      *v1.OAuthProvider      `protobuf:"varint,2,opt,name=provider,proto3,enum=common.provider.v1.OAuthProvider,oneof" json:"provider,omitempty"` // OAuth provider enum
+	Provider      v1.OAuthProvider       `protobuf:"varint,2,opt,name=provider,proto3,enum=common.provider.v1.OAuthProvider" json:"provider,omitempty"` // OAuth provider enum
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -389,8 +389,8 @@ func (x *DeleteUserRequest) GetUserId() string {
 }
 
 func (x *DeleteUserRequest) GetProvider() v1.OAuthProvider {
-	if x != nil && x.Provider != nil {
-		return *x.Provider
+	if x != nil {
+		return x.Provider
 	}
 	return v1.OAuthProvider(0)
 }
@@ -455,6 +455,103 @@ func (x *DeleteUserResponse) GetDeletedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// Delete All Providers messages
+type DeleteAllProvidersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAllProvidersRequest) Reset() {
+	*x = DeleteAllProvidersRequest{}
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAllProvidersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAllProvidersRequest) ProtoMessage() {}
+
+func (x *DeleteAllProvidersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAllProvidersRequest.ProtoReflect.Descriptor instead.
+func (*DeleteAllProvidersRequest) Descriptor() ([]byte, []int) {
+	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DeleteAllProvidersRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type DeleteAllProvidersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`          // User ID
+	DeletedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"` // Timestamp of the deletion
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAllProvidersResponse) Reset() {
+	*x = DeleteAllProvidersResponse{}
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAllProvidersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAllProvidersResponse) ProtoMessage() {}
+
+func (x *DeleteAllProvidersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAllProvidersResponse.ProtoReflect.Descriptor instead.
+func (*DeleteAllProvidersResponse) Descriptor() ([]byte, []int) {
+	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DeleteAllProvidersResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *DeleteAllProvidersResponse) GetDeletedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DeletedAt
+	}
+	return nil
+}
+
 // Sync OAuth user messages
 type SyncUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -467,7 +564,7 @@ type SyncUserRequest struct {
 
 func (x *SyncUserRequest) Reset() {
 	*x = SyncUserRequest{}
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[7]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -479,7 +576,7 @@ func (x *SyncUserRequest) String() string {
 func (*SyncUserRequest) ProtoMessage() {}
 
 func (x *SyncUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[7]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -492,7 +589,7 @@ func (x *SyncUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncUserRequest.ProtoReflect.Descriptor instead.
 func (*SyncUserRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{7}
+	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SyncUserRequest) GetUserId() string {
@@ -525,7 +622,7 @@ type SyncUserResponse struct {
 
 func (x *SyncUserResponse) Reset() {
 	*x = SyncUserResponse{}
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[8]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -537,7 +634,7 @@ func (x *SyncUserResponse) String() string {
 func (*SyncUserResponse) ProtoMessage() {}
 
 func (x *SyncUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[8]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -550,7 +647,7 @@ func (x *SyncUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncUserResponse.ProtoReflect.Descriptor instead.
 func (*SyncUserResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{8}
+	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SyncUserResponse) GetUser() *OAuthUser {
@@ -572,7 +669,7 @@ type UpdateActiveStatusRequest struct {
 
 func (x *UpdateActiveStatusRequest) Reset() {
 	*x = UpdateActiveStatusRequest{}
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[9]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -584,7 +681,7 @@ func (x *UpdateActiveStatusRequest) String() string {
 func (*UpdateActiveStatusRequest) ProtoMessage() {}
 
 func (x *UpdateActiveStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[9]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -597,7 +694,7 @@ func (x *UpdateActiveStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateActiveStatusRequest.ProtoReflect.Descriptor instead.
 func (*UpdateActiveStatusRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{9}
+	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpdateActiveStatusRequest) GetUserId() string {
@@ -630,7 +727,7 @@ type UpdateActiveStatusResponse struct {
 
 func (x *UpdateActiveStatusResponse) Reset() {
 	*x = UpdateActiveStatusResponse{}
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[10]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -642,7 +739,7 @@ func (x *UpdateActiveStatusResponse) String() string {
 func (*UpdateActiveStatusResponse) ProtoMessage() {}
 
 func (x *UpdateActiveStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[10]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -655,7 +752,7 @@ func (x *UpdateActiveStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateActiveStatusResponse.ProtoReflect.Descriptor instead.
 func (*UpdateActiveStatusResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{10}
+	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UpdateActiveStatusResponse) GetUser() *OAuthUser {
@@ -677,7 +774,7 @@ type UpdateVerifiedStatusRequest struct {
 
 func (x *UpdateVerifiedStatusRequest) Reset() {
 	*x = UpdateVerifiedStatusRequest{}
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[11]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -689,7 +786,7 @@ func (x *UpdateVerifiedStatusRequest) String() string {
 func (*UpdateVerifiedStatusRequest) ProtoMessage() {}
 
 func (x *UpdateVerifiedStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[11]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -702,7 +799,7 @@ func (x *UpdateVerifiedStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateVerifiedStatusRequest.ProtoReflect.Descriptor instead.
 func (*UpdateVerifiedStatusRequest) Descriptor() ([]byte, []int) {
-	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{11}
+	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateVerifiedStatusRequest) GetUserId() string {
@@ -735,7 +832,7 @@ type UpdateVerifiedStatusResponse struct {
 
 func (x *UpdateVerifiedStatusResponse) Reset() {
 	*x = UpdateVerifiedStatusResponse{}
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[12]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -747,7 +844,7 @@ func (x *UpdateVerifiedStatusResponse) String() string {
 func (*UpdateVerifiedStatusResponse) ProtoMessage() {}
 
 func (x *UpdateVerifiedStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[12]
+	mi := &file_auth_user_oauth_v1_oauth_user_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -760,7 +857,7 @@ func (x *UpdateVerifiedStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateVerifiedStatusResponse.ProtoReflect.Descriptor instead.
 func (*UpdateVerifiedStatusResponse) Descriptor() ([]byte, []int) {
-	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{12}
+	return file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *UpdateVerifiedStatusResponse) GetUser() *OAuthUser {
@@ -804,16 +901,21 @@ const file_auth_user_oauth_v1_oauth_user_proto_rawDesc = "" +
 	"_is_activeB\x0e\n" +
 	"\f_is_verified\"G\n" +
 	"\x12EnrollUserResponse\x121\n" +
-	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.oauth.v1.OAuthUserR\x04user\"\x87\x01\n" +
+	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.oauth.v1.OAuthUserR\x04user\"u\n" +
 	"\x11DeleteUserRequest\x12!\n" +
-	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12B\n" +
-	"\bprovider\x18\x02 \x01(\x0e2!.common.provider.v1.OAuthProviderH\x00R\bprovider\x88\x01\x01B\v\n" +
-	"\t_provider\"\xb1\x01\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12=\n" +
+	"\bprovider\x18\x02 \x01(\x0e2!.common.provider.v1.OAuthProviderR\bprovider\"\xb1\x01\n" +
 	"\x12DeleteUserResponse\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12=\n" +
 	"\bprovider\x18\x02 \x01(\x0e2!.common.provider.v1.OAuthProviderR\bprovider\x129\n" +
 	"\n" +
-	"deleted_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tdeletedAt\"\x9f\x01\n" +
+	"deleted_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tdeletedAt\">\n" +
+	"\x19DeleteAllProvidersRequest\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\"z\n" +
+	"\x1aDeleteAllProvidersResponse\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x129\n" +
+	"\n" +
+	"deleted_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tdeletedAt\"\x9f\x01\n" +
 	"\x0fSyncUserRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12=\n" +
 	"\bprovider\x18\x02 \x01(\x0e2!.common.provider.v1.OAuthProviderR\bprovider\x12*\n" +
@@ -832,13 +934,14 @@ const file_auth_user_oauth_v1_oauth_user_proto_rawDesc = "" +
 	"\vis_verified\x18\x03 \x01(\bR\n" +
 	"isVerified\"Q\n" +
 	"\x1cUpdateVerifiedStatusResponse\x121\n" +
-	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.oauth.v1.OAuthUserR\x04user2\xe7\x04\n" +
+	"\x04user\x18\x01 \x01(\v2\x1d.auth.user.oauth.v1.OAuthUserR\x04user2\xdc\x05\n" +
 	"\x10OAuthUserService\x12R\n" +
 	"\aGetUser\x12\".auth.user.oauth.v1.GetUserRequest\x1a#.auth.user.oauth.v1.GetUserResponse\x12[\n" +
 	"\n" +
 	"EnrollUser\x12%.auth.user.oauth.v1.EnrollUserRequest\x1a&.auth.user.oauth.v1.EnrollUserResponse\x12[\n" +
 	"\n" +
-	"DeleteUser\x12%.auth.user.oauth.v1.DeleteUserRequest\x1a&.auth.user.oauth.v1.DeleteUserResponse\x12U\n" +
+	"DeleteUser\x12%.auth.user.oauth.v1.DeleteUserRequest\x1a&.auth.user.oauth.v1.DeleteUserResponse\x12s\n" +
+	"\x12DeleteAllProviders\x12-.auth.user.oauth.v1.DeleteAllProvidersRequest\x1a..auth.user.oauth.v1.DeleteAllProvidersResponse\x12U\n" +
 	"\bSyncUser\x12#.auth.user.oauth.v1.SyncUserRequest\x1a$.auth.user.oauth.v1.SyncUserResponse\x12s\n" +
 	"\x12UpdateActiveStatus\x12-.auth.user.oauth.v1.UpdateActiveStatusRequest\x1a..auth.user.oauth.v1.UpdateActiveStatusResponse\x12y\n" +
 	"\x14UpdateVerifiedStatus\x12/.auth.user.oauth.v1.UpdateVerifiedStatusRequest\x1a0.auth.user.oauth.v1.UpdateVerifiedStatusResponseB=Z;mandacode.com/accounts/proto/auth/user/oauth/v1;oauthuserv1b\x06proto3"
@@ -855,7 +958,7 @@ func file_auth_user_oauth_v1_oauth_user_proto_rawDescGZIP() []byte {
 	return file_auth_user_oauth_v1_oauth_user_proto_rawDescData
 }
 
-var file_auth_user_oauth_v1_oauth_user_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_auth_user_oauth_v1_oauth_user_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_auth_user_oauth_v1_oauth_user_proto_goTypes = []any{
 	(*OAuthUser)(nil),                    // 0: auth.user.oauth.v1.OAuthUser
 	(*GetUserRequest)(nil),               // 1: auth.user.oauth.v1.GetUserRequest
@@ -864,49 +967,54 @@ var file_auth_user_oauth_v1_oauth_user_proto_goTypes = []any{
 	(*EnrollUserResponse)(nil),           // 4: auth.user.oauth.v1.EnrollUserResponse
 	(*DeleteUserRequest)(nil),            // 5: auth.user.oauth.v1.DeleteUserRequest
 	(*DeleteUserResponse)(nil),           // 6: auth.user.oauth.v1.DeleteUserResponse
-	(*SyncUserRequest)(nil),              // 7: auth.user.oauth.v1.SyncUserRequest
-	(*SyncUserResponse)(nil),             // 8: auth.user.oauth.v1.SyncUserResponse
-	(*UpdateActiveStatusRequest)(nil),    // 9: auth.user.oauth.v1.UpdateActiveStatusRequest
-	(*UpdateActiveStatusResponse)(nil),   // 10: auth.user.oauth.v1.UpdateActiveStatusResponse
-	(*UpdateVerifiedStatusRequest)(nil),  // 11: auth.user.oauth.v1.UpdateVerifiedStatusRequest
-	(*UpdateVerifiedStatusResponse)(nil), // 12: auth.user.oauth.v1.UpdateVerifiedStatusResponse
-	(v1.OAuthProvider)(0),                // 13: common.provider.v1.OAuthProvider
-	(*timestamppb.Timestamp)(nil),        // 14: google.protobuf.Timestamp
+	(*DeleteAllProvidersRequest)(nil),    // 7: auth.user.oauth.v1.DeleteAllProvidersRequest
+	(*DeleteAllProvidersResponse)(nil),   // 8: auth.user.oauth.v1.DeleteAllProvidersResponse
+	(*SyncUserRequest)(nil),              // 9: auth.user.oauth.v1.SyncUserRequest
+	(*SyncUserResponse)(nil),             // 10: auth.user.oauth.v1.SyncUserResponse
+	(*UpdateActiveStatusRequest)(nil),    // 11: auth.user.oauth.v1.UpdateActiveStatusRequest
+	(*UpdateActiveStatusResponse)(nil),   // 12: auth.user.oauth.v1.UpdateActiveStatusResponse
+	(*UpdateVerifiedStatusRequest)(nil),  // 13: auth.user.oauth.v1.UpdateVerifiedStatusRequest
+	(*UpdateVerifiedStatusResponse)(nil), // 14: auth.user.oauth.v1.UpdateVerifiedStatusResponse
+	(v1.OAuthProvider)(0),                // 15: common.provider.v1.OAuthProvider
+	(*timestamppb.Timestamp)(nil),        // 16: google.protobuf.Timestamp
 }
 var file_auth_user_oauth_v1_oauth_user_proto_depIdxs = []int32{
-	13, // 0: auth.user.oauth.v1.OAuthUser.provider:type_name -> common.provider.v1.OAuthProvider
-	14, // 1: auth.user.oauth.v1.OAuthUser.created_at:type_name -> google.protobuf.Timestamp
-	14, // 2: auth.user.oauth.v1.OAuthUser.updated_at:type_name -> google.protobuf.Timestamp
-	13, // 3: auth.user.oauth.v1.GetUserRequest.provider:type_name -> common.provider.v1.OAuthProvider
+	15, // 0: auth.user.oauth.v1.OAuthUser.provider:type_name -> common.provider.v1.OAuthProvider
+	16, // 1: auth.user.oauth.v1.OAuthUser.created_at:type_name -> google.protobuf.Timestamp
+	16, // 2: auth.user.oauth.v1.OAuthUser.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 3: auth.user.oauth.v1.GetUserRequest.provider:type_name -> common.provider.v1.OAuthProvider
 	0,  // 4: auth.user.oauth.v1.GetUserResponse.user:type_name -> auth.user.oauth.v1.OAuthUser
-	13, // 5: auth.user.oauth.v1.EnrollUserRequest.provider:type_name -> common.provider.v1.OAuthProvider
+	15, // 5: auth.user.oauth.v1.EnrollUserRequest.provider:type_name -> common.provider.v1.OAuthProvider
 	0,  // 6: auth.user.oauth.v1.EnrollUserResponse.user:type_name -> auth.user.oauth.v1.OAuthUser
-	13, // 7: auth.user.oauth.v1.DeleteUserRequest.provider:type_name -> common.provider.v1.OAuthProvider
-	13, // 8: auth.user.oauth.v1.DeleteUserResponse.provider:type_name -> common.provider.v1.OAuthProvider
-	14, // 9: auth.user.oauth.v1.DeleteUserResponse.deleted_at:type_name -> google.protobuf.Timestamp
-	13, // 10: auth.user.oauth.v1.SyncUserRequest.provider:type_name -> common.provider.v1.OAuthProvider
-	0,  // 11: auth.user.oauth.v1.SyncUserResponse.user:type_name -> auth.user.oauth.v1.OAuthUser
-	13, // 12: auth.user.oauth.v1.UpdateActiveStatusRequest.provider:type_name -> common.provider.v1.OAuthProvider
-	0,  // 13: auth.user.oauth.v1.UpdateActiveStatusResponse.user:type_name -> auth.user.oauth.v1.OAuthUser
-	13, // 14: auth.user.oauth.v1.UpdateVerifiedStatusRequest.provider:type_name -> common.provider.v1.OAuthProvider
-	0,  // 15: auth.user.oauth.v1.UpdateVerifiedStatusResponse.user:type_name -> auth.user.oauth.v1.OAuthUser
-	1,  // 16: auth.user.oauth.v1.OAuthUserService.GetUser:input_type -> auth.user.oauth.v1.GetUserRequest
-	3,  // 17: auth.user.oauth.v1.OAuthUserService.EnrollUser:input_type -> auth.user.oauth.v1.EnrollUserRequest
-	5,  // 18: auth.user.oauth.v1.OAuthUserService.DeleteUser:input_type -> auth.user.oauth.v1.DeleteUserRequest
-	7,  // 19: auth.user.oauth.v1.OAuthUserService.SyncUser:input_type -> auth.user.oauth.v1.SyncUserRequest
-	9,  // 20: auth.user.oauth.v1.OAuthUserService.UpdateActiveStatus:input_type -> auth.user.oauth.v1.UpdateActiveStatusRequest
-	11, // 21: auth.user.oauth.v1.OAuthUserService.UpdateVerifiedStatus:input_type -> auth.user.oauth.v1.UpdateVerifiedStatusRequest
-	2,  // 22: auth.user.oauth.v1.OAuthUserService.GetUser:output_type -> auth.user.oauth.v1.GetUserResponse
-	4,  // 23: auth.user.oauth.v1.OAuthUserService.EnrollUser:output_type -> auth.user.oauth.v1.EnrollUserResponse
-	6,  // 24: auth.user.oauth.v1.OAuthUserService.DeleteUser:output_type -> auth.user.oauth.v1.DeleteUserResponse
-	8,  // 25: auth.user.oauth.v1.OAuthUserService.SyncUser:output_type -> auth.user.oauth.v1.SyncUserResponse
-	10, // 26: auth.user.oauth.v1.OAuthUserService.UpdateActiveStatus:output_type -> auth.user.oauth.v1.UpdateActiveStatusResponse
-	12, // 27: auth.user.oauth.v1.OAuthUserService.UpdateVerifiedStatus:output_type -> auth.user.oauth.v1.UpdateVerifiedStatusResponse
-	22, // [22:28] is the sub-list for method output_type
-	16, // [16:22] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	15, // 7: auth.user.oauth.v1.DeleteUserRequest.provider:type_name -> common.provider.v1.OAuthProvider
+	15, // 8: auth.user.oauth.v1.DeleteUserResponse.provider:type_name -> common.provider.v1.OAuthProvider
+	16, // 9: auth.user.oauth.v1.DeleteUserResponse.deleted_at:type_name -> google.protobuf.Timestamp
+	16, // 10: auth.user.oauth.v1.DeleteAllProvidersResponse.deleted_at:type_name -> google.protobuf.Timestamp
+	15, // 11: auth.user.oauth.v1.SyncUserRequest.provider:type_name -> common.provider.v1.OAuthProvider
+	0,  // 12: auth.user.oauth.v1.SyncUserResponse.user:type_name -> auth.user.oauth.v1.OAuthUser
+	15, // 13: auth.user.oauth.v1.UpdateActiveStatusRequest.provider:type_name -> common.provider.v1.OAuthProvider
+	0,  // 14: auth.user.oauth.v1.UpdateActiveStatusResponse.user:type_name -> auth.user.oauth.v1.OAuthUser
+	15, // 15: auth.user.oauth.v1.UpdateVerifiedStatusRequest.provider:type_name -> common.provider.v1.OAuthProvider
+	0,  // 16: auth.user.oauth.v1.UpdateVerifiedStatusResponse.user:type_name -> auth.user.oauth.v1.OAuthUser
+	1,  // 17: auth.user.oauth.v1.OAuthUserService.GetUser:input_type -> auth.user.oauth.v1.GetUserRequest
+	3,  // 18: auth.user.oauth.v1.OAuthUserService.EnrollUser:input_type -> auth.user.oauth.v1.EnrollUserRequest
+	5,  // 19: auth.user.oauth.v1.OAuthUserService.DeleteUser:input_type -> auth.user.oauth.v1.DeleteUserRequest
+	7,  // 20: auth.user.oauth.v1.OAuthUserService.DeleteAllProviders:input_type -> auth.user.oauth.v1.DeleteAllProvidersRequest
+	9,  // 21: auth.user.oauth.v1.OAuthUserService.SyncUser:input_type -> auth.user.oauth.v1.SyncUserRequest
+	11, // 22: auth.user.oauth.v1.OAuthUserService.UpdateActiveStatus:input_type -> auth.user.oauth.v1.UpdateActiveStatusRequest
+	13, // 23: auth.user.oauth.v1.OAuthUserService.UpdateVerifiedStatus:input_type -> auth.user.oauth.v1.UpdateVerifiedStatusRequest
+	2,  // 24: auth.user.oauth.v1.OAuthUserService.GetUser:output_type -> auth.user.oauth.v1.GetUserResponse
+	4,  // 25: auth.user.oauth.v1.OAuthUserService.EnrollUser:output_type -> auth.user.oauth.v1.EnrollUserResponse
+	6,  // 26: auth.user.oauth.v1.OAuthUserService.DeleteUser:output_type -> auth.user.oauth.v1.DeleteUserResponse
+	8,  // 27: auth.user.oauth.v1.OAuthUserService.DeleteAllProviders:output_type -> auth.user.oauth.v1.DeleteAllProvidersResponse
+	10, // 28: auth.user.oauth.v1.OAuthUserService.SyncUser:output_type -> auth.user.oauth.v1.SyncUserResponse
+	12, // 29: auth.user.oauth.v1.OAuthUserService.UpdateActiveStatus:output_type -> auth.user.oauth.v1.UpdateActiveStatusResponse
+	14, // 30: auth.user.oauth.v1.OAuthUserService.UpdateVerifiedStatus:output_type -> auth.user.oauth.v1.UpdateVerifiedStatusResponse
+	24, // [24:31] is the sub-list for method output_type
+	17, // [17:24] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_auth_user_oauth_v1_oauth_user_proto_init() }
@@ -915,14 +1023,13 @@ func file_auth_user_oauth_v1_oauth_user_proto_init() {
 		return
 	}
 	file_auth_user_oauth_v1_oauth_user_proto_msgTypes[3].OneofWrappers = []any{}
-	file_auth_user_oauth_v1_oauth_user_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_user_oauth_v1_oauth_user_proto_rawDesc), len(file_auth_user_oauth_v1_oauth_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

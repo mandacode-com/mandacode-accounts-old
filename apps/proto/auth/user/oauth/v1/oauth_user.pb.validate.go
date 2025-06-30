@@ -857,9 +857,7 @@ func (m *DeleteUserRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.Provider != nil {
-		// no validation rules for Provider
-	}
+	// no validation rules for Provider
 
 	if len(errors) > 0 {
 		return DeleteUserRequestMultiError(errors)
@@ -1101,6 +1099,279 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteUserResponseValidationError{}
+
+// Validate checks the field values on DeleteAllProvidersRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteAllProvidersRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteAllProvidersRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteAllProvidersRequestMultiError, or nil if none found.
+func (m *DeleteAllProvidersRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteAllProvidersRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = DeleteAllProvidersRequestValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return DeleteAllProvidersRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *DeleteAllProvidersRequest) _validateUuid(uuid string) error {
+	if matched := _oauth_user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// DeleteAllProvidersRequestMultiError is an error wrapping multiple validation
+// errors returned by DeleteAllProvidersRequest.ValidateAll() if the
+// designated constraints aren't met.
+type DeleteAllProvidersRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteAllProvidersRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteAllProvidersRequestMultiError) AllErrors() []error { return m }
+
+// DeleteAllProvidersRequestValidationError is the validation error returned by
+// DeleteAllProvidersRequest.Validate if the designated constraints aren't met.
+type DeleteAllProvidersRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteAllProvidersRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteAllProvidersRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteAllProvidersRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteAllProvidersRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteAllProvidersRequestValidationError) ErrorName() string {
+	return "DeleteAllProvidersRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteAllProvidersRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteAllProvidersRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteAllProvidersRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteAllProvidersRequestValidationError{}
+
+// Validate checks the field values on DeleteAllProvidersResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteAllProvidersResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteAllProvidersResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteAllProvidersResponseMultiError, or nil if none found.
+func (m *DeleteAllProvidersResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteAllProvidersResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = DeleteAllProvidersResponseValidationError{
+			field:  "UserId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetDeletedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, DeleteAllProvidersResponseValidationError{
+					field:  "DeletedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, DeleteAllProvidersResponseValidationError{
+					field:  "DeletedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDeletedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return DeleteAllProvidersResponseValidationError{
+				field:  "DeletedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return DeleteAllProvidersResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *DeleteAllProvidersResponse) _validateUuid(uuid string) error {
+	if matched := _oauth_user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// DeleteAllProvidersResponseMultiError is an error wrapping multiple
+// validation errors returned by DeleteAllProvidersResponse.ValidateAll() if
+// the designated constraints aren't met.
+type DeleteAllProvidersResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteAllProvidersResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteAllProvidersResponseMultiError) AllErrors() []error { return m }
+
+// DeleteAllProvidersResponseValidationError is the validation error returned
+// by DeleteAllProvidersResponse.Validate if the designated constraints aren't met.
+type DeleteAllProvidersResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteAllProvidersResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteAllProvidersResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteAllProvidersResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteAllProvidersResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteAllProvidersResponseValidationError) ErrorName() string {
+	return "DeleteAllProvidersResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteAllProvidersResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteAllProvidersResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteAllProvidersResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteAllProvidersResponseValidationError{}
 
 // Validate checks the field values on SyncUserRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the

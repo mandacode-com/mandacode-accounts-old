@@ -18,6 +18,10 @@ service OAuthUserService {
   // Deletes a user by user ID
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
 
+  // Deletes all OAuth providers for a user
+  rpc DeleteAllProviders(DeleteAllProvidersRequest)
+      returns (DeleteAllProvidersResponse);
+
   // Syncs a user with OAuth provider
   rpc SyncUser(SyncUserRequest) returns (SyncUserResponse);
 
@@ -74,13 +78,24 @@ message EnrollUserResponse {
 //
 message DeleteUserRequest {
   string user_id = 1 [ (validate.rules).string = {uuid : true} ];
-  optional common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
+  common.provider.v1.OAuthProvider provider = 2; // OAuth provider enum
 }
 message DeleteUserResponse {
   string user_id = 1
       [ (validate.rules).string = {uuid : true} ]; // Deleted user ID
   common.provider.v1.OAuthProvider provider = 2;   // OAuth provider enum
   google.protobuf.Timestamp deleted_at = 3;        // Timestamp of the deletion
+}
+
+//
+// Delete All Providers messages
+//
+message DeleteAllProvidersRequest {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+}
+message DeleteAllProvidersResponse {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ]; // User ID
+  google.protobuf.Timestamp deleted_at = 2; // Timestamp of the deletion
 }
 
 //

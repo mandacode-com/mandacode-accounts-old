@@ -20,7 +20,6 @@ message LoginRequest {
 }
 
 message LoginResponse {
-  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
-  string access_token = 2 [ (validate.rules).string = {min_len : 1} ];
-  string refresh_token = 3 [ (validate.rules).string = {min_len : 1} ];
+  string access_token = 1 [ (validate.rules).string = {min_len : 1} ];
+  string refresh_token = 2 [ (validate.rules).string = {min_len : 1} ];
 }

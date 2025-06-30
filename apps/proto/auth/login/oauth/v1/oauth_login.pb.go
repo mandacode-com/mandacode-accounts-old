@@ -78,9 +78,8 @@ func (x *LoginRequest) GetAccessToken() string {
 
 type LoginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                   // User ID associated with the OAuth account
-	AccessToken   string                 `protobuf:"bytes,2,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`    // Generated access token for the user
-	RefreshToken  string                 `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"` // Generated refresh token for the user
+	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`    // Generated access token for the user
+	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"` // Generated refresh token for the user
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -115,13 +114,6 @@ func (*LoginResponse) Descriptor() ([]byte, []int) {
 	return file_auth_login_oauth_v1_oauth_login_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *LoginResponse) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
 func (x *LoginResponse) GetAccessToken() string {
 	if x != nil {
 		return x.AccessToken
@@ -143,11 +135,10 @@ const file_auth_login_oauth_v1_oauth_login_proto_rawDesc = "" +
 	"%auth/login/oauth/v1/oauth_login.proto\x12\x13auth.login.oauth.v1\x1a!common/provider/v1/provider.proto\x1a#third_party/validate/validate.proto\"y\n" +
 	"\fLoginRequest\x12=\n" +
 	"\bprovider\x18\x01 \x01(\x0e2!.common.provider.v1.OAuthProviderR\bprovider\x12*\n" +
-	"\faccess_token\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vaccessToken\"\x8c\x01\n" +
-	"\rLoginResponse\x12!\n" +
-	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12*\n" +
-	"\faccess_token\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vaccessToken\x12,\n" +
-	"\rrefresh_token\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\frefreshToken2c\n" +
+	"\faccess_token\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vaccessToken\"i\n" +
+	"\rLoginResponse\x12*\n" +
+	"\faccess_token\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vaccessToken\x12,\n" +
+	"\rrefresh_token\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\frefreshToken2c\n" +
 	"\x11OAuthLoginService\x12N\n" +
 	"\x05Login\x12!.auth.login.oauth.v1.LoginRequest\x1a\".auth.login.oauth.v1.LoginResponseB?Z=mandacode.com/accounts/proto/auth/login/oauth/v1;oauthloginv1b\x06proto3"
 

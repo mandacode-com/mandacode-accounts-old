@@ -22,6 +22,7 @@ const (
 	OAuthUserService_GetUser_FullMethodName              = "/auth.user.oauth.v1.OAuthUserService/GetUser"
 	OAuthUserService_EnrollUser_FullMethodName           = "/auth.user.oauth.v1.OAuthUserService/EnrollUser"
 	OAuthUserService_DeleteUser_FullMethodName           = "/auth.user.oauth.v1.OAuthUserService/DeleteUser"
+	OAuthUserService_DeleteAllProviders_FullMethodName   = "/auth.user.oauth.v1.OAuthUserService/DeleteAllProviders"
 	OAuthUserService_SyncUser_FullMethodName             = "/auth.user.oauth.v1.OAuthUserService/SyncUser"
 	OAuthUserService_UpdateActiveStatus_FullMethodName   = "/auth.user.oauth.v1.OAuthUserService/UpdateActiveStatus"
 	OAuthUserService_UpdateVerifiedStatus_FullMethodName = "/auth.user.oauth.v1.OAuthUserService/UpdateVerifiedStatus"
@@ -37,6 +38,8 @@ type OAuthUserServiceClient interface {
 	EnrollUser(ctx context.Context, in *EnrollUserRequest, opts ...grpc.CallOption) (*EnrollUserResponse, error)
 	// Deletes a user by user ID
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
+	// Deletes all OAuth providers for a user
+	DeleteAllProviders(ctx context.Context, in *DeleteAllProvidersRequest, opts ...grpc.CallOption) (*DeleteAllProvidersResponse, error)
 	// Syncs a user with OAuth provider
 	SyncUser(ctx context.Context, in *SyncUserRequest, opts ...grpc.CallOption) (*SyncUserResponse, error)
 	// Updates a user's active status
@@ -83,6 +86,16 @@ func (c *oAuthUserServiceClient) DeleteUser(ctx context.Context, in *DeleteUserR
 	return out, nil
 }
 
+func (c *oAuthUserServiceClient) DeleteAllProviders(ctx context.Context, in *DeleteAllProvidersRequest, opts ...grpc.CallOption) (*DeleteAllProvidersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAllProvidersResponse)
+	err := c.cc.Invoke(ctx, OAuthUserService_DeleteAllProviders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *oAuthUserServiceClient) SyncUser(ctx context.Context, in *SyncUserRequest, opts ...grpc.CallOption) (*SyncUserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SyncUserResponse)
@@ -123,6 +136,8 @@ type OAuthUserServiceServer interface {
 	EnrollUser(context.Context, *EnrollUserRequest) (*EnrollUserResponse, error)
 	// Deletes a user by user ID
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
+	// Deletes all OAuth providers for a user
+	DeleteAllProviders(context.Context, *DeleteAllProvidersRequest) (*DeleteAllProvidersResponse, error)
 	// Syncs a user with OAuth provider
 	SyncUser(context.Context, *SyncUserRequest) (*SyncUserResponse, error)
 	// Updates a user's active status
@@ -147,6 +162,9 @@ func (UnimplementedOAuthUserServiceServer) EnrollUser(context.Context, *EnrollUs
 }
 func (UnimplementedOAuthUserServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+}
+func (UnimplementedOAuthUserServiceServer) DeleteAllProviders(context.Context, *DeleteAllProvidersRequest) (*DeleteAllProvidersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAllProviders not implemented")
 }
 func (UnimplementedOAuthUserServiceServer) SyncUser(context.Context, *SyncUserRequest) (*SyncUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncUser not implemented")
@@ -232,6 +250,24 @@ func _OAuthUserService_DeleteUser_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OAuthUserService_DeleteAllProviders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAllProvidersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OAuthUserServiceServer).DeleteAllProviders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OAuthUserService_DeleteAllProviders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OAuthUserServiceServer).DeleteAllProviders(ctx, req.(*DeleteAllProvidersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OAuthUserService_SyncUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUserRequest)
 	if err := dec(in); err != nil {
@@ -304,6 +340,10 @@ var OAuthUserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteUser",
 			Handler:    _OAuthUserService_DeleteUser_Handler,
+		},
+		{
+			MethodName: "DeleteAllProviders",
+			Handler:    _OAuthUserService_DeleteAllProviders_Handler,
 		},
 		{
 			MethodName: "SyncUser",
