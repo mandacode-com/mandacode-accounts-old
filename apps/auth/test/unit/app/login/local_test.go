@@ -6,30 +6,36 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
-	"mandacode.com/accounts/auth/internal/app/login"
-	"mandacode.com/accounts/auth/internal/domain/dto"
-	mock_logindomain "mandacode.com/accounts/auth/test/mock/domain/service/login"
-	mock_tokendomain "mandacode.com/accounts/auth/test/mock/domain/service/token"
+	"golang.org/x/crypto/bcrypt"
+	"mandacode.com/accounts/auth/ent"
+	logindto "mandacode.com/accounts/auth/internal/app/login/dto"
+	locallogin "mandacode.com/accounts/auth/internal/app/login/local"
+	mock_repodomain "mandacode.com/accounts/auth/test/mock/domain/repository"
+	mock_tokendomain "mandacode.com/accounts/auth/test/mock/domain/token"
 )
 
 type MockLocalLoginApp struct {
-	mockTokenService      *mock_tokendomain.MockTokenService
-	mockLocalLoginService *mock_logindomain.MockLocalLoginService
-	app                   *login.LocalLoginApp
+	mockTokenProvider *mock_tokendomain.MockTokenProvider
+	mockRepository    *mock_repodomain.MockLocalUserRepository
+	validate          *validator.Validate
+	app               locallogin.LocalLoginApp
 }
 
 func (m *MockLocalLoginApp) Setup(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	m.mockTokenService = mock_tokendomain.NewMockTokenService(ctrl)
-	m.mockLocalLoginService = mock_logindomain.NewMockLocalLoginService(ctrl)
-	m.app = login.NewLocalLoginApp(m.mockTokenService, m.mockLocalLoginService)
+	m.mockTokenProvider = mock_tokendomain.NewMockTokenProvider(ctrl)
+	m.mockRepository = mock_repodomain.NewMockLocalUserRepository(ctrl)
+	m.validate = validator.New()
+	m.app = locallogin.NewLocalLoginApp(m.mockTokenProvider, m.mockRepository)
 }
 
 func (m *MockLocalLoginApp) Teardown() {
-	m.mockTokenService = nil
-	m.mockLocalLoginService = nil
+	m.mockTokenProvider = nil
+	m.mockRepository = nil
+	m.validate = nil
 	m.app = nil
 }
 
@@ -44,41 +50,61 @@ func TestLocalAuthApp_LoginLocalUser(t *testing.T) {
 	password := "password123"
 
 	t.Run("Successful Login", func(t *testing.T) {
-		dtoUser := &dto.LocalUser{
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			t.Fatalf("failed to hash password: %v", err)
+		}
+		entUser := &ent.LocalUser{
 			ID:         id,
 			Email:      email,
+			Password:   string(hashedPassword),
 			IsActive:   true,
 			IsVerified: true,
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		}
 
-		mock.mockLocalLoginService.EXPECT().LoginLocalUser(ctx, email, password).Return(dtoUser, nil)
-		mock.mockTokenService.EXPECT().GenerateAccessToken(ctx, id.String()).Return("access-token", time.Now().Unix(), nil)
-		mock.mockTokenService.EXPECT().GenerateRefreshToken(ctx, id.String()).Return("refresh-token", time.Now().Unix(), nil)
+		mock.mockRepository.EXPECT().GetUserByEmail(email).Return(entUser, nil)
+		mock.mockTokenProvider.EXPECT().GenerateAccessToken(ctx, id.String()).Return("access-token", int64(3600), nil)
+		mock.mockTokenProvider.EXPECT().GenerateRefreshToken(ctx, id.String()).Return("refresh-token", int64(7200), nil)
 
-		userID, accessToken, refreshToken, err := mock.app.LoginLocalUser(ctx, email, password)
+		loginToken, err := mock.app.Login(ctx, email, password)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-
-		if *userID != id.String() {
-			t.Errorf("expected user ID %s, got %s", id.String(), *userID)
+		if err := mock.validate.Struct(loginToken); err != nil {
+			t.Fatalf("validation failed: %v", err)
 		}
-		if accessToken == nil || refreshToken == nil {
-			t.Error("expected non-nil access and refresh tokens")
+		if loginToken.AccessToken == "" || loginToken.RefreshToken == "" {
+			t.Fatal("expected non-empty access and refresh tokens")
 		}
 	})
 
 	t.Run("Login Failure", func(t *testing.T) {
-		mock.mockLocalLoginService.EXPECT().LoginLocalUser(ctx, email, password).Return(nil, errors.New("login failed"))
+		mock.mockRepository.EXPECT().GetUserByEmail(email).Return(nil, errors.New("user not found"))
 
-		userID, accessToken, refreshToken, err := mock.app.LoginLocalUser(ctx, email, password)
+		_, err := mock.app.Login(ctx, email, password)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
-		if userID != nil || accessToken != nil || refreshToken != nil {
-			t.Error("expected nil user ID and tokens on error")
+	})
+
+	t.Run("Invalid Credentials", func(t *testing.T) {
+		entUser := &ent.LocalUser{
+			ID:         id,
+			Email:      email,
+			Password:   "$2a$10$invalidhash", // Invalid hash
+			IsActive:   true,
+			IsVerified: true,
+			CreatedAt:  time.Now(),
+			UpdatedAt:  time.Now(),
+		}
+
+		mock.mockRepository.EXPECT().GetUserByEmail(email).Return(entUser, nil)
+
+		_, err := mock.app.Login(ctx, email, password)
+		if !errors.Is(err, logindto.ErrInvalidCredentials) {
+			t.Fatalf("expected invalid credentials error, got %v", err)
 		}
 	})
 }

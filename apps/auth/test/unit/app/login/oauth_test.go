@@ -6,45 +6,51 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
+	"mandacode.com/accounts/auth/ent"
 	"mandacode.com/accounts/auth/ent/oauthuser"
-	"mandacode.com/accounts/auth/internal/app/login"
-	"mandacode.com/accounts/auth/internal/domain/dto"
-	oauthdomain "mandacode.com/accounts/auth/internal/domain/service/oauth"
-	mock_logindomain "mandacode.com/accounts/auth/test/mock/domain/service/login"
-	mock_oauthdomain "mandacode.com/accounts/auth/test/mock/domain/service/oauth"
-	mock_tokendomain "mandacode.com/accounts/auth/test/mock/domain/service/token"
-	providerv1 "mandacode.com/accounts/proto/common/provider/v1"
+	oauthlogin "mandacode.com/accounts/auth/internal/app/login/oauth"
+	oauthdomain "mandacode.com/accounts/auth/internal/domain/oauth"
+	oauthdto "mandacode.com/accounts/auth/internal/infra/oauth/dto"
+	protoutil "mandacode.com/accounts/auth/internal/util/proto"
+	mock_oauthdomain "mandacode.com/accounts/auth/test/mock/domain/oauth"
+	mock_repodomain "mandacode.com/accounts/auth/test/mock/domain/repository"
+	mock_tokendomain "mandacode.com/accounts/auth/test/mock/domain/token"
 )
 
 type MockOAuthLoginApp struct {
-	mockProviders         map[oauthuser.Provider]oauthdomain.OAuthService
-	mockTokenService      *mock_tokendomain.MockTokenService
-	mockOAuthLoginService *mock_logindomain.MockOAuthLoginService
-	app                   *login.OAuthLoginApp
+	mockTokenProvider  *mock_tokendomain.MockTokenProvider
+	mockOAuthProviders *map[oauthuser.Provider]oauthdomain.OAuthProvider
+	mockRepository     *mock_repodomain.MockOAuthUserRepository
+	validate           *validator.Validate
+	app                oauthlogin.OAuthLoginApp
 }
 
 func (m *MockOAuthLoginApp) Setup() {
 	ctrl := gomock.NewController(nil)
-	m.mockProviders = map[oauthuser.Provider]oauthdomain.OAuthService{
-		oauthuser.ProviderGoogle: mock_oauthdomain.NewMockOAuthService(ctrl),
-		oauthuser.ProviderNaver:  mock_oauthdomain.NewMockOAuthService(ctrl),
-		oauthuser.ProviderKakao:  mock_oauthdomain.NewMockOAuthService(ctrl),
+	m.mockTokenProvider = mock_tokendomain.NewMockTokenProvider(ctrl)
+	m.mockOAuthProviders = &map[oauthuser.Provider]oauthdomain.OAuthProvider{
+		oauthuser.ProviderGoogle: mock_oauthdomain.NewMockOAuthProvider(ctrl),
+		oauthuser.ProviderNaver:  mock_oauthdomain.NewMockOAuthProvider(ctrl),
+		oauthuser.ProviderKakao:  mock_oauthdomain.NewMockOAuthProvider(ctrl),
 	}
-	m.mockTokenService = mock_tokendomain.NewMockTokenService(ctrl)
-	m.mockOAuthLoginService = mock_logindomain.NewMockOAuthLoginService(ctrl)
-	m.app = login.NewOAuthLoginApp(&m.mockProviders, m.mockTokenService, m.mockOAuthLoginService)
+	m.mockRepository = mock_repodomain.NewMockOAuthUserRepository(ctrl)
+	m.validate = validator.New()
+	m.app = oauthlogin.NewOAuthLoginApp(
+		m.mockTokenProvider,
+		m.mockOAuthProviders,
+		m.mockRepository,
+	)
 }
 
 func (m *MockOAuthLoginApp) Teardown() {
-	m.mockTokenService = nil
-	m.mockOAuthLoginService = nil
+	m.mockTokenProvider = nil
+	m.mockOAuthProviders = nil
+	m.mockRepository = nil
+	m.validate = nil
 	m.app = nil
-}
-
-func (m *MockOAuthLoginApp) GetApp() *login.OAuthLoginApp {
-	return m.app
 }
 
 func TestOAuthAuthApp_LoginOAuthUser(t *testing.T) {
@@ -54,16 +60,15 @@ func TestOAuthAuthApp_LoginOAuthUser(t *testing.T) {
 
 	ctx := context.Background()
 	id := uuid.New()
-	provider := providerv1.OAuthProvider_O_AUTH_PROVIDER_GOOGLE
-	providerEnum := oauthuser.ProviderGoogle
+	provider := oauthuser.ProviderGoogle
 	email := "test@test.com"
 	providerID := "google-id-123"
 	oauthAccessToken := "valid-access-token"
 
 	t.Run("Successful Login", func(t *testing.T) {
-		dtoUser := &dto.OAuthUser{
+		entUser := &ent.OAuthUser{
 			ID:         id,
-			Provider:   providerEnum,
+			Provider:   provider,
 			ProviderID: providerID,
 			Email:      email,
 			IsActive:   true,
@@ -71,46 +76,39 @@ func TestOAuthAuthApp_LoginOAuthUser(t *testing.T) {
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		}
-		oauthUserInfo := &dto.OAuthUserInfo{
+		oauthUserInfo := &oauthdto.OAuthUserInfo{
 			ProviderID:    providerID,
 			Email:         email,
 			Name:          "Test User",
 			EmailVerified: true,
 		}
 
-		mock.mockProviders[providerEnum].(*mock_oauthdomain.MockOAuthService).EXPECT().GetUserInfo(oauthAccessToken).Return(oauthUserInfo, nil)
-		mock.mockOAuthLoginService.EXPECT().LoginOAuthUser(ctx, providerEnum, providerID).Return(dtoUser, nil)
-		mock.mockTokenService.EXPECT().GenerateAccessToken(ctx, id.String()).Return("access-token", time.Now().Unix(), nil)
-		mock.mockTokenService.EXPECT().GenerateRefreshToken(ctx, id.String()).Return("refresh-token", time.Now().Unix(), nil)
+		(*mock.mockOAuthProviders)[provider].(*mock_oauthdomain.MockOAuthProvider).EXPECT().GetUserInfo(oauthAccessToken).Return(oauthUserInfo, nil)
+		mock.mockRepository.EXPECT().GetUserByProvider(provider, providerID).Return(entUser, nil)
+		mock.mockTokenProvider.EXPECT().GenerateAccessToken(ctx, id.String()).Return("access-token", time.Now().Unix(), nil)
+		mock.mockTokenProvider.EXPECT().GenerateRefreshToken(ctx, id.String()).Return("refresh-token", time.Now().Unix(), nil)
 
-		userID, accessToken, refreshToken, err := mock.app.LoginOAuthUser(ctx, provider, oauthAccessToken)
+		loginToken, err := mock.app.Login(ctx, provider, oauthAccessToken)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-
-		if userID == nil || *userID != id.String() {
-			t.Errorf("expected user ID %s, got %s", id.String(), *userID)
-		}
-		if accessToken == nil || *accessToken != "access-token" {
-			t.Errorf("expected access token 'access-token', got %s", *accessToken)
-		}
-		if refreshToken == nil || *refreshToken != "refresh-token" {
-			t.Errorf("expected refresh token 'refresh-token', got %s", *refreshToken)
+		if err := mock.validate.Struct(loginToken); err != nil {
+			t.Fatalf("validation failed: %v", err)
 		}
 	})
 
 	t.Run("Unsupported Provider", func(t *testing.T) {
-		unsupportedProvider := providerv1.OAuthProvider_O_AUTH_PROVIDER_UNSPECIFIED
-		_, _, _, err := mock.app.LoginOAuthUser(ctx, unsupportedProvider, oauthAccessToken)
-		if err == nil {
-			t.Fatal("expected error for unsupported provider, got nil")
+		unsupportedProvider := oauthuser.Provider("unsupported")
+		_, err := mock.app.Login(ctx, unsupportedProvider, oauthAccessToken)
+		if !errors.Is(err, protoutil.ErrUnsupportedProvider) {
+			t.Fatalf("expected unsupported provider error, got %v", err)
 		}
 	})
 
 	t.Run("GetUserInfo Error", func(t *testing.T) {
-		mock.mockProviders[providerEnum].(*mock_oauthdomain.MockOAuthService).EXPECT().GetUserInfo(oauthAccessToken).Return(nil, errors.New("failed to get user info"))
+		(*mock.mockOAuthProviders)[provider].(*mock_oauthdomain.MockOAuthProvider).EXPECT().GetUserInfo(oauthAccessToken).Return(nil, errors.New("failed to get user info"))
 
-		_, _, _, err := mock.app.LoginOAuthUser(ctx, provider, oauthAccessToken)
+		_, err := mock.app.Login(ctx, provider, oauthAccessToken)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
