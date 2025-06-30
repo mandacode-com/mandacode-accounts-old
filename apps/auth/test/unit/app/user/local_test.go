@@ -297,3 +297,42 @@ func TestLocalUserApp_UpdatePassword(t *testing.T) {
 		}
 	})
 }
+
+func TestLocalUserApp_UpdateVerifiedStatus(t *testing.T) {
+	mock := &MockLocalUserApp{}
+	mock.Setup(t)
+	defer mock.Teardown()
+
+	id := uuid.New()
+	isVerified := true
+
+	t.Run("Successful Update Verified Status", func(t *testing.T) {
+		entUser := &ent.LocalUser{
+			ID:         id,
+			Email:      "test@test.com",
+			Password:   "hashed-password",
+			IsActive:   true,
+			IsVerified: isVerified,
+			CreatedAt:  time.Now(),
+			UpdatedAt:  time.Now(),
+		}
+		mock.mockRepo.EXPECT().UpdateUser(id, nil, nil, nil, &isVerified).Return(entUser, nil).Times(1)
+		user, err := mock.app.UpdateVerificationStatus(id, isVerified)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if err := mock.validate.Struct(user); err != nil {
+			t.Fatalf("validation failed: %v", err)
+		}
+	})
+	t.Run("Update Verified Status Error", func(t *testing.T) {
+		mock.mockRepo.EXPECT().UpdateUser(id, nil, nil, nil, &isVerified).Return(nil, nil).Times(1)
+		user, err := mock.app.UpdateVerificationStatus(id, isVerified)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if user != nil {
+			t.Fatal("expected user to be nil, got non-nil user")
+		}
+	})
+}
