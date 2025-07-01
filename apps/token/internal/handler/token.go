@@ -68,6 +68,7 @@ func (h *TokenHandler) VerifyAccessToken(ctx context.Context, req *tokenv1.Verif
 	}
 
 	return &tokenv1.VerifyAccessTokenResponse{
+		Valid:   true,
 		UserId: userId,
 	}, nil
 }
@@ -103,6 +104,7 @@ func (h *TokenHandler) VerifyRefreshToken(ctx context.Context, req *tokenv1.Veri
 	}
 
 	return &tokenv1.VerifyRefreshTokenResponse{
+		Valid:   true,
 		UserId: userId,
 	}, nil
 }
