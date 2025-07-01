@@ -9,6 +9,7 @@ import (
 	"mandacode.com/accounts/auth/ent/oauthuser"
 	locallogin "mandacode.com/accounts/auth/internal/app/login/local"
 	oauthlogin "mandacode.com/accounts/auth/internal/app/login/oauth"
+	"mandacode.com/accounts/auth/internal/app/token"
 	localuser "mandacode.com/accounts/auth/internal/app/user/local"
 	oauthuserapp "mandacode.com/accounts/auth/internal/app/user/oauth"
 	"mandacode.com/accounts/auth/internal/config"
@@ -78,12 +79,18 @@ func main() {
 		oauthUserRepo,
 	)
 
+	// Token App
+	tokenApp := token.NewTokenApp(
+		tokenProvider,
+	)
+
 	// Register the applications
 	registerer := grpcserver.NewGRPCRegisterer(
 		localLoginApp,
 		oauthLoginApp,
 		localUserApp,
 		oauthUserApp,
+		tokenApp,
 		logger,
 	)
 	// Create the gRPC server
