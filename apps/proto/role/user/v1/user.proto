@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package role.user.v1;
+
+import "google/protobuf/timestamp.proto";
+import "third_party/validate/validate.proto";
+
+option go_package = "mandacode.com/accounts/proto/role/user/v1;userv1";
+
+service UserService {
+  // cleanuprole
+  rpc CleanupRole(CleanupRoleRequest) returns (CleanupRoleResponse);
+}
+
+message CleanupRoleRequest {
+  string user_id = 1 [ (validate.rules).string = {min_len : 1} ];
+}
+message CleanupRoleResponse {
+  string user_id = 1;
+  google.protobuf.Timestamp cleanup_time = 2;
+}
