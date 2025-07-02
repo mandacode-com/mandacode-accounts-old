@@ -7,5 +7,6 @@ use (
 	./profile
 	./proto
 	./token
+  ./role
 	./lib/server
 )
