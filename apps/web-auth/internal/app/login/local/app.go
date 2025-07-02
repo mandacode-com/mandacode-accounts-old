@@ -9,7 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	logindto "mandacode.com/accounts/web-auth/internal/app/login/dto"
 	authdomain "mandacode.com/accounts/web-auth/internal/domain/auth"
-	"mandacode.com/accounts/web-auth/util"
+	"mandacode.com/accounts/web-auth/internal/util"
 )
 
 type localLoginApp struct {
