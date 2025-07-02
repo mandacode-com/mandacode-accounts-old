@@ -7,34 +7,34 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"mandacode.com/accounts/profile/internal/app/profile"
-	"mandacode.com/accounts/profile/internal/handler/http/request"
+	httphandlerdto "mandacode.com/accounts/profile/internal/handler/http/dto"
 )
 
 type ProfileHTTPHandler struct {
-	getUC     profile.GetProfileUsecase
-	updateUC  profile.UpdateProfileUsecase
+	app       profile.ProfileApp
 	validator *validator.Validate
+	uidHeader string
 }
 
 func NewProfileHTTPHandler(
-	getUC profile.GetProfileUsecase,
-	updateUC profile.UpdateProfileUsecase,
+	app profile.ProfileApp,
 	validator *validator.Validate,
+	uidHeader string,
 ) (*ProfileHTTPHandler, error) {
 	return &ProfileHTTPHandler{
-		getUC:     getUC,
-		updateUC:  updateUC,
+		app:       app,
 		validator: validator,
+		uidHeader: uidHeader,
 	}, nil
 }
 
 func (h *ProfileHTTPHandler) RegisterRoutes(rg *gin.RouterGroup) {
-	rg.GET("/profile/:user_id", h.GetProfile)
-	rg.PUT("/profile/:user_id", h.UpdateProfile)
+	rg.GET("/profile", h.GetProfile)
+	rg.PUT("/profile", h.UpdateProfile)
 }
 
 func (h *ProfileHTTPHandler) GetProfile(c *gin.Context) {
-	userID := c.Param("user_id")
+	userID := c.GetHeader(h.uidHeader)
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id is required"})
 		return
@@ -42,20 +42,21 @@ func (h *ProfileHTTPHandler) GetProfile(c *gin.Context) {
 
 	userUUID, err := uuid.Parse(userID)
 
-	profile, err := h.getUC.GetProfile(userUUID)
+	profile, err := h.app.GetProfile(userUUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get profile"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Profile retrieved successfully",
-		"profile": profile,
-	})
+	response := httphandlerdto.GetProfileResponse{
+		Profile: profile,
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *ProfileHTTPHandler) UpdateProfile(c *gin.Context) {
-	userID := c.Param("user_id")
+	userID := c.GetHeader(h.uidHeader)
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id is required"})
 		return
@@ -67,7 +68,7 @@ func (h *ProfileHTTPHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	var profileUpdate request.ProfileUpdateRequest
+	var profileUpdate httphandlerdto.ProfileUpdateRequest
 	if err := c.ShouldBindJSON(&profileUpdate); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
@@ -78,14 +79,15 @@ func (h *ProfileHTTPHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	profile, err := h.updateUC.UpdateProfile(userUUID, profileUpdate.Email, profileUpdate.DisplayName, profileUpdate.Bio, profileUpdate.AvatarURL)
+	profile, err := h.app.UpdateProfile(userUUID, profileUpdate.Email, profileUpdate.DisplayName, profileUpdate.Bio, profileUpdate.AvatarURL)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update profile"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Profile updated successfully",
-		"profile": profile,
-	})
+	response := httphandlerdto.ProfileUpdateResponse{
+		Profile: profile,
+	}
+
+	c.JSON(http.StatusOK, response)
 }

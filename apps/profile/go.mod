@@ -13,6 +13,7 @@ require (
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 	mandacode.com/accounts/proto v0.0.0-00010101000000-000000000000
+	mandacode.com/lib/server v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -46,7 +47,7 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/mod v0.25.0 // indirect
@@ -59,4 +60,4 @@ require (
 
 replace mandacode.com/accounts/proto => ../proto
 
-replace mandacode.com/lib => ../lib
+replace mandacode.com/lib/server => ../lib/server

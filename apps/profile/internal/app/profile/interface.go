@@ -2,23 +2,21 @@ package profile
 
 import (
 	"github.com/google/uuid"
-	"mandacode.com/accounts/profile/internal/domain/dto"
+	"mandacode.com/accounts/profile/internal/domain/model"
 )
 
-type InitializeProfileUsecase interface {
-	// InitializeProfile initializes a profile for a user with the given ID.
+type ProfileApp interface {
+	// InitializeProfile initializes a new profile with the given details.
 	//
 	// Parameters:
 	//   - userID: The unique identifier of the user for whom the profile is to be initialized.
 	//
 	// Returns:
 	//   - *Profile: The newly initialized profile.
-	//   - error: An error if the profile could not be initialized.
-	InitializeProfile(userID uuid.UUID) (*dto.Profile, error)
-}
+	//	 - error: An error if the profile could not be initialized.
+	InitializeProfile(userID uuid.UUID) (*model.Profile, error)
 
-type GetProfileUsecase interface {
-	// GetProfile retrieves a profile by its ID.
+	// GetProfile retrieves a profile by its user ID.
 	//
 	// Parameter:
 	//   - userID: The unique identifier of the user whose profile is to be retrieved.
@@ -26,10 +24,8 @@ type GetProfileUsecase interface {
 	// Returns:
 	//   - *Profile: The profile if found.
 	//   - error: An error if the profile could not be found or another issue occurred.
-	GetProfile(userID uuid.UUID) (*dto.Profile, error)
-}
+	GetProfile(userID uuid.UUID) (*model.Profile, error)
 
-type UpdateProfileUsecase interface {
 	// UpdateProfile updates an existing profile with the given details.
 	//
 	// Parameters:
@@ -42,10 +38,8 @@ type UpdateProfileUsecase interface {
 	// Returns:
 	//   - *Profile: The updated profile.
 	//   - error: An error if the profile could not be updated.
-	UpdateProfile(userID uuid.UUID, email, displayName, bio, avatarURL *string) (*dto.Profile, error)
-}
+	UpdateProfile(userID uuid.UUID, email, displayName, bio, avatarURL *string) (*model.Profile, error)
 
-type DeleteProfileUsecase interface {
 	// DeleteProfile deletes a profile by its ID.
 	//
 	// Parameter:

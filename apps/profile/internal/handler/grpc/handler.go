@@ -15,26 +15,21 @@ import (
 
 type ProfileGRPCHandler struct {
 	profilev1.UnimplementedProfileServiceServer
-	initializeUC profile.InitializeProfileUsecase
-	deleteUC     profile.DeleteProfileUsecase
-	logger       *zap.Logger
+	app    profile.ProfileApp
+	logger *zap.Logger
 }
 
-func NewProfileGRPCHandler(initializeUC profile.InitializeProfileUsecase, deleteUC profile.DeleteProfileUsecase, logger *zap.Logger) (profilev1.ProfileServiceServer, error) {
-	if initializeUC == nil {
-		return nil, errors.New("initializeUC cannot be nil")
-	}
-	if deleteUC == nil {
-		return nil, errors.New("deleteUC cannot be nil")
+func NewProfileGRPCHandler(app profile.ProfileApp, logger *zap.Logger) (profilev1.ProfileServiceServer, error) {
+	if app == nil {
+		return nil, errors.New("profile app cannot be nil")
 	}
 	if logger == nil {
 		return nil, errors.New("logger cannot be nil")
 	}
 
 	return &ProfileGRPCHandler{
-		initializeUC: initializeUC,
-		deleteUC:     deleteUC,
-		logger:       logger,
+		app:    app,
+		logger: logger,
 	}, nil
 }
 
@@ -50,16 +45,12 @@ func (h *ProfileGRPCHandler) CreateProfile(context context.Context, req *profile
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID format: %v", err)
 	}
 
-	profile, err := h.initializeUC.InitializeProfile(userID)
+	profile, err := h.app.InitializeProfile(userID)
 	if err != nil {
 		h.logger.Error("failed to initialize profile", zap.Error(err))
 		return nil, err
 	}
-	protoProfile, err := ToProtoProfile(profile)
-	if err != nil {
-		h.logger.Error("failed to convert profile to proto", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, "failed to convert profile to proto: %v", err)
-	}
+	protoProfile := profile.ToProtoProfile()
 	if protoProfile == nil {
 		h.logger.Error("converted profile is nil")
 		return nil, status.Error(codes.Internal, "converted profile is nil")
@@ -82,7 +73,7 @@ func (h *ProfileGRPCHandler) DeleteProfile(context context.Context, req *profile
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID format: %v", err)
 	}
 
-	err = h.deleteUC.DeleteProfile(userID)
+	err = h.app.DeleteProfile(userID)
 	if err != nil {
 		h.logger.Error("failed to delete profile", zap.Error(err))
 		return nil, err

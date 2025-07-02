@@ -4,31 +4,30 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
-	httpuc "mandacode.com/accounts/profile/internal/app/profile/http"
-	svcdomain "mandacode.com/accounts/profile/internal/domain/service"
+	"mandacode.com/accounts/profile/internal/app/profile"
 	httphandler "mandacode.com/accounts/profile/internal/handler/http"
 	"mandacode.com/lib/server/server"
 )
 
 type HTTPRegisterer struct {
-	ProfileService svcdomain.ProfileService
-	Logger         *zap.Logger
-	Validator      *validator.Validate
+	ProfileApp profile.ProfileApp
+	Logger     *zap.Logger
+	Validator  *validator.Validate
+	UIDHeader  string
 }
 
-func NewHTTPRegisterer(profileService svcdomain.ProfileService, logger *zap.Logger, validator *validator.Validate) server.HTTPRegisterer {
+func NewHTTPRegisterer(profileApp profile.ProfileApp, logger *zap.Logger, validator *validator.Validate, uidHeader string) server.HTTPRegisterer {
 	return &HTTPRegisterer{
-		ProfileService: profileService,
-		Logger:         logger,
-		Validator:      validator,
+		ProfileApp: profileApp,
+		Logger:     logger,
+		Validator:  validator,
+		UIDHeader:  uidHeader,
 	}
 }
 
 func (r *HTTPRegisterer) Register(rg *gin.RouterGroup) error {
-	updateProfileUC := httpuc.NewUpdateProfileUsecase(r.ProfileService)
-	getProfileUC := httpuc.NewGetProfileUsecase(r.ProfileService)
+	profileHandler, err := httphandler.NewProfileHTTPHandler(r.ProfileApp, r.Validator, r.UIDHeader)
 
-	profileHandler, err := httphandler.NewProfileHTTPHandler(getProfileUC, updateProfileUC, r.Validator)
 	if err != nil {
 		r.Logger.Error("failed to create HTTP handler", zap.Error(err))
 		return err

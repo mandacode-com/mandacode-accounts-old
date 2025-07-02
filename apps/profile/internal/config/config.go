@@ -14,6 +14,7 @@ type Config struct {
 	HTTPPort    int    `validate:"required,min=1"`
 	GRPCPort    int    `validate:"required,min=1"`
 	DatabaseURL string `validate:"required"`
+	UIDHeader   string `validate:"required"` // Header name for user ID
 }
 
 // LoadConfig loads env vars from .env (if exists) and returns structured config
@@ -36,6 +37,7 @@ func LoadConfig(v *validator.Validate) (*Config, error) {
 		HTTPPort:    httpPort,
 		GRPCPort:    grpcPort,
 		DatabaseURL: getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/accounts_profile?sslmode=disable"),
+		UIDHeader:   getEnv("UID_HEADER", "X-User-ID"),
 	}
 
 	if err := v.Struct(config); err != nil {

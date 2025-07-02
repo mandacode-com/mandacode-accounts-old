@@ -32,7 +32,7 @@ func NewHTTPServer(port int, logger *zap.Logger, registerer server.HTTPRegistere
 }
 
 func (h *HTTPServer) Start() error {
-	rg := h.engine.Group("/api")
+	rg := h.engine.Group("/")
 	if err := h.registerer.Register(rg); err != nil {
 		h.logger.Error("failed to register HTTP handlers", zap.Error(err))
 		return err
