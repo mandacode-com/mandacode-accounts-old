@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package mailer.v1;
+
+import "google/protobuf/timestamp.proto";
+import "third_party/validate/validate.proto";
+
+option go_package = "mandacode.com/accounts/proto/mailer/v1;mailerv1";
+
+message EmailVerificationEvent {
+  string email = 1 [ (validate.rules).string = {email : true} ];
+  string verification_link = 2 [ (validate.rules).string = {uri : true} ];
+  google.protobuf.Timestamp event_time = 3;
+}

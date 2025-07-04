@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package user.event.v1;
+
+import "google/protobuf/timestamp.proto";
+import "third_party/validate/validate.proto";
+
+option go_package = "mandacode.com/accounts/proto/user/event/v1;usereventv1";
+
+message UserDeletedEvent {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  google.protobuf.Timestamp event_time = 2;
+}
+
+message UserArchivedEvent {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  google.protobuf.Timestamp event_time = 2;
+}
