@@ -13,7 +13,7 @@ service UserService {
 }
 
 message CleanupRoleRequest {
-  string user_id = 1 [ (validate.rules).string = {min_len : 1} ];
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
 }
 message CleanupRoleResponse {
   string user_id = 1;

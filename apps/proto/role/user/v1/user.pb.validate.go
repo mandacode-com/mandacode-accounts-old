@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _user_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on CleanupRoleRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -57,10 +60,11 @@ func (m *CleanupRoleRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetUserId()) < 1 {
-		err := CleanupRoleRequestValidationError{
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = CleanupRoleRequestValidationError{
 			field:  "UserId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -70,6 +74,14 @@ func (m *CleanupRoleRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CleanupRoleRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *CleanupRoleRequest) _validateUuid(uuid string) error {
+	if matched := _user_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil

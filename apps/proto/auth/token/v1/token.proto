@@ -23,7 +23,7 @@ message VerifyTokenRequest {
 }
 message VerifyTokenResponse {
   bool valid = 1;
-  string user_id = 2 [ (validate.rules).string = {min_len : 1} ];
+  string user_id = 2 [ (validate.rules).string = {uuid : true} ];
 }
 
 //

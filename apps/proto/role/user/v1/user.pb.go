@@ -123,9 +123,9 @@ var File_role_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_role_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x17role/user/v1/user.proto\x12\frole.user.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#third_party/validate/validate.proto\"6\n" +
-	"\x12CleanupRoleRequest\x12 \n" +
-	"\auser_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06userId\"m\n" +
+	"\x17role/user/v1/user.proto\x12\frole.user.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#third_party/validate/validate.proto\"7\n" +
+	"\x12CleanupRoleRequest\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\"m\n" +
 	"\x13CleanupRoleResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12=\n" +
 	"\fcleanup_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcleanupTime2a\n" +

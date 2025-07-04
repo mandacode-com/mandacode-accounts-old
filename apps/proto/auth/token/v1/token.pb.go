@@ -222,10 +222,10 @@ const file_auth_token_v1_token_proto_rawDesc = "" +
 	"\n" +
 	"\x19auth/token/v1/token.proto\x12\rauth.token.v1\x1a#third_party/validate/validate.proto\"@\n" +
 	"\x12VerifyTokenRequest\x12*\n" +
-	"\faccess_token\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vaccessToken\"M\n" +
+	"\faccess_token\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vaccessToken\"N\n" +
 	"\x13VerifyTokenResponse\x12\x14\n" +
-	"\x05valid\x18\x01 \x01(\bR\x05valid\x12 \n" +
-	"\auser_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06userId\"C\n" +
+	"\x05valid\x18\x01 \x01(\bR\x05valid\x12!\n" +
+	"\auser_id\x18\x02 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\"C\n" +
 	"\x13RefreshTokenRequest\x12,\n" +
 	"\rrefresh_token\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\frefreshToken\"p\n" +
 	"\x14RefreshTokenResponse\x12*\n" +

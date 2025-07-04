@@ -339,9 +339,9 @@ var File_profile_v1_profile_proto protoreflect.FileDescriptor
 const file_profile_v1_profile_proto_rawDesc = "" +
 	"\n" +
 	"\x18profile/v1/profile.proto\x12\n" +
-	"profile.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#third_party/validate/validate.proto\"\xf5\x02\n" +
-	"\aProfile\x12 \n" +
-	"\auser_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06userId\x12\"\n" +
+	"profile.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#third_party/validate/validate.proto\"\xf6\x02\n" +
+	"\aProfile\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x06userId\x12\"\n" +
 	"\x05email\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01H\x00R\x05email\x88\x01\x01\x12/\n" +
 	"\fdisplay_name\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01H\x01R\vdisplayName\x88\x01\x01\x12\x1e\n" +
 	"\x03bio\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x00H\x02R\x03bio\x88\x01\x01\x12+\n" +

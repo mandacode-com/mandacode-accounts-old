@@ -14,7 +14,7 @@ service ProfileService {
 
 // Profile
 message Profile {
-  string user_id = 1 [ (validate.rules).string = {min_len : 1} ];
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
   optional string email = 2 [ (validate.rules).string = {min_len : 1} ];
   optional string display_name = 3 [ (validate.rules).string = {min_len : 1} ];
   optional string bio = 4 [ (validate.rules).string = {min_len : 0} ];

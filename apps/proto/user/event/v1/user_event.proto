@@ -9,10 +9,17 @@ option go_package = "mandacode.com/accounts/proto/user/event/v1;usereventv1";
 
 message UserDeletedEvent {
   string user_id = 1 [ (validate.rules).string = {uuid : true} ];
-  google.protobuf.Timestamp event_time = 2;
+  string sync_code = 2 [ (validate.rules).string = {min_len : 1} ];
+  google.protobuf.Timestamp event_time = 3;
 }
 
 message UserArchivedEvent {
+  string user_id = 1 [ (validate.rules).string = {uuid : true} ];
+  string sync_code = 2 [ (validate.rules).string = {min_len : 1} ];
+  google.protobuf.Timestamp event_time = 3;
+}
+
+message UserCreationFailedEvent {
   string user_id = 1 [ (validate.rules).string = {uuid : true} ];
   google.protobuf.Timestamp event_time = 2;
 }

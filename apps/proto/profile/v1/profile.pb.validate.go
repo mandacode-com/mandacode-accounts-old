@@ -59,10 +59,11 @@ func (m *Profile) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetUserId()) < 1 {
-		err := ProfileValidationError{
+	if err := m._validateUuid(m.GetUserId()); err != nil {
+		err = ProfileValidationError{
 			field:  "UserId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -190,6 +191,14 @@ func (m *Profile) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return ProfileMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *Profile) _validateUuid(uuid string) error {
+	if matched := _profile_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
