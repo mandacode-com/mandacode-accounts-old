@@ -44,7 +44,7 @@ func main() {
 	defer mailReader.Close()
 
 	// Create MailHandler
-	mailHandler := mailhandler.NewMailHandler(mailApp)
+	mailHandler := mailhandler.NewMailHandler(mailApp, validator)
 
 	// Create Kafka server with reader and handler
 	kafkaServer := kafkaserver.NewKafkaServer(

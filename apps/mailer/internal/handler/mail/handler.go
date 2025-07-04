@@ -1,36 +1,35 @@
 package mailhandler
 
 import (
-	"encoding/json"
-
+	"github.com/go-playground/validator/v10"
 	kafka "github.com/segmentio/kafka-go"
+	"google.golang.org/protobuf/proto"
 	kafkaserver "mandacode.com/accounts/mailer/cmd/server/kafka"
 	mailapp "mandacode.com/accounts/mailer/internal/app/mail"
-	mailhandlerdto "mandacode.com/accounts/mailer/internal/handler/mail/dto"
+	mailerv1 "mandacode.com/accounts/proto/mailer/v1"
 )
 
 type MailHandler struct {
-	// MailApp is the interface for sending emails.
-	MailApp mailapp.MailApp
+	MailApp   mailapp.MailApp
+	validator *validator.Validate
 }
 
 // HandleMessage implements kafkaserver.KafkaHandler.
 func (h *MailHandler) HandleMessage(m kafka.Message) error {
-	var dto mailhandlerdto.MailVerificationRequest
-	if err := json.Unmarshal(m.Value, &dto); err != nil {
+	event := &mailerv1.EmailVerificationEvent{}
+	if err := proto.Unmarshal(m.Value, event); err != nil {
 		return err
 	}
-
-	// Send email verification mail using the MailApp.
-	if err := h.MailApp.SendEmailVerificationMail(dto.Email, dto.VerificationLink); err != nil {
+	if err := h.MailApp.SendEmailVerificationMail(event.Email, event.VerificationLink); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func NewMailHandler(mailApp mailapp.MailApp) kafkaserver.KafkaHandler {
+func NewMailHandler(mailApp mailapp.MailApp, validator *validator.Validate) kafkaserver.KafkaHandler {
 	return &MailHandler{
-		MailApp: mailApp,
+		MailApp:   mailApp,
+		validator: validator,
 	}
 }
