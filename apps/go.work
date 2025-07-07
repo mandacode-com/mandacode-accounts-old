@@ -1,13 +1,14 @@
 go 1.24.4
 
 use (
+	./user
 	./auth
-  ./web-auth
-  ./mobile-auth
+	./web-auth
+	./mobile-auth
 	./profile
 	./proto
 	./token
-  ./role
+	./role
 	./lib/server
-  ./mailer
+	./mailer
 )

@@ -71,7 +71,7 @@ func LoadConfig(v *validator.Validate) (*Config, error) {
 	config := &Config{
 		Env:            getEnv("ENV", "dev"),
 		Port:           port,
-		AuthServiceURL: getEnv("AUTH_SERVICE_URL", "localhost:50000"),
+		AuthServiceURL: getEnv("AUTH_SERVICE_URL", ""),
 		GoogleOAuthConfig: GoogleOAuthConfig{
 			ClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
 			ClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
@@ -88,12 +88,12 @@ func LoadConfig(v *validator.Validate) (*Config, error) {
 			RedirectURL:  getEnv("KAKAO_REDIRECT_URL", "http://localhost:8080/auth/kakao/callback"),
 		},
 		CodeStore: RedisConfig{
-			Address:  getEnv("CODE_STORE_ADDRESS", "localhost:6379"),
+			Address:  getEnv("CODE_STORE_ADDRESS", ""),
 			Password: getEnv("CODE_STORE_PASSWORD", ""),
 			DB:       codeStoreDB,
 		},
 		SessionStore: RedisConfig{
-			Address:  getEnv("SESSION_STORE_ADDRESS", "localhost:6379"),
+			Address:  getEnv("SESSION_STORE_ADDRESS", ""),
 			Password: getEnv("SESSION_STORE_PASSWORD", ""),
 			DB:       sessionStoreDB,
 		},
