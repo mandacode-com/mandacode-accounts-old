@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 	"mandacode.com/accounts/auth/internal/app/token"
-	tokenv1 "mandacode.com/accounts/proto/auth/token/v1"
+	tokenv1 "github.com/mandacode-com/accounts-proto/auth/token/v1"
 )
 
 type TokenHandler struct {

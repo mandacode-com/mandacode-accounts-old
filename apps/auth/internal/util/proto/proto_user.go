@@ -5,8 +5,8 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 	userdto "mandacode.com/accounts/auth/internal/app/user/dto"
-	localuserv1 "mandacode.com/accounts/proto/auth/user/local/v1"
-	oauthuserv1 "mandacode.com/accounts/proto/auth/user/oauth/v1"
+	localuserv1 "github.com/mandacode-com/accounts-proto/auth/user/local/v1"
+	oauthuserv1 "github.com/mandacode-com/accounts-proto/auth/user/oauth/v1"
 )
 
 func NewProtoLocalUser(user *userdto.LocalUser) (*localuserv1.LocalUser, error) {

@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	grpcserver "mandacode.com/accounts/auth/cmd/server/grpc"
 	"mandacode.com/accounts/auth/ent/oauthuser"
@@ -18,7 +19,6 @@ import (
 	"mandacode.com/accounts/auth/internal/infra/database/repository"
 	oauthprovider "mandacode.com/accounts/auth/internal/infra/oauth"
 	tokenprovider "mandacode.com/accounts/auth/internal/infra/token"
-	"mandacode.com/lib/server/server"
 )
 
 func main() {

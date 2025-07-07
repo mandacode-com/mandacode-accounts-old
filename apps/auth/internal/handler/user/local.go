@@ -11,7 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	localuser "mandacode.com/accounts/auth/internal/app/user/local"
 	protoutil "mandacode.com/accounts/auth/internal/util/proto"
-	localuserv1 "mandacode.com/accounts/proto/auth/user/local/v1"
+	localuserv1 "github.com/mandacode-com/accounts-proto/auth/user/local/v1"
 )
 
 type LocalUserHandler struct {

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 	oauthlogin "mandacode.com/accounts/auth/internal/app/login/oauth"
 	protoutil "mandacode.com/accounts/auth/internal/util/proto"
-	oauthloginv1 "mandacode.com/accounts/proto/auth/login/oauth/v1"
+	oauthloginv1 "github.com/mandacode-com/accounts-proto/auth/login/oauth/v1"
 )
 
 type OAuthLoginHandler struct {

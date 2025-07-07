@@ -11,7 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	oauthuser "mandacode.com/accounts/auth/internal/app/user/oauth"
 	protoutil "mandacode.com/accounts/auth/internal/util/proto"
-	oauthuserv1 "mandacode.com/accounts/proto/auth/user/oauth/v1"
+	oauthuserv1 "github.com/mandacode-com/accounts-proto/auth/user/oauth/v1"
 )
 
 type OAuthUserHandler struct {

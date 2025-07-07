@@ -1,6 +1,12 @@
 package grpcserver
 
 import (
+	localloginv1 "github.com/mandacode-com/accounts-proto/auth/login/local/v1"
+	oauthloginv1 "github.com/mandacode-com/accounts-proto/auth/login/oauth/v1"
+	tokenv1 "github.com/mandacode-com/accounts-proto/auth/token/v1"
+	localuserv1 "github.com/mandacode-com/accounts-proto/auth/user/local/v1"
+	oauthuserv1 "github.com/mandacode-com/accounts-proto/auth/user/oauth/v1"
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	locallogin "mandacode.com/accounts/auth/internal/app/login/local"
@@ -11,12 +17,6 @@ import (
 	loginhandler "mandacode.com/accounts/auth/internal/handler/login"
 	tokenhandler "mandacode.com/accounts/auth/internal/handler/token"
 	userhandler "mandacode.com/accounts/auth/internal/handler/user"
-	localloginv1 "mandacode.com/accounts/proto/auth/login/local/v1"
-	oauthloginv1 "mandacode.com/accounts/proto/auth/login/oauth/v1"
-	tokenv1 "mandacode.com/accounts/proto/auth/token/v1"
-	localuserv1 "mandacode.com/accounts/proto/auth/user/local/v1"
-	oauthuserv1 "mandacode.com/accounts/proto/auth/user/oauth/v1"
-	"mandacode.com/lib/server/server"
 )
 
 type GRPCRegisterer struct {

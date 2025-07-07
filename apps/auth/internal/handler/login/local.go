@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	locallogin "mandacode.com/accounts/auth/internal/app/login/local"
-	localloginv1 "mandacode.com/accounts/proto/auth/login/local/v1"
+	localloginv1 "github.com/mandacode-com/accounts-proto/auth/login/local/v1"
 )
 
 type LocalLoginHandler struct {

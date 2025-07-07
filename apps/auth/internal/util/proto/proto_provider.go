@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"mandacode.com/accounts/auth/ent/oauthuser"
-	providerv1 "mandacode.com/accounts/proto/common/provider/v1"
+	providerv1 "github.com/mandacode-com/accounts-proto/common/provider/v1"
 )
 
 func FromProtoToEntProvider(provider providerv1.OAuthProvider) (oauthuser.Provider, error) {
