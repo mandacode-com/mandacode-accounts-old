@@ -3,12 +3,12 @@ package httpserver
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	groupapp "mandacode.com/accounts/role/internal/app/group"
 	groupuserapp "mandacode.com/accounts/role/internal/app/groupuser"
 	permissionapp "mandacode.com/accounts/role/internal/app/permission"
 	clienthandler "mandacode.com/accounts/role/internal/handler/http/client"
-	"mandacode.com/lib/server/server"
 )
 
 type ClientRegisterer struct {

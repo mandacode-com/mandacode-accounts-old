@@ -1,12 +1,12 @@
 package grpcserver
 
 import (
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	userv1 "mandacode.com/accounts/proto/role/user/v1"
+	userv1 "github.com/mandacode-com/accounts-proto/role/user/v1"
 	groupuserapp "mandacode.com/accounts/role/internal/app/groupuser"
 	usergrpc "mandacode.com/accounts/role/internal/handler/grpc/user"
-	"mandacode.com/lib/server/server"
 )
 
 type GRPCRegisterer struct {

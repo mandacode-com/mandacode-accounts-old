@@ -3,6 +3,7 @@ package httpserver
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	groupapp "mandacode.com/accounts/role/internal/app/group"
 	groupuserapp "mandacode.com/accounts/role/internal/app/groupuser"
@@ -10,7 +11,6 @@ import (
 	serviceapp "mandacode.com/accounts/role/internal/app/service"
 	adminhandler "mandacode.com/accounts/role/internal/handler/http/admin"
 	"mandacode.com/accounts/role/internal/middleware"
-	"mandacode.com/lib/server/server"
 )
 
 type AdminRegisterer struct {

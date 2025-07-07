@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
-	"mandacode.com/lib/server/server"
 )
 
 type HTTPServer struct {

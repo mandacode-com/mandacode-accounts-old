@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	userv1 "mandacode.com/accounts/proto/role/user/v1"
+	userv1 "github.com/mandacode-com/accounts-proto/role/user/v1"
 	groupuserapp "mandacode.com/accounts/role/internal/app/groupuser"
 )
 

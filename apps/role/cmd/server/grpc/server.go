@@ -4,12 +4,12 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
-	"mandacode.com/lib/server/server"
 )
 
 type GRPCServer struct {
