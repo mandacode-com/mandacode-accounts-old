@@ -17,9 +17,16 @@ type MailConfig struct {
 	Sender   string `validate:"required"`
 }
 
+type KafkaConfig struct {
+	Address string `validate:"required"`
+	Topic   string `validate:"required"`
+	GroupID string `validate:"required"`
+}
+
 type Config struct {
-	Env  string     `validate:"required,oneof=dev prod"`
-	Mail MailConfig `validate:"required"`
+	Env   string      `validate:"required,oneof=dev prod"`
+	Mail  MailConfig  `validate:"required"`
+	Kafka KafkaConfig `validate:"required"`
 }
 
 // LoadConfig loads env vars from .env (if exists) and returns structured config
@@ -42,7 +49,7 @@ func LoadConfig(v *validator.Validate) (*Config, error) {
 	}
 
 	config := &Config{
-		Env: getEnv("ENV", "dev"),
+		Env:  getEnv("ENV", "dev"),
 		Mail: mailConfig,
 	}
 

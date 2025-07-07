@@ -38,7 +38,13 @@ COPY --from=builder /app/server /app/server
 # Create non-root user
 USER 1001
 
-ENV PORT=50051
+# Set environment variables
+ENV ENV=prod
+ENV HTTP_PORT=8080
+ENV GRPC_PORT=50051
+
+# Expose ports
+EXPOSE 8080
 EXPOSE 50051
 
 ENTRYPOINT ["/app/server"]

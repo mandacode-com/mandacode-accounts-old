@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"strconv"
 
@@ -17,23 +18,23 @@ type Config struct {
 // Validate checks if the config is valid
 func (c *Config) Validate() error {
 	if c.Env != "dev" && c.Env != "prod" {
-		return InvalidConfigError("Environment must be either 'dev' or 'prod'")
+		return errors.New("environment must be either 'dev' or 'prod'")
 	}
 	if c.Port <= 0 {
-		return InvalidConfigError("Port must be a positive integer")
+		return errors.New("port must be a positive integer")
 	}
 	if c.TokenServiceURL == "" {
-		return InvalidConfigError("Token Service URL must be set")
+		return errors.New("Token Service URL must be set")
 	}
 	if c.DatabaseURL == "" {
-		return InvalidConfigError("Database URL must be set")
+		return errors.New("Database URL must be set")
 	}
 	return nil
 }
 
 // LoadConfig loads env vars from .env (if exists) and returns structured config
 func LoadConfig() (*Config, error) {
-	if os.Getenv("ENV") != "production" {
+	if os.Getenv("ENV") != "prod" {
 		_ = godotenv.Load()
 	}
 
@@ -45,8 +46,8 @@ func LoadConfig() (*Config, error) {
 	config := &Config{
 		Env:             getEnv("ENV", "dev"),
 		Port:            port,
-		TokenServiceURL: getEnv("TOKEN_SERVICE_URL", "localhost:50051"),
-		DatabaseURL:     getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/accounts_auth?sslmode=disable"),
+		TokenServiceURL: getEnv("TOKEN_SERVICE_URL", ""),
+		DatabaseURL:     getEnv("DATABASE_URL", ""),
 	}
 
 	if err := config.Validate(); err != nil {

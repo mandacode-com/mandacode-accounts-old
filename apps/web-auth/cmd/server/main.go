@@ -3,6 +3,7 @@ package main
 import (
 	sessionredis "github.com/gin-contrib/sessions/redis"
 	"github.com/go-playground/validator/v10"
+	"github.com/mandacode-com/golib/server"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	httpserver "mandacode.com/accounts/web-auth/cmd/server/http"

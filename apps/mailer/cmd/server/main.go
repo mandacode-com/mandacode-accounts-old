@@ -37,9 +37,9 @@ func main() {
 
 	// Create Kafka mailReader (consumer)
 	mailReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{"localhost:9094"},
-		Topic:   "accounts.user.email_verification_request",
-		GroupID: "mailer-service-group",
+		Brokers: []string{cfg.Kafka.Address},
+		Topic:   cfg.Kafka.Topic,
+		GroupID: cfg.Kafka.GroupID,
 	})
 	defer mailReader.Close()
 

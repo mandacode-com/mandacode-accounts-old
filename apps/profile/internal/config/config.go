@@ -19,7 +19,7 @@ type Config struct {
 
 // LoadConfig loads env vars from .env (if exists) and returns structured config
 func LoadConfig(v *validator.Validate) (*Config, error) {
-	if os.Getenv("ENV") != "production" {
+	if os.Getenv("ENV") != "prod" {
 		_ = godotenv.Load()
 	}
 

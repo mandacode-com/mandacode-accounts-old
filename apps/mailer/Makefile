@@ -3,7 +3,7 @@
 # ──────────────────────────────
 # 📦 Application Build Variables
 # ──────────────────────────────
-MODULE_NAME        ?= mandacode.com/accounts/mobile-auth
+MODULE_NAME        ?= mandacode.com/accounts/mailer
 REGISTRY           ?=
 APP_NAME           ?=
 TAG                ?=

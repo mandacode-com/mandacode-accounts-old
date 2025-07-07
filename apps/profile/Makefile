@@ -12,11 +12,11 @@ APP_IMAGE          := $(REGISTRY)/$(APP_NAME)
 # ──────────────────────────────
 # 🛠 Migration Image Variables
 # ──────────────────────────────
-MIGRATE_NAME       ?=
+MIGRATE_NAME       ?= ${APP_NAME}-migrate
 MIGRATE_DEV_URL    ?=
 MIGRATE_REGISTRY   ?= $(REGISTRY)
 MIGRATE_TAG        ?= $(TAG)
-MIGRATE_IMAGE      := $(MIGRATE_REGISTRY)/$(MIGRATE_NAME)-migrate
+MIGRATE_IMAGE      := $(MIGRATE_REGISTRY)/$(MIGRATE_NAME)
 
 # ──────────────────────────────
 # 📁 Directory Paths
@@ -67,21 +67,6 @@ push-migrate: build-migrate
 	docker push $(MIGRATE_IMAGE):$(MIGRATE_TAG)
 
 # ──────────────────────────────
-# 📜 Generate & Clean Protobuf
-# ──────────────────────────────
-generate-proto:
-	protoc \
-		-I $(PROTO_SRC) \
-		--go_out=paths=source_relative:$(PROTO_SRC) \
-		--go-grpc_out=paths=source_relative:$(PROTO_SRC) \
-		--validate_out=lang=go,paths=source_relative:$(PROTO_SRC) \
-		$$(find $(PROTO_SRC) -name "*.proto")
-
-clean-proto:
-	find $(PROTO_SRC) -name "*.pb.go" -delete
-	find $(PROTO_SRC) -name "*.pb.validate.go" -delete
-
-# ──────────────────────────────
 # 🧬 Ent Schema Generation
 # ──────────────────────────────
 generate-ent:
@@ -128,6 +113,5 @@ endif
 	all run \
 	build-app push-app \
 	generate-migrate apply-migrate build-migrate push-migrate \
-	generate-proto clean-proto \
 	generate-ent test-unit \
 	generate-mocks check-tag check-migrate-name check-mock-target-dir

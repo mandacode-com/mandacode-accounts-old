@@ -37,7 +37,11 @@ COPY --from=builder /app/server /app/server
 # Create non-root user
 USER 1001
 
+# Set environment variables
+ENV ENV=prod
 ENV PORT=50051
+
+# Expose ports
 EXPOSE 50051
 
 ENTRYPOINT ["/app/server"]
