@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 	"mandacode.com/accounts/mobile-auth/internal/app/token"
 	tokenhandler "mandacode.com/accounts/mobile-auth/internal/handler/token"
-	"mandacode.com/lib/server/server"
+	"github.com/mandacode-com/golib/server"
 )
 
 type TokenHandlerRegisterer struct {

@@ -5,10 +5,10 @@ import (
 	"errors"
 	"time"
 
+	oauthloginv1 "github.com/mandacode-com/accounts-proto/auth/login/oauth/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	oauthloginv1 "mandacode.com/accounts/proto/auth/login/oauth/v1"
 )
 
 func NewOAuthLoginClient(addr string) (oauthloginv1.OAuthLoginServiceClient, *grpc.ClientConn, error) {

@@ -2,19 +2,15 @@ module mandacode.com/accounts/mobile-auth
 
 go 1.24.4
 
-replace mandacode.com/accounts/proto => ../proto
-
-replace mandacode.com/lib/server => ../lib/server
-
 require (
 	github.com/gin-gonic/gin v1.10.1
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
+	github.com/mandacode-com/accounts-proto v0.1.1
+	github.com/mandacode-com/golib v0.1.1
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.73.0
-	mandacode.com/accounts/proto v0.0.0-00010101000000-000000000000
-	mandacode.com/lib/server v0.0.0-00010101000000-000000000000
 )
 
 require (

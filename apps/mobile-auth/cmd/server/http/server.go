@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"github.com/mandacode-com/golib/server"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"mandacode.com/lib/server/server"
 )
 
 type HTTPServer struct {

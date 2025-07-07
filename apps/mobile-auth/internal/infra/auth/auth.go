@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 
-	localloginv1 "mandacode.com/accounts/proto/auth/login/local/v1"
-	oauthloginv1 "mandacode.com/accounts/proto/auth/login/oauth/v1"
+	localloginv1 "github.com/mandacode-com/accounts-proto/auth/login/local/v1"
+	oauthloginv1 "github.com/mandacode-com/accounts-proto/auth/login/oauth/v1"
 	authdomain "mandacode.com/accounts/mobile-auth/internal/domain/auth"
 	"mandacode.com/accounts/mobile-auth/internal/domain/model/provider"
 	authresdto "mandacode.com/accounts/mobile-auth/internal/infra/auth/dto/response"

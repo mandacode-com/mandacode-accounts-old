@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	httpserver "mandacode.com/accounts/mobile-auth/cmd/server/http"
 	locallogin "mandacode.com/accounts/mobile-auth/internal/app/login/local"
@@ -10,7 +11,6 @@ import (
 	"mandacode.com/accounts/mobile-auth/internal/config"
 	"mandacode.com/accounts/mobile-auth/internal/infra/auth"
 	tokenmgr "mandacode.com/accounts/mobile-auth/internal/infra/token"
-	"mandacode.com/lib/server/server"
 )
 
 func main() {

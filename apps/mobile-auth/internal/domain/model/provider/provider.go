@@ -3,7 +3,7 @@ package provider
 import (
 	"errors"
 
-	providerv1 "mandacode.com/accounts/proto/common/provider/v1"
+	providerv1 "github.com/mandacode-com/accounts-proto/common/provider/v1"
 )
 
 type Provider string

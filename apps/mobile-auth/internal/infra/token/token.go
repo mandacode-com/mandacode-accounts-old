@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	tokenv1 "mandacode.com/accounts/proto/auth/token/v1"
+	tokenv1 "github.com/mandacode-com/accounts-proto/auth/token/v1"
 	tokenmodel "mandacode.com/accounts/mobile-auth/internal/domain/model/token"
 	tokenmgrdomain "mandacode.com/accounts/mobile-auth/internal/domain/token"
 )
@@ -48,7 +48,7 @@ func (t *TokenManager) VerifyAccessToken(ctx context.Context, accessToken string
 		}, nil
 	}
 	return &tokenmodel.VerifyAccessTokenResult{
-		Valid: false,
+		Valid:  false,
 		UserID: nil,
 	}, nil
 }

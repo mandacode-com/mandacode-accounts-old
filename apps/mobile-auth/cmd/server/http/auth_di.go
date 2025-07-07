@@ -7,7 +7,7 @@ import (
 	locallogin "mandacode.com/accounts/mobile-auth/internal/app/login/local"
 	oauthlogin "mandacode.com/accounts/mobile-auth/internal/app/login/oauth"
 	authhandler "mandacode.com/accounts/mobile-auth/internal/handler/auth"
-	"mandacode.com/lib/server/server"
+	"github.com/mandacode-com/golib/server"
 )
 
 type AuthHandlerRegisterer struct {

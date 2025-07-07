@@ -5,10 +5,10 @@ import (
 	"errors"
 	"time"
 
+	localloginv1 "github.com/mandacode-com/accounts-proto/auth/login/local/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	localloginv1 "mandacode.com/accounts/proto/auth/login/local/v1"
 )
 
 func NewLocalLoginClient(addr string) (localloginv1.LocalLoginServiceClient, *grpc.ClientConn, error) {
