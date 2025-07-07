@@ -5,8 +5,9 @@ import (
 	"google.golang.org/grpc"
 	"mandacode.com/accounts/profile/internal/app/profile"
 	grpchandler "mandacode.com/accounts/profile/internal/handler/grpc"
-	profilev1 "mandacode.com/accounts/proto/profile/v1"
-	"mandacode.com/lib/server/server"
+
+	profilev1 "github.com/mandacode-com/accounts-proto/profile/v1"
+	"github.com/mandacode-com/golib/server"
 )
 
 type GRPCRegisterer struct {

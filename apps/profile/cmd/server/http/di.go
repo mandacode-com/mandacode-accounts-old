@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 	"mandacode.com/accounts/profile/internal/app/profile"
 	httphandler "mandacode.com/accounts/profile/internal/handler/http"
-	"mandacode.com/lib/server/server"
+	"github.com/mandacode-com/golib/server"
 )
 
 type HTTPRegisterer struct {

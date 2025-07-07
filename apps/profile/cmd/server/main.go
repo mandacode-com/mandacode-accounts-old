@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	grpcserver "mandacode.com/accounts/profile/cmd/server/grpc"
 	httpserver "mandacode.com/accounts/profile/cmd/server/http"
@@ -9,7 +10,6 @@ import (
 	"mandacode.com/accounts/profile/internal/config"
 	"mandacode.com/accounts/profile/internal/infra/database"
 	"mandacode.com/accounts/profile/internal/infra/database/repository"
-	"mandacode.com/lib/server/server"
 )
 
 func main() {

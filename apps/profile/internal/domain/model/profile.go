@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	profilev1 "github.com/mandacode-com/accounts-proto/profile/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"mandacode.com/accounts/profile/ent"
-	profilev1 "mandacode.com/accounts/proto/profile/v1"
 )
 
 type Profile struct {
