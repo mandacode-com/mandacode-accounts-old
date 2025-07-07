@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	kafkaserver "mandacode.com/accounts/mailer/cmd/server/kafka"
 	mailapp "mandacode.com/accounts/mailer/internal/app/mail"
-	mailerv1 "mandacode.com/accounts/proto/mailer/v1"
+	mailerv1 "github.com/mandacode-com/accounts-proto/mailer/v1"
 )
 
 type MailHandler struct {
