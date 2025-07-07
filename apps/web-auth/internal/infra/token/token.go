@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	tokenv1 "mandacode.com/accounts/proto/auth/token/v1"
+	tokenv1 "github.com/mandacode-com/accounts-proto/auth/token/v1"
 	tokenmodel "mandacode.com/accounts/web-auth/internal/domain/model/token"
 	tokenmgrdomain "mandacode.com/accounts/web-auth/internal/domain/token"
 )

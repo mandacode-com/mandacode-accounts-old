@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	usereventv1 "github.com/mandacode-com/accounts-proto/user/event/v1"
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	usereventv1 "mandacode.com/accounts/proto/user/event/v1"
 	usereventdomain "mandacode.com/accounts/user/internal/domain/port/user_event"
 )
 

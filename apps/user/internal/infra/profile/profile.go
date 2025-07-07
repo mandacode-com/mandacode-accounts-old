@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	profilev1 "mandacode.com/accounts/proto/profile/v1"
+	profilev1 "github.com/mandacode-com/accounts-proto/profile/v1"
 	profiledomain "mandacode.com/accounts/user/internal/domain/port/profile"
 )
 

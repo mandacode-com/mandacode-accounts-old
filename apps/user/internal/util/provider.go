@@ -1,6 +1,6 @@
 package util
 
-import providerv1 "mandacode.com/accounts/proto/common/provider/v1"
+import providerv1 "github.com/mandacode-com/accounts-proto/common/provider/v1"
 
 // ConvertToOAuthProvider converts a string representation of an OAuth provider to the corresponding OAuthProvider enum value.
 //

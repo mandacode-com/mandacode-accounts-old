@@ -15,7 +15,6 @@ import (
 	"mandacode.com/accounts/web-auth/internal/infra/auth"
 	"mandacode.com/accounts/web-auth/internal/infra/oauthcode"
 	tokenmgr "mandacode.com/accounts/web-auth/internal/infra/token"
-	"mandacode.com/lib/server/server"
 )
 
 func main() {

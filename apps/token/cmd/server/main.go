@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	grpcserver "mandacode.com/accounts/token/cmd/server/grpc"
 	token "mandacode.com/accounts/token/internal/app"
 	"mandacode.com/accounts/token/internal/config"
 	tokengen "mandacode.com/accounts/token/internal/infra/token"
-	"mandacode.com/lib/server/server"
 )
 
 func main() {

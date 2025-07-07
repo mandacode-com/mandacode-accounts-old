@@ -3,8 +3,8 @@ package oauthuser
 import (
 	"context"
 	"github.com/google/uuid"
-	oauthuserv1 "mandacode.com/accounts/proto/auth/user/oauth/v1"
-	providerv1 "mandacode.com/accounts/proto/common/provider/v1"
+	oauthuserv1 "github.com/mandacode-com/accounts-proto/auth/user/oauth/v1"
+	providerv1 "github.com/mandacode-com/accounts-proto/common/provider/v1"
 	oauthuserdomain "mandacode.com/accounts/user/internal/domain/port/auth/oauth"
 )
 
@@ -28,8 +28,8 @@ func (o *OAuthUserService) UpdateActiveStatus(ctx context.Context, userID uuid.U
 // UpdateVerifiedStatus implements oauthuserdomain.OAuthUserService.
 func (o *OAuthUserService) UpdateVerifiedStatus(ctx context.Context, userID uuid.UUID, provider providerv1.OAuthProvider, isVerified bool) (*oauthuserv1.UpdateVerifiedStatusResponse, error) {
 	resp, err := o.client.UpdateVerifiedStatus(ctx, &oauthuserv1.UpdateVerifiedStatusRequest{
-		UserId:    userID.String(),
-		Provider:  provider,
+		UserId:     userID.String(),
+		Provider:   provider,
 		IsVerified: isVerified,
 	})
 	if err != nil {

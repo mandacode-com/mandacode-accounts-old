@@ -5,10 +5,10 @@ import (
 	"errors"
 	"time"
 
+	tokenv1 "github.com/mandacode-com/accounts-proto/auth/token/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	tokenv1 "mandacode.com/accounts/proto/auth/token/v1"
 )
 
 func NewTokenClient(addr string) (tokenv1.TokenServiceClient, *grpc.ClientConn, error) {

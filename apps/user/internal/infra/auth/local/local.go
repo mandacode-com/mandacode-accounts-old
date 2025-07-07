@@ -3,7 +3,7 @@ package localuser
 import (
 	"context"
 	"github.com/google/uuid"
-	localuserv1 "mandacode.com/accounts/proto/auth/user/local/v1"
+	localuserv1 "github.com/mandacode-com/accounts-proto/auth/user/local/v1"
 	localuserdomain "mandacode.com/accounts/user/internal/domain/port/auth/local"
 )
 

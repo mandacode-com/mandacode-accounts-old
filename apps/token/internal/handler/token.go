@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"go.uber.org/zap"
-	tokenv1 "mandacode.com/accounts/proto/token/v1"
 	token "mandacode.com/accounts/token/internal/app"
+	tokenv1 "github.com/mandacode-com/accounts-proto/token/v1"
 )
 
 type TokenHandler struct {

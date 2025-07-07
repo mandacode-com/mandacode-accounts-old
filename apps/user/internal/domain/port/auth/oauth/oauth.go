@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	oauthuserv1 "mandacode.com/accounts/proto/auth/user/oauth/v1"
-	providerv1 "mandacode.com/accounts/proto/common/provider/v1"
+	oauthuserv1 "github.com/mandacode-com/accounts-proto/auth/user/oauth/v1"
+	providerv1 "github.com/mandacode-com/accounts-proto/common/provider/v1"
 )
 
 type OAuthUserService interface {

@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	localuserv1 "mandacode.com/accounts/proto/auth/user/local/v1"
+	localuserv1 "github.com/mandacode-com/accounts-proto/auth/user/local/v1"
 )
 
 func NewGRPCClient(addr string) (localuserv1.LocalUserServiceClient, *grpc.ClientConn, error) {

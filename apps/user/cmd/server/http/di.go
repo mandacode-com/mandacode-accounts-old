@@ -3,6 +3,7 @@ package httpserver
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 
 	localuserapp "mandacode.com/accounts/user/internal/app/user/local"
@@ -11,7 +12,6 @@ import (
 	localhandler "mandacode.com/accounts/user/internal/handler/user/local"
 	oauthhandler "mandacode.com/accounts/user/internal/handler/user/oauth"
 	userhandler "mandacode.com/accounts/user/internal/handler/user/user"
-	"mandacode.com/lib/server/server"
 )
 
 type HTTPRegisterer struct {

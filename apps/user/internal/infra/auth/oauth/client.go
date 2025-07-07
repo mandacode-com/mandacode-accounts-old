@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	oauthuserv1 "mandacode.com/accounts/proto/auth/user/oauth/v1"
+	oauthuserv1 "github.com/mandacode-com/accounts-proto/auth/user/oauth/v1"
 )
 
 func NewGRPCClient(addr string) (oauthuserv1.OAuthUserServiceClient, *grpc.ClientConn, error) {

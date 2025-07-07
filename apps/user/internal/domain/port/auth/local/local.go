@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	localuserv1 "mandacode.com/accounts/proto/auth/user/local/v1"
+	localuserv1 "github.com/mandacode-com/accounts-proto/auth/user/local/v1"
 )
 
 type LocalUserService interface {
@@ -14,7 +14,6 @@ type LocalUserService interface {
 	//   - ctx: The context for the operation.
 	//   - userID: The ID of the user to retrieve.
 	GetUser(ctx context.Context, userID uuid.UUID) (*localuserv1.GetUserResponse, error)
-
 
 	// EnrollUser
 	//

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	providerv1 "github.com/mandacode-com/accounts-proto/common/provider/v1"
 	"golang.org/x/sync/errgroup"
-	providerv1 "mandacode.com/accounts/proto/common/provider/v1"
 	oauthuserdomain "mandacode.com/accounts/user/internal/domain/port/auth/oauth"
 	profiledomain "mandacode.com/accounts/user/internal/domain/port/profile"
 	repodomain "mandacode.com/accounts/user/internal/domain/port/repository"

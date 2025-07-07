@@ -6,7 +6,7 @@ import (
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	mailerv1 "mandacode.com/accounts/proto/mailer/v1"
+	mailerv1 "github.com/mandacode-com/accounts-proto/mailer/v1"
 	mailerdomain "mandacode.com/accounts/user/internal/domain/port/mailer"
 )
 
