@@ -7,18 +7,18 @@ import (
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
 	"go.uber.org/zap"
-	tokendomain "mandacode.com/accounts/token/internal/domain/usecase/token"
+	"mandacode.com/accounts/token/internal/usecase/token"
 	"mandacode.com/accounts/token/internal/util"
 )
 
 type TokenHandler struct {
 	tokenv1.UnimplementedTokenServiceServer
-	token  tokendomain.TokenUsecase
+	token  *token.TokenUsecase
 	logger *zap.Logger
 }
 
 func NewTokenHandler(
-	token tokendomain.TokenUsecase,
+	token *token.TokenUsecase,
 	logger *zap.Logger,
 ) (tokenv1.TokenServiceServer, error) {
 	if token == nil {

@@ -3,26 +3,43 @@ package token
 import (
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
-	tokengendomain "mandacode.com/accounts/token/internal/domain/infra/token"
-	tokendomain "mandacode.com/accounts/token/internal/domain/usecase/token"
+	tokengen "mandacode.com/accounts/token/internal/infra/token"
 )
 
-type tokenUsecase struct {
-	accessTokenGenerator            tokengendomain.TokenGenerator
-	refreshTokenGenerator           tokengendomain.TokenGenerator
-	emailVerificationTokenGenerator tokengendomain.TokenGenerator
+type TokenUsecase struct {
+	accessTokenGenerator            *tokengen.TokenGenerator
+	refreshTokenGenerator           *tokengen.TokenGenerator
+	emailVerificationTokenGenerator *tokengen.TokenGenerator
 }
 
-// GenerateAccessToken implements tokendomain.TokenUsecase.
-func (t *tokenUsecase) GenerateAccessToken(userID string) (string, int64, error) {
+// GenerateAccessToken generates an access token for a user.
+//
+// Parameters:
+//   - userID: The unique identifier of the user for whom the access token is generated.
+//
+// Returns:
+//   - string: The generated JWT access token.
+//   - int64: The expiration time of the token in seconds since epoch.
+//   - error: An error if the token generation fails.
+func (t *TokenUsecase) GenerateAccessToken(userID string) (string, int64, error) {
 	claims := map[string]string{
 		"sub": userID, // Use "sub" claim for user ID
 	}
 	return t.accessTokenGenerator.GenerateToken(claims)
 }
 
-// GenerateEmailVerificationToken implements tokendomain.TokenUsecase.
-func (t *tokenUsecase) GenerateEmailVerificationToken(userID string, email string, code string) (string, int64, error) {
+// GenerateEmailVerificationToken generates an email verification token for a user.
+//
+// Parameters:
+//   - userID: The unique identifier of the user for whom the email verification token is generated.
+//   - email: The email address to be verified.
+//   - code: The verification code to be included in the token.
+//
+// Returns:
+//   - string: The generated JWT email verification token.
+//   - int64: The expiration time of the token in seconds since epoch.
+//   - error: An error if the token generation fails.
+func (t *TokenUsecase) GenerateEmailVerificationToken(userID string, email string, code string) (string, int64, error) {
 	claims := map[string]string{
 		"sub":   userID,
 		"email": email,
@@ -31,16 +48,31 @@ func (t *tokenUsecase) GenerateEmailVerificationToken(userID string, email strin
 	return t.emailVerificationTokenGenerator.GenerateToken(claims)
 }
 
-// GenerateRefreshToken implements tokendomain.TokenUsecase.
-func (t *tokenUsecase) GenerateRefreshToken(userID string) (string, int64, error) {
+// GenerateRefreshToken generates a refresh token for a user.
+//
+// Parameters:
+//   - userID: The unique identifier of the user for whom the refresh token is generated.
+//
+// Returns:
+//   - string: The generated JWT refresh token.
+//   - int64: The expiration time of the token in seconds since epoch.
+//   - error: An error if the token generation fails.
+func (t *TokenUsecase) GenerateRefreshToken(userID string) (string, int64, error) {
 	claims := map[string]string{
 		"sub": userID, // Use "sub" claim for user ID
 	}
 	return t.refreshTokenGenerator.GenerateToken(claims)
 }
 
-// VerifyAccessToken implements tokendomain.TokenUsecase.
-func (t *tokenUsecase) VerifyAccessToken(token string) (*string, error) {
+// VerifyAccessToken verifies the provided access token and returns the user ID if valid.
+//
+// Parameters:
+//   - token: The JWT access token to be verified.
+//
+// Returns:
+//   - *string: The user ID extracted from the token claims if verification is successful.
+//   - error: An error if the token verification fails or if the user ID claim is missing.
+func (t *TokenUsecase) VerifyAccessToken(token string) (*string, error) {
 	claims, err := t.accessTokenGenerator.VerifyToken(token)
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to verify access token")
@@ -55,8 +87,16 @@ func (t *tokenUsecase) VerifyAccessToken(token string) (*string, error) {
 	return &userID, nil
 }
 
-// VerifyEmailVerificationToken implements tokendomain.TokenUsecase.
-func (t *tokenUsecase) VerifyEmailVerificationToken(token string) (*string, *string, *string, error) {
+// VerifyEmailVerificationToken verifies the provided email verification token and returns the user ID, email, and code if valid.
+// Parameters:
+//   - token: The JWT email verification token to be verified.
+//
+// Returns:
+//   - *string: The user ID extracted from the token claims if verification is successful.
+//   - *string: The email extracted from the token claims if verification is successful.
+//   - *string: The verification code extracted from the token claims if verification is successful.
+//   - error: An error if the token verification fails or if any required claims are missing.
+func (t *TokenUsecase) VerifyEmailVerificationToken(token string) (*string, *string, *string, error) {
 	claims, err := t.emailVerificationTokenGenerator.VerifyToken(token)
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to verify email verification token")
@@ -81,8 +121,15 @@ func (t *tokenUsecase) VerifyEmailVerificationToken(token string) (*string, *str
 	return &userID, &email, &code, nil
 }
 
-// VerifyRefreshToken implements tokendomain.TokenUsecase.
-func (t *tokenUsecase) VerifyRefreshToken(token string) (*string, error) {
+// VerifyRefreshToken verifies the provided refresh token and returns the user ID if valid.
+//
+// Parameters:
+//   - token: The JWT refresh token to be verified.
+//
+// Returns:
+//   - *string: The user ID extracted from the token claims if verification is successful.
+//   - error: An error if the token verification fails or if the user ID claim is missing.
+func (t *TokenUsecase) VerifyRefreshToken(token string) (*string, error) {
 	claims, err := t.refreshTokenGenerator.VerifyToken(token)
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to verify refresh token")
@@ -98,17 +145,12 @@ func (t *tokenUsecase) VerifyRefreshToken(token string) (*string, error) {
 }
 
 // NewTokenUsecase creates a new instance of tokenUsecase with the provided TokenGenerators.
-//
-// Parameters:
-//   - accessTokenGenerator: an instance of TokenGenerator used for generating and verifying access tokens.
-//   - refreshTokenGenerator: an instance of TokenGenerator used for generating and verifying refresh tokens.
-//   - emailVerificationTokenGenerator: an instance of TokenGenerator used for generating and verifying email verification tokens.
 func NewTokenUsecase(
-	accessTokenGenerator tokengendomain.TokenGenerator,
-	refreshTokenGenerator tokengendomain.TokenGenerator,
-	emailVerificationTokenGenerator tokengendomain.TokenGenerator,
-) tokendomain.TokenUsecase {
-	return &tokenUsecase{
+	accessTokenGenerator *tokengen.TokenGenerator,
+	refreshTokenGenerator *tokengen.TokenGenerator,
+	emailVerificationTokenGenerator *tokengen.TokenGenerator,
+) *TokenUsecase {
+	return &TokenUsecase{
 		accessTokenGenerator:            accessTokenGenerator,
 		refreshTokenGenerator:           refreshTokenGenerator,
 		emailVerificationTokenGenerator: emailVerificationTokenGenerator,

@@ -7,7 +7,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
-	tokengendomain "mandacode.com/accounts/token/internal/domain/infra/token"
 	"mandacode.com/accounts/token/internal/util"
 )
 
@@ -29,7 +28,7 @@ type TokenGenerator struct {
 //   - error: an error if the private key is nil or expiresIn is not greater than zero
 func NewTokenGenerator(
 	privateKey *rsa.PrivateKey,
-	expiresIn time.Duration) (tokengendomain.TokenGenerator, error) {
+	expiresIn time.Duration) (*TokenGenerator, error) {
 	if privateKey == nil {
 		return nil, errors.New("private key cannot be nil", "Invalid Private Key", errcode.ErrInvalidFormat)
 	}
@@ -55,7 +54,7 @@ func NewTokenGenerator(
 //   - error: an error if the private key string is invalid or expiresIn is not greater than zero
 func NewTokenGeneratorByStr(
 	privateKeyStr string,
-	expiresIn time.Duration) (tokengendomain.TokenGenerator, error) {
+	expiresIn time.Duration) (*TokenGenerator, error) {
 	privateKey, err := util.LoadRSAPrivateKeyFromPEM(privateKeyStr)
 
 	if err != nil {
