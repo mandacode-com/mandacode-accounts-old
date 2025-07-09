@@ -5,8 +5,10 @@ package ent
 import (
 	"time"
 
-	"mandacode.com/accounts/auth/ent/localuser"
-	"mandacode.com/accounts/auth/ent/oauthuser"
+	"github.com/google/uuid"
+	"mandacode.com/accounts/auth/ent/authaccount"
+	"mandacode.com/accounts/auth/ent/localauth"
+	"mandacode.com/accounts/auth/ent/oauthauth"
 	"mandacode.com/accounts/auth/ent/schema"
 )
 
@@ -14,60 +16,96 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	localuserFields := schema.LocalUser{}.Fields()
-	_ = localuserFields
-	// localuserDescEmail is the schema descriptor for email field.
-	localuserDescEmail := localuserFields[1].Descriptor()
-	// localuser.EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	localuser.EmailValidator = localuserDescEmail.Validators[0].(func(string) error)
-	// localuserDescPassword is the schema descriptor for password field.
-	localuserDescPassword := localuserFields[2].Descriptor()
-	// localuser.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
-	localuser.PasswordValidator = localuserDescPassword.Validators[0].(func(string) error)
-	// localuserDescIsActive is the schema descriptor for is_active field.
-	localuserDescIsActive := localuserFields[3].Descriptor()
-	// localuser.DefaultIsActive holds the default value on creation for the is_active field.
-	localuser.DefaultIsActive = localuserDescIsActive.Default.(bool)
-	// localuserDescIsVerified is the schema descriptor for is_verified field.
-	localuserDescIsVerified := localuserFields[4].Descriptor()
-	// localuser.DefaultIsVerified holds the default value on creation for the is_verified field.
-	localuser.DefaultIsVerified = localuserDescIsVerified.Default.(bool)
-	// localuserDescCreatedAt is the schema descriptor for created_at field.
-	localuserDescCreatedAt := localuserFields[5].Descriptor()
-	// localuser.DefaultCreatedAt holds the default value on creation for the created_at field.
-	localuser.DefaultCreatedAt = localuserDescCreatedAt.Default.(func() time.Time)
-	// localuserDescUpdatedAt is the schema descriptor for updated_at field.
-	localuserDescUpdatedAt := localuserFields[6].Descriptor()
-	// localuser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	localuser.DefaultUpdatedAt = localuserDescUpdatedAt.Default.(func() time.Time)
-	// localuser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	localuser.UpdateDefaultUpdatedAt = localuserDescUpdatedAt.UpdateDefault.(func() time.Time)
-	oauthuserFields := schema.OAuthUser{}.Fields()
-	_ = oauthuserFields
-	// oauthuserDescEmail is the schema descriptor for email field.
-	oauthuserDescEmail := oauthuserFields[1].Descriptor()
-	// oauthuser.EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	oauthuser.EmailValidator = oauthuserDescEmail.Validators[0].(func(string) error)
-	// oauthuserDescProviderID is the schema descriptor for provider_id field.
-	oauthuserDescProviderID := oauthuserFields[3].Descriptor()
-	// oauthuser.ProviderIDValidator is a validator for the "provider_id" field. It is called by the builders before save.
-	oauthuser.ProviderIDValidator = oauthuserDescProviderID.Validators[0].(func(string) error)
-	// oauthuserDescIsActive is the schema descriptor for is_active field.
-	oauthuserDescIsActive := oauthuserFields[4].Descriptor()
-	// oauthuser.DefaultIsActive holds the default value on creation for the is_active field.
-	oauthuser.DefaultIsActive = oauthuserDescIsActive.Default.(bool)
-	// oauthuserDescIsVerified is the schema descriptor for is_verified field.
-	oauthuserDescIsVerified := oauthuserFields[5].Descriptor()
-	// oauthuser.DefaultIsVerified holds the default value on creation for the is_verified field.
-	oauthuser.DefaultIsVerified = oauthuserDescIsVerified.Default.(bool)
-	// oauthuserDescCreatedAt is the schema descriptor for created_at field.
-	oauthuserDescCreatedAt := oauthuserFields[6].Descriptor()
-	// oauthuser.DefaultCreatedAt holds the default value on creation for the created_at field.
-	oauthuser.DefaultCreatedAt = oauthuserDescCreatedAt.Default.(func() time.Time)
-	// oauthuserDescUpdatedAt is the schema descriptor for updated_at field.
-	oauthuserDescUpdatedAt := oauthuserFields[7].Descriptor()
-	// oauthuser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	oauthuser.DefaultUpdatedAt = oauthuserDescUpdatedAt.Default.(func() time.Time)
-	// oauthuser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	oauthuser.UpdateDefaultUpdatedAt = oauthuserDescUpdatedAt.UpdateDefault.(func() time.Time)
+	authaccountFields := schema.AuthAccount{}.Fields()
+	_ = authaccountFields
+	// authaccountDescIsActive is the schema descriptor for is_active field.
+	authaccountDescIsActive := authaccountFields[2].Descriptor()
+	// authaccount.DefaultIsActive holds the default value on creation for the is_active field.
+	authaccount.DefaultIsActive = authaccountDescIsActive.Default.(bool)
+	// authaccountDescCreatedAt is the schema descriptor for created_at field.
+	authaccountDescCreatedAt := authaccountFields[3].Descriptor()
+	// authaccount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	authaccount.DefaultCreatedAt = authaccountDescCreatedAt.Default.(func() time.Time)
+	// authaccountDescUpdatedAt is the schema descriptor for updated_at field.
+	authaccountDescUpdatedAt := authaccountFields[4].Descriptor()
+	// authaccount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	authaccount.DefaultUpdatedAt = authaccountDescUpdatedAt.Default.(func() time.Time)
+	// authaccount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	authaccount.UpdateDefaultUpdatedAt = authaccountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// authaccountDescFailedLoginAttempts is the schema descriptor for failed_login_attempts field.
+	authaccountDescFailedLoginAttempts := authaccountFields[7].Descriptor()
+	// authaccount.DefaultFailedLoginAttempts holds the default value on creation for the failed_login_attempts field.
+	authaccount.DefaultFailedLoginAttempts = authaccountDescFailedLoginAttempts.Default.(int)
+	// authaccountDescID is the schema descriptor for id field.
+	authaccountDescID := authaccountFields[0].Descriptor()
+	// authaccount.DefaultID holds the default value on creation for the id field.
+	authaccount.DefaultID = authaccountDescID.Default.(func() uuid.UUID)
+	localauthFields := schema.LocalAuth{}.Fields()
+	_ = localauthFields
+	// localauthDescEmail is the schema descriptor for email field.
+	localauthDescEmail := localauthFields[2].Descriptor()
+	// localauth.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	localauth.EmailValidator = localauthDescEmail.Validators[0].(func(string) error)
+	// localauthDescPassword is the schema descriptor for password field.
+	localauthDescPassword := localauthFields[3].Descriptor()
+	// localauth.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
+	localauth.PasswordValidator = localauthDescPassword.Validators[0].(func(string) error)
+	// localauthDescIsActive is the schema descriptor for is_active field.
+	localauthDescIsActive := localauthFields[4].Descriptor()
+	// localauth.DefaultIsActive holds the default value on creation for the is_active field.
+	localauth.DefaultIsActive = localauthDescIsActive.Default.(bool)
+	// localauthDescIsVerified is the schema descriptor for is_verified field.
+	localauthDescIsVerified := localauthFields[5].Descriptor()
+	// localauth.DefaultIsVerified holds the default value on creation for the is_verified field.
+	localauth.DefaultIsVerified = localauthDescIsVerified.Default.(bool)
+	// localauthDescCreatedAt is the schema descriptor for created_at field.
+	localauthDescCreatedAt := localauthFields[6].Descriptor()
+	// localauth.DefaultCreatedAt holds the default value on creation for the created_at field.
+	localauth.DefaultCreatedAt = localauthDescCreatedAt.Default.(func() time.Time)
+	// localauthDescUpdatedAt is the schema descriptor for updated_at field.
+	localauthDescUpdatedAt := localauthFields[7].Descriptor()
+	// localauth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	localauth.DefaultUpdatedAt = localauthDescUpdatedAt.Default.(func() time.Time)
+	// localauth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	localauth.UpdateDefaultUpdatedAt = localauthDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// localauthDescFailedLoginAttempts is the schema descriptor for failed_login_attempts field.
+	localauthDescFailedLoginAttempts := localauthFields[10].Descriptor()
+	// localauth.DefaultFailedLoginAttempts holds the default value on creation for the failed_login_attempts field.
+	localauth.DefaultFailedLoginAttempts = localauthDescFailedLoginAttempts.Default.(int)
+	// localauthDescID is the schema descriptor for id field.
+	localauthDescID := localauthFields[0].Descriptor()
+	// localauth.DefaultID holds the default value on creation for the id field.
+	localauth.DefaultID = localauthDescID.Default.(func() uuid.UUID)
+	oauthauthFields := schema.OAuthAuth{}.Fields()
+	_ = oauthauthFields
+	// oauthauthDescProviderID is the schema descriptor for provider_id field.
+	oauthauthDescProviderID := oauthauthFields[3].Descriptor()
+	// oauthauth.ProviderIDValidator is a validator for the "provider_id" field. It is called by the builders before save.
+	oauthauth.ProviderIDValidator = oauthauthDescProviderID.Validators[0].(func(string) error)
+	// oauthauthDescIsActive is the schema descriptor for is_active field.
+	oauthauthDescIsActive := oauthauthFields[4].Descriptor()
+	// oauthauth.DefaultIsActive holds the default value on creation for the is_active field.
+	oauthauth.DefaultIsActive = oauthauthDescIsActive.Default.(bool)
+	// oauthauthDescIsVerified is the schema descriptor for is_verified field.
+	oauthauthDescIsVerified := oauthauthFields[5].Descriptor()
+	// oauthauth.DefaultIsVerified holds the default value on creation for the is_verified field.
+	oauthauth.DefaultIsVerified = oauthauthDescIsVerified.Default.(bool)
+	// oauthauthDescCreatedAt is the schema descriptor for created_at field.
+	oauthauthDescCreatedAt := oauthauthFields[6].Descriptor()
+	// oauthauth.DefaultCreatedAt holds the default value on creation for the created_at field.
+	oauthauth.DefaultCreatedAt = oauthauthDescCreatedAt.Default.(func() time.Time)
+	// oauthauthDescUpdatedAt is the schema descriptor for updated_at field.
+	oauthauthDescUpdatedAt := oauthauthFields[7].Descriptor()
+	// oauthauth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	oauthauth.DefaultUpdatedAt = oauthauthDescUpdatedAt.Default.(func() time.Time)
+	// oauthauth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	oauthauth.UpdateDefaultUpdatedAt = oauthauthDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// oauthauthDescFailedLoginAttempts is the schema descriptor for failed_login_attempts field.
+	oauthauthDescFailedLoginAttempts := oauthauthFields[11].Descriptor()
+	// oauthauth.DefaultFailedLoginAttempts holds the default value on creation for the failed_login_attempts field.
+	oauthauth.DefaultFailedLoginAttempts = oauthauthDescFailedLoginAttempts.Default.(int)
+	// oauthauthDescID is the schema descriptor for id field.
+	oauthauthDescID := oauthauthFields[0].Descriptor()
+	// oauthauth.DefaultID holds the default value on creation for the id field.
+	oauthauth.DefaultID = oauthauthDescID.Default.(func() uuid.UUID)
 }

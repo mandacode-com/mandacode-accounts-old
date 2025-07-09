@@ -2,15 +2,15 @@ package mailhandler
 
 import (
 	"github.com/go-playground/validator/v10"
+	mailerv1 "github.com/mandacode-com/accounts-proto/mailer/v1"
 	kafka "github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/proto"
 	kafkaserver "mandacode.com/accounts/mailer/cmd/server/kafka"
-	mailapp "mandacode.com/accounts/mailer/internal/app/mail"
-	mailerv1 "github.com/mandacode-com/accounts-proto/mailer/v1"
+	maildomain "mandacode.com/accounts/mailer/internal/domain/usecase/mail"
 )
 
 type MailHandler struct {
-	MailApp   mailapp.MailApp
+	MailApp   maildomain.MailUsecase
 	validator *validator.Validate
 }
 
@@ -27,9 +27,9 @@ func (h *MailHandler) HandleMessage(m kafka.Message) error {
 	return nil
 }
 
-func NewMailHandler(mailApp mailapp.MailApp, validator *validator.Validate) kafkaserver.KafkaHandler {
+func NewMailHandler(mail maildomain.MailUsecase, validator *validator.Validate) kafkaserver.KafkaHandler {
 	return &MailHandler{
-		MailApp:   mailApp,
+		MailApp:   mail,
 		validator: validator,
 	}
 }

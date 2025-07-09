@@ -6,8 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// LocalUser is the predicate function for localuser builders.
-type LocalUser func(*sql.Selector)
+// AuthAccount is the predicate function for authaccount builders.
+type AuthAccount func(*sql.Selector)
 
-// OAuthUser is the predicate function for oauthuser builders.
-type OAuthUser func(*sql.Selector)
+// LocalAuth is the predicate function for localauth builders.
+type LocalAuth func(*sql.Selector)
+
+// OAuthAuth is the predicate function for oauthauth builders.
+type OAuthAuth func(*sql.Selector)

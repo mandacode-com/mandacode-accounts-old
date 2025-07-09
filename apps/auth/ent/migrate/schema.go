@@ -8,8 +8,25 @@ import (
 )
 
 var (
-	// LocalUsersColumns holds the columns for the "local_users" table.
-	LocalUsersColumns = []*schema.Column{
+	// AuthAccountsColumns holds the columns for the "auth_accounts" table.
+	AuthAccountsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "last_login_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_failed_login_at", Type: field.TypeTime, Nullable: true},
+		{Name: "failed_login_attempts", Type: field.TypeInt, Default: 0},
+	}
+	// AuthAccountsTable holds the schema information for the "auth_accounts" table.
+	AuthAccountsTable = &schema.Table{
+		Name:       "auth_accounts",
+		Columns:    AuthAccountsColumns,
+		PrimaryKey: []*schema.Column{AuthAccountsColumns[0]},
+	}
+	// LocalAuthsColumns holds the columns for the "local_auths" table.
+	LocalAuthsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password", Type: field.TypeString},
@@ -17,48 +34,87 @@ var (
 		{Name: "is_verified", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "last_login_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_failed_login_at", Type: field.TypeTime, Nullable: true},
+		{Name: "failed_login_attempts", Type: field.TypeInt, Default: 0},
+		{Name: "auth_account_id", Type: field.TypeUUID},
 	}
-	// LocalUsersTable holds the schema information for the "local_users" table.
-	LocalUsersTable = &schema.Table{
-		Name:       "local_users",
-		Columns:    LocalUsersColumns,
-		PrimaryKey: []*schema.Column{LocalUsersColumns[0]},
+	// LocalAuthsTable holds the schema information for the "local_auths" table.
+	LocalAuthsTable = &schema.Table{
+		Name:       "local_auths",
+		Columns:    LocalAuthsColumns,
+		PrimaryKey: []*schema.Column{LocalAuthsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "local_auths_auth_accounts_local_auths",
+				Columns:    []*schema.Column{LocalAuthsColumns[10]},
+				RefColumns: []*schema.Column{AuthAccountsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "localauth_email",
+				Unique:  true,
+				Columns: []*schema.Column{LocalAuthsColumns[1]},
+			},
+			{
+				Name:    "localauth_auth_account_id",
+				Unique:  true,
+				Columns: []*schema.Column{LocalAuthsColumns[10]},
+			},
+		},
 	}
-	// OauthUsersColumns holds the columns for the "oauth_users" table.
-	OauthUsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
-		{Name: "email", Type: field.TypeString},
+	// OauthAuthsColumns holds the columns for the "oauth_auths" table.
+	OauthAuthsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "provider", Type: field.TypeEnum, Enums: []string{"google", "github", "facebook", "kakao", "naver", "apple"}},
 		{Name: "provider_id", Type: field.TypeString},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "is_verified", Type: field.TypeBool, Default: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "email", Type: field.TypeString, Nullable: true},
+		{Name: "last_login_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_failed_login_at", Type: field.TypeTime, Nullable: true},
+		{Name: "failed_login_attempts", Type: field.TypeInt, Default: 0},
+		{Name: "auth_account_id", Type: field.TypeUUID},
 	}
-	// OauthUsersTable holds the schema information for the "oauth_users" table.
-	OauthUsersTable = &schema.Table{
-		Name:       "oauth_users",
-		Columns:    OauthUsersColumns,
-		PrimaryKey: []*schema.Column{OauthUsersColumns[0]},
+	// OauthAuthsTable holds the schema information for the "oauth_auths" table.
+	OauthAuthsTable = &schema.Table{
+		Name:       "oauth_auths",
+		Columns:    OauthAuthsColumns,
+		PrimaryKey: []*schema.Column{OauthAuthsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "oauth_auths_auth_accounts_oauth_auths",
+				Columns:    []*schema.Column{OauthAuthsColumns[11]},
+				RefColumns: []*schema.Column{AuthAccountsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "oauthuser_id_provider",
+				Name:    "oauthauth_auth_account_id_provider",
 				Unique:  true,
-				Columns: []*schema.Column{OauthUsersColumns[0], OauthUsersColumns[2]},
+				Columns: []*schema.Column{OauthAuthsColumns[11], OauthAuthsColumns[1]},
 			},
 			{
-				Name:    "oauthuser_provider_provider_id",
+				Name:    "oauthauth_provider_provider_id",
 				Unique:  true,
-				Columns: []*schema.Column{OauthUsersColumns[2], OauthUsersColumns[3]},
+				Columns: []*schema.Column{OauthAuthsColumns[1], OauthAuthsColumns[2]},
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		LocalUsersTable,
-		OauthUsersTable,
+		AuthAccountsTable,
+		LocalAuthsTable,
+		OauthAuthsTable,
 	}
 )
 
 func init() {
+	LocalAuthsTable.ForeignKeys[0].RefTable = AuthAccountsTable
+	OauthAuthsTable.ForeignKeys[0].RefTable = AuthAccountsTable
 }

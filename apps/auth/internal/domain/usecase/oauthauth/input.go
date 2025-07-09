@@ -1,0 +1,19 @@
+package oauthauthdomain
+
+import (
+	"mandacode.com/accounts/auth/ent/oauthauth"
+)
+
+type LoginInput struct {
+	Provider    oauthauth.Provider `json:"provider"`
+	AccessToken string             `json:"access_token,omitempty"` // Optional, used for OAuth providers that require an access token
+	Code        string             `json:"code,omitempty"`         // Optional, used for OAuth providers that require a code exchange
+	// Info        models.RequestInfo `json:"info"`
+}
+
+type SignupInput struct {
+	Provider    oauthauth.Provider `json:"provider"`
+	AccessToken string             `json:"access_token,omitempty"` // Optional, used for OAuth providers that require an access token
+	Code        string             `json:"code,omitempty"`         // Optional, used for OAuth providers that require a code exchange
+	// Info        models.RequestInfo `json:"info"`
+}

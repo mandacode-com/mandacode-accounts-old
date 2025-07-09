@@ -1,0 +1,248 @@
+package dbrepository
+
+import (
+	"context"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/mandacode-com/golib/errors"
+	"github.com/mandacode-com/golib/errors/errcode"
+	"mandacode.com/accounts/auth/ent"
+	"mandacode.com/accounts/auth/ent/oauthauth"
+	dbmodels "mandacode.com/accounts/auth/internal/domain/models/database"
+	dbdomain "mandacode.com/accounts/auth/internal/domain/repository/database"
+)
+
+type oauthAuthRepository struct {
+	client *ent.Client
+}
+
+// OnLoginFailed implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) OnLoginFailed(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
+	auth, err := o.client.OAuthAuth.Query().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return nil, errors.New(err.Error(), "Failed to get OAuthAuth for login failure", errcode.ErrInternalFailure)
+	}
+
+	auth, err = o.client.OAuthAuth.UpdateOne(auth).
+		SetFailedLoginAttempts(auth.FailedLoginAttempts + 1).
+		SetLastFailedLoginAt(time.Now()).
+		Save(ctx)
+	if err != nil {
+		return nil, errors.New(err.Error(), "Failed to update OAuthAuth on login failure", errcode.ErrInternalFailure)
+	}
+
+	return auth, nil
+}
+
+// OnLoginSuccess implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) OnLoginSuccess(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
+	auth, err := o.client.OAuthAuth.Query().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return nil, errors.New(err.Error(), "Failed to get OAuthAuth for login success", errcode.ErrInternalFailure)
+	}
+
+	auth, err = o.client.OAuthAuth.UpdateOne(auth).
+		SetFailedLoginAttempts(0).
+		SetLastFailedLoginAt(time.Time{}).
+		SetLastLoginAt(time.Now()).
+		Save(ctx)
+	if err != nil {
+		return nil, errors.New(err.Error(), "Failed to update OAuthAuth on login success", errcode.ErrInternalFailure)
+	}
+
+	return auth, nil
+}
+
+// DeleteOAuthAuthByProviderID implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) DeleteOAuthAuthByProviderID(ctx context.Context, provider oauthauth.Provider, providerID string) error {
+	_, err := o.client.OAuthAuth.Delete().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.ProviderIDEQ(providerID)).
+		Exec(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return errors.New(err.Error(), "Failed to delete OAuthAuth record", errcode.ErrInternalFailure)
+	}
+	return nil
+}
+
+// GetOAuthAuthByAuthAccountID implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) GetOAuthAuthByAuthAccountID(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
+	auth, err := o.client.OAuthAuth.Query().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return nil, errors.New(err.Error(), "Failed to get OAuthAuth by account ID", errcode.ErrInternalFailure)
+	}
+	return auth, nil
+}
+
+// GetOAuthAuthByProviderID implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) GetOAuthAuthByProviderID(ctx context.Context, provider oauthauth.Provider, providerID string) (*ent.OAuthAuth, error) {
+	auth, err := o.client.OAuthAuth.Query().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.ProviderIDEQ(providerID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return nil, errors.New(err.Error(), "Failed to get OAuthAuth by ID", errcode.ErrInternalFailure)
+	}
+	return auth, nil
+}
+
+// ResetFailedLoginAttempts implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) ResetFailedLoginAttempts(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
+	auth, err := o.client.OAuthAuth.Query().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return nil, errors.New(err.Error(), "Failed to get OAuthAuth for resetting failed login attempts", errcode.ErrInternalFailure)
+	}
+
+	auth, err = o.client.OAuthAuth.UpdateOne(auth).
+		SetFailedLoginAttempts(0).
+		SetLastFailedLoginAt(time.Time{}).
+		Save(ctx)
+	if err != nil {
+		return nil, errors.New(err.Error(), "Failed to reset failed login attempts", errcode.ErrInternalFailure)
+	}
+
+	return auth, nil
+}
+
+// SetEmail implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) SetEmail(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, email string) (*ent.OAuthAuth, error) {
+	auth, err := o.client.OAuthAuth.Query().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return nil, errors.New(err.Error(), "Failed to get OAuthAuth for updating email", errcode.ErrInternalFailure)
+	}
+
+	auth, err = o.client.OAuthAuth.UpdateOne(auth).
+		SetEmail(email).
+		Save(ctx)
+	if err != nil {
+		return nil, errors.New(err.Error(), "Failed to update OAuthAuth email", errcode.ErrInternalFailure)
+	}
+
+	return auth, nil
+}
+
+// SetIsActive implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) SetIsActive(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, isActive bool) (*ent.OAuthAuth, error) {
+	auth, err := o.client.OAuthAuth.Query().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return nil, errors.New(err.Error(), "Failed to get OAuthAuth for updating active status", errcode.ErrInternalFailure)
+	}
+
+	auth, err = o.client.OAuthAuth.UpdateOne(auth).
+		SetIsActive(isActive).
+		Save(ctx)
+	if err != nil {
+		return nil, errors.New(err.Error(), "Failed to update OAuthAuth isActive status", errcode.ErrInternalFailure)
+	}
+
+	return auth, nil
+}
+
+// SetIsVerified implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) SetIsVerified(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, isVerified bool) (*ent.OAuthAuth, error) {
+	auth, err := o.client.OAuthAuth.Query().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return nil, errors.New(err.Error(), "Failed to get OAuthAuth for updating verification status", errcode.ErrInternalFailure)
+	}
+
+	auth, err = o.client.OAuthAuth.UpdateOne(auth).
+		SetIsVerified(isVerified).
+		Save(ctx)
+	if err != nil {
+		return nil, errors.New(err.Error(), "Failed to update OAuthAuth isVerified status", errcode.ErrInternalFailure)
+	}
+
+	return auth, nil
+}
+
+// CreateOAuthAuth implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) CreateOAuthAuth(ctx context.Context, input *dbmodels.CreateOAuthAuthInput) (*ent.OAuthAuth, error) {
+	auth, err := o.client.OAuthAuth.Create().
+		SetProvider(input.Provider).
+		SetProviderID(input.ProviderID).
+		SetAuthAccountID(input.AccountID).
+		SetEmail(input.Email).
+		SetIsActive(input.IsActive).
+		SetIsVerified(input.IsVerified).
+		Save(ctx)
+	if err != nil {
+		if ent.IsConstraintError(err) {
+			upgradedErr := errors.Upgrade(err, errcode.ErrConflict, "User already exists with this provider ID")
+			return nil, errors.Join(upgradedErr, "Failed to create local auth record")
+		}
+		upgradedErr := errors.Upgrade(err, errcode.ErrInternalFailure, "Failed to create oauth record")
+		return nil, errors.Join(upgradedErr, "Failed to create OAuthAuth record")
+	}
+	return auth, nil
+}
+
+// DeleteOAuthAuth implements dbdomain.OAuthAuthRepository.
+func (o *oauthAuthRepository) DeleteOAuthAuth(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) error {
+	_, err := o.client.OAuthAuth.Delete().
+		Where(oauthauth.ProviderEQ(provider)).
+		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
+		Exec(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
+		}
+		return errors.New(err.Error(), "Failed to delete OAuthAuth record", errcode.ErrInternalFailure)
+	}
+	return nil
+}
+
+// NewOAuthAuthRepository creates a new instance of OAuthAuthRepository.
+func NewOAuthAuthRepository(client *ent.Client) dbdomain.OAuthAuthRepository {
+	return &oauthAuthRepository{
+		client: client,
+	}
+}

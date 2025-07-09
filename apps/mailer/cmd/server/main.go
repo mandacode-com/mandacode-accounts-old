@@ -1,18 +1,20 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/mandacode-com/golib/server"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 	kafkaserver "mandacode.com/accounts/mailer/cmd/server/kafka"
-	mailapp "mandacode.com/accounts/mailer/internal/app/mail"
-	"mandacode.com/accounts/mailer/internal/config"
+	"mandacode.com/accounts/mailer/config"
 	mailhandler "mandacode.com/accounts/mailer/internal/handler/mail"
+	"mandacode.com/accounts/mailer/internal/usecase/mail"
 )
 
 func main() {
@@ -30,7 +32,7 @@ func main() {
 	}
 
 	// Initialize MailApp
-	mailApp, err := mailapp.NewMailApp(cfg.Mail.Host, cfg.Mail.Port, cfg.Mail.Username, cfg.Mail.Password, cfg.Mail.Sender, logger)
+	mailUsecase, err := mail.NewMailApp(cfg.Mail.Host, cfg.Mail.Port, cfg.Mail.Username, cfg.Mail.Password, cfg.Mail.Sender, logger)
 	if err != nil {
 		logger.Fatal("failed to create MailApp", zap.Error(err))
 	}
@@ -44,7 +46,7 @@ func main() {
 	defer mailReader.Close()
 
 	// Create MailHandler
-	mailHandler := mailhandler.NewMailHandler(mailApp, validator)
+	mailHandler := mailhandler.NewMailHandler(mailUsecase, validator)
 
 	// Create Kafka server with reader and handler
 	kafkaServer := kafkaserver.NewKafkaServer(
@@ -56,25 +58,26 @@ func main() {
 			},
 		})
 
-	// Start Kafka server
-	if err := kafkaServer.Start(); err != nil {
-		logger.Fatal("failed to start Kafka server", zap.Error(err))
-	}
+	// Create server manager
+	manager := server.NewServerManager(
+		[]server.Server{kafkaServer},
+	)
 
-	// Graceful shutdown
-	waitForShutdown(kafkaServer.Stop)
-}
+	// Create context for server management
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // Ensure context is cancelled on exit
 
-// Handle graceful shutdown
-func waitForShutdown(stopFunc func() error) {
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	signalCh := make(chan os.Signal, 1)
+	signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM)
 
-	<-signalChan
-	log.Println("Received shutdown signal, stopping server...")
-	if err := stopFunc(); err != nil {
-		log.Printf("Error stopping server: %v\n", err)
-	} else {
-		log.Println("Server stopped gracefully")
+	go func() {
+		sig := <-signalCh
+		log.Printf("Received signal: %s, shutting down...\n", sig)
+		cancel() // Cancel the context to stop the server
+	}()
+
+	// Start the server manager
+	if err := manager.Run(ctx); err != nil {
+		logger.Fatal("failed to start server", zap.Error(err))
 	}
 }

@@ -6,6 +6,7 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mandacode-com/accounts-proto v0.1.1
+	github.com/mandacode-com/golib v0.1.14
 	github.com/segmentio/kafka-go v0.4.48
 	go.uber.org/zap v1.27.0
 	google.golang.org/protobuf v1.36.6
@@ -25,5 +26,6 @@ require (
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
+	google.golang.org/grpc v1.73.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )

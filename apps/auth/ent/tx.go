@@ -12,10 +12,12 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// LocalUser is the client for interacting with the LocalUser builders.
-	LocalUser *LocalUserClient
-	// OAuthUser is the client for interacting with the OAuthUser builders.
-	OAuthUser *OAuthUserClient
+	// AuthAccount is the client for interacting with the AuthAccount builders.
+	AuthAccount *AuthAccountClient
+	// LocalAuth is the client for interacting with the LocalAuth builders.
+	LocalAuth *LocalAuthClient
+	// OAuthAuth is the client for interacting with the OAuthAuth builders.
+	OAuthAuth *OAuthAuthClient
 
 	// lazily loaded.
 	client     *Client
@@ -147,8 +149,9 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.LocalUser = NewLocalUserClient(tx.config)
-	tx.OAuthUser = NewOAuthUserClient(tx.config)
+	tx.AuthAccount = NewAuthAccountClient(tx.config)
+	tx.LocalAuth = NewLocalAuthClient(tx.config)
+	tx.OAuthAuth = NewOAuthAuthClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -158,7 +161,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: LocalUser.QueryXXX(), the query will be executed
+// applies a query, for example: AuthAccount.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

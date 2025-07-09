@@ -1,4 +1,4 @@
-package tokenprovider
+package tokeninfra
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	tokenv1 "github.com/mandacode-com/accounts-proto/token/v1"
+	tokenv1 "github.com/mandacode-com/accounts-proto/go/token/v1"
 )
 
-func NewGRPCClient(addr string) (tokenv1.TokenServiceClient, *grpc.ClientConn, error) {
+func NewTokenClient(addr string) (tokenv1.TokenServiceClient, *grpc.ClientConn, error) {
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, nil, err

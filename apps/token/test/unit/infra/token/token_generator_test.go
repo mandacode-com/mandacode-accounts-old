@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	tokengendomain "mandacode.com/accounts/token/internal/domain/token"
+	tokengendomain "mandacode.com/accounts/token/internal/domain/infra/token"
 	tokengen "mandacode.com/accounts/token/internal/infra/token"
 )
 

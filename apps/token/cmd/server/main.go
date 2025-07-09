@@ -1,14 +1,18 @@
 package main
 
 import (
+	"context"
 	"log"
+	"os"
+	"os/signal"
 
 	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
 	grpcserver "mandacode.com/accounts/token/cmd/server/grpc"
-	token "mandacode.com/accounts/token/internal/app"
-	"mandacode.com/accounts/token/internal/config"
+	"mandacode.com/accounts/token/config"
+	handlerv1 "mandacode.com/accounts/token/internal/handler/v1"
 	tokengen "mandacode.com/accounts/token/internal/infra/token"
+	token "mandacode.com/accounts/token/internal/usecase/token"
 )
 
 func main() {
@@ -46,26 +50,42 @@ func main() {
 		logger.Fatal("failed to create email verification token generator", zap.Error(err))
 	}
 
-	accessTokenApp := token.NewAccessTokenApp(accesTokenGen)
-	refreshTokenApp := token.NewRefreshTokenApp(refreshTokenGen)
-	emailVerificationTokenApp := token.NewEmailVerificationTokenApp(emailVerificationTokenGen)
+	tokenUsecase := token.NewTokenUsecase(
+		accesTokenGen,
+		refreshTokenGen,
+		emailVerificationTokenGen,
+	)
+
+	tokenHandler, err := handlerv1.NewTokenHandler(tokenUsecase, logger)
+	if err != nil {
+		logger.Fatal("failed to create token handler", zap.Error(err))
+	}
 
 	// Create the gRPC server
-	registerer := grpcserver.NewGRPCRegisterer(
-		accessTokenApp,
-		refreshTokenApp,
-		emailVerificationTokenApp,
-		logger,
-	)
 	servingStatus := []string{
 		"token.v1.TokenService",
 	}
-	grpcServer, err := grpcserver.NewGRPCServer(cfg.Port, logger, registerer, servingStatus)
-	if err != nil {
-		logger.Fatal("failed to create gRPC server", zap.Error(err))
+	grpcServer, err := grpcserver.NewGRPCServer(
+		cfg.Port,
+		logger,
+		tokenHandler,
+		servingStatus,
+	)
+
+	manager := server.NewServerManager([]server.Server{grpcServer})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt, os.Kill)
+	go func() {
+		sig := <-signalChan
+		logger.Info("received signal, shutting down", zap.String("signal", sig.String()))
+		cancel() // Cancel the context to stop the server
+	}()
+
+	if err := manager.Run(ctx); err != nil {
+		logger.Fatal("failed to start server", zap.Error(err))
 	}
-
-	serverManager := server.NewServerManager([]server.Server{grpcServer}, logger)
-
-	serverManager.Run()
 }

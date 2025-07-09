@@ -9,28 +9,40 @@ import (
 	"mandacode.com/accounts/auth/ent"
 )
 
-// The LocalUserFunc type is an adapter to allow the use of ordinary
-// function as LocalUser mutator.
-type LocalUserFunc func(context.Context, *ent.LocalUserMutation) (ent.Value, error)
+// The AuthAccountFunc type is an adapter to allow the use of ordinary
+// function as AuthAccount mutator.
+type AuthAccountFunc func(context.Context, *ent.AuthAccountMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f LocalUserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.LocalUserMutation); ok {
+func (f AuthAccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AuthAccountMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LocalUserMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuthAccountMutation", m)
 }
 
-// The OAuthUserFunc type is an adapter to allow the use of ordinary
-// function as OAuthUser mutator.
-type OAuthUserFunc func(context.Context, *ent.OAuthUserMutation) (ent.Value, error)
+// The LocalAuthFunc type is an adapter to allow the use of ordinary
+// function as LocalAuth mutator.
+type LocalAuthFunc func(context.Context, *ent.LocalAuthMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f OAuthUserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.OAuthUserMutation); ok {
+func (f LocalAuthFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.LocalAuthMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OAuthUserMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LocalAuthMutation", m)
+}
+
+// The OAuthAuthFunc type is an adapter to allow the use of ordinary
+// function as OAuthAuth mutator.
+type OAuthAuthFunc func(context.Context, *ent.OAuthAuthMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OAuthAuthFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OAuthAuthMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OAuthAuthMutation", m)
 }
 
 // Condition is a hook condition function.

@@ -2,11 +2,12 @@ package tokengen
 
 import (
 	"crypto/rsa"
-	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	tokengendomain "mandacode.com/accounts/token/internal/domain/token"
+	"github.com/mandacode-com/golib/errors"
+	"github.com/mandacode-com/golib/errors/errcode"
+	tokengendomain "mandacode.com/accounts/token/internal/domain/infra/token"
 	"mandacode.com/accounts/token/internal/util"
 )
 
@@ -30,10 +31,10 @@ func NewTokenGenerator(
 	privateKey *rsa.PrivateKey,
 	expiresIn time.Duration) (tokengendomain.TokenGenerator, error) {
 	if privateKey == nil {
-		return nil, errors.New("private key cannot be nil")
+		return nil, errors.New("private key cannot be nil", "Invalid Private Key", errcode.ErrInvalidFormat)
 	}
 	if expiresIn <= 0 {
-		return nil, errors.New("expiresIn must be greater than zero")
+		return nil, errors.New("expiresIn must be greater than zero", "Invalid Expiration Duration", errcode.ErrInvalidFormat)
 	}
 
 	return &TokenGenerator{
@@ -61,10 +62,10 @@ func NewTokenGeneratorByStr(
 		return nil, err
 	}
 	if privateKey == nil {
-		return nil, errors.New("private key cannot be nil")
+		return nil, errors.New("private key cannot be nil", "Invalid Private Key", errcode.ErrInvalidFormat)
 	}
 	if expiresIn <= 0 {
-		return nil, errors.New("expiresIn must be greater than zero")
+		return nil, errors.New("expiresIn must be greater than zero", "Invalid Expiration Duration", errcode.ErrInvalidFormat)
 	}
 
 	return &TokenGenerator{
@@ -77,10 +78,6 @@ func NewTokenGeneratorByStr(
 func (j *TokenGenerator) GenerateToken(
 	claims map[string]string,
 ) (string, int64, error) {
-	if j.privateKey == nil {
-		return "", 0, errors.New("private key is not initialized")
-	}
-
 	now := time.Now()
 	expiresAt := now.Add(j.expiresIn)
 
@@ -96,7 +93,7 @@ func (j *TokenGenerator) GenerateToken(
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, tokenClaims)
 	signedToken, err := token.SignedString(j.privateKey)
 	if err != nil {
-		return "", 0, err
+		return "", 0, errors.New(err.Error(), "Failed to sign token", errcode.ErrInternalFailure)
 	}
 
 	return signedToken, expiresAt.Unix(), nil
@@ -105,19 +102,15 @@ func (j *TokenGenerator) GenerateToken(
 func (j *TokenGenerator) VerifyToken(
 	token string,
 ) (map[string]string, error) {
-	if j.publicKey == nil {
-		return nil, errors.New("public key is not initialized")
-	}
-
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, errors.New("unexpected signing method")
+			return nil, errors.New("unexpected signing method", "Invalid Token Signing Method", errcode.ErrInvalidToken)
 		}
 		return j.publicKey, nil
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, errors.New(err.Error(), "Failed to parse token", errcode.ErrInvalidToken)
 	}
 
 	if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok && parsedToken.Valid {
@@ -130,5 +123,5 @@ func (j *TokenGenerator) VerifyToken(
 		return result, nil
 	}
 
-	return nil, errors.New("invalid token")
+	return nil, errors.New("invalid token", "Token Verification Failed", errcode.ErrInvalidToken)
 }
