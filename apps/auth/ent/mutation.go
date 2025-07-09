@@ -39,7 +39,6 @@ type AuthAccountMutation struct {
 	typ                      string
 	id                       *uuid.UUID
 	user_id                  *uuid.UUID
-	is_active                *bool
 	created_at               *time.Time
 	updated_at               *time.Time
 	last_login_at            *time.Time
@@ -196,42 +195,6 @@ func (m *AuthAccountMutation) OldUserID(ctx context.Context) (v uuid.UUID, err e
 // ResetUserID resets all changes to the "user_id" field.
 func (m *AuthAccountMutation) ResetUserID() {
 	m.user_id = nil
-}
-
-// SetIsActive sets the "is_active" field.
-func (m *AuthAccountMutation) SetIsActive(b bool) {
-	m.is_active = &b
-}
-
-// IsActive returns the value of the "is_active" field in the mutation.
-func (m *AuthAccountMutation) IsActive() (r bool, exists bool) {
-	v := m.is_active
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIsActive returns the old "is_active" field's value of the AuthAccount entity.
-// If the AuthAccount object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AuthAccountMutation) OldIsActive(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsActive is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsActive requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsActive: %w", err)
-	}
-	return oldValue.IsActive, nil
-}
-
-// ResetIsActive resets all changes to the "is_active" field.
-func (m *AuthAccountMutation) ResetIsActive() {
-	m.is_active = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -602,12 +565,9 @@ func (m *AuthAccountMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AuthAccountMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 6)
 	if m.user_id != nil {
 		fields = append(fields, authaccount.FieldUserID)
-	}
-	if m.is_active != nil {
-		fields = append(fields, authaccount.FieldIsActive)
 	}
 	if m.created_at != nil {
 		fields = append(fields, authaccount.FieldCreatedAt)
@@ -634,8 +594,6 @@ func (m *AuthAccountMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case authaccount.FieldUserID:
 		return m.UserID()
-	case authaccount.FieldIsActive:
-		return m.IsActive()
 	case authaccount.FieldCreatedAt:
 		return m.CreatedAt()
 	case authaccount.FieldUpdatedAt:
@@ -657,8 +615,6 @@ func (m *AuthAccountMutation) OldField(ctx context.Context, name string) (ent.Va
 	switch name {
 	case authaccount.FieldUserID:
 		return m.OldUserID(ctx)
-	case authaccount.FieldIsActive:
-		return m.OldIsActive(ctx)
 	case authaccount.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case authaccount.FieldUpdatedAt:
@@ -684,13 +640,6 @@ func (m *AuthAccountMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
-		return nil
-	case authaccount.FieldIsActive:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIsActive(v)
 		return nil
 	case authaccount.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -808,9 +757,6 @@ func (m *AuthAccountMutation) ResetField(name string) error {
 	switch name {
 	case authaccount.FieldUserID:
 		m.ResetUserID()
-		return nil
-	case authaccount.FieldIsActive:
-		m.ResetIsActive()
 		return nil
 	case authaccount.FieldCreatedAt:
 		m.ResetCreatedAt()
@@ -949,7 +895,6 @@ type LocalAuthMutation struct {
 	id                       *uuid.UUID
 	email                    *string
 	password                 *string
-	is_active                *bool
 	is_verified              *bool
 	created_at               *time.Time
 	updated_at               *time.Time
@@ -1175,42 +1120,6 @@ func (m *LocalAuthMutation) OldPassword(ctx context.Context) (v string, err erro
 // ResetPassword resets all changes to the "password" field.
 func (m *LocalAuthMutation) ResetPassword() {
 	m.password = nil
-}
-
-// SetIsActive sets the "is_active" field.
-func (m *LocalAuthMutation) SetIsActive(b bool) {
-	m.is_active = &b
-}
-
-// IsActive returns the value of the "is_active" field in the mutation.
-func (m *LocalAuthMutation) IsActive() (r bool, exists bool) {
-	v := m.is_active
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIsActive returns the old "is_active" field's value of the LocalAuth entity.
-// If the LocalAuth object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocalAuthMutation) OldIsActive(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsActive is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsActive requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsActive: %w", err)
-	}
-	return oldValue.IsActive, nil
-}
-
-// ResetIsActive resets all changes to the "is_active" field.
-func (m *LocalAuthMutation) ResetIsActive() {
-	m.is_active = nil
 }
 
 // SetIsVerified sets the "is_verified" field.
@@ -1536,7 +1445,7 @@ func (m *LocalAuthMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LocalAuthMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 9)
 	if m.auth_account != nil {
 		fields = append(fields, localauth.FieldAuthAccountID)
 	}
@@ -1545,9 +1454,6 @@ func (m *LocalAuthMutation) Fields() []string {
 	}
 	if m.password != nil {
 		fields = append(fields, localauth.FieldPassword)
-	}
-	if m.is_active != nil {
-		fields = append(fields, localauth.FieldIsActive)
 	}
 	if m.is_verified != nil {
 		fields = append(fields, localauth.FieldIsVerified)
@@ -1581,8 +1487,6 @@ func (m *LocalAuthMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case localauth.FieldPassword:
 		return m.Password()
-	case localauth.FieldIsActive:
-		return m.IsActive()
 	case localauth.FieldIsVerified:
 		return m.IsVerified()
 	case localauth.FieldCreatedAt:
@@ -1610,8 +1514,6 @@ func (m *LocalAuthMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldEmail(ctx)
 	case localauth.FieldPassword:
 		return m.OldPassword(ctx)
-	case localauth.FieldIsActive:
-		return m.OldIsActive(ctx)
 	case localauth.FieldIsVerified:
 		return m.OldIsVerified(ctx)
 	case localauth.FieldCreatedAt:
@@ -1653,13 +1555,6 @@ func (m *LocalAuthMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPassword(v)
-		return nil
-	case localauth.FieldIsActive:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIsActive(v)
 		return nil
 	case localauth.FieldIsVerified:
 		v, ok := value.(bool)
@@ -1791,9 +1686,6 @@ func (m *LocalAuthMutation) ResetField(name string) error {
 	case localauth.FieldPassword:
 		m.ResetPassword()
 		return nil
-	case localauth.FieldIsActive:
-		m.ResetIsActive()
-		return nil
 	case localauth.FieldIsVerified:
 		m.ResetIsVerified()
 		return nil
@@ -1898,7 +1790,6 @@ type OAuthAuthMutation struct {
 	id                       *uuid.UUID
 	provider                 *oauthauth.Provider
 	provider_id              *string
-	is_active                *bool
 	is_verified              *bool
 	created_at               *time.Time
 	updated_at               *time.Time
@@ -2125,42 +2016,6 @@ func (m *OAuthAuthMutation) OldProviderID(ctx context.Context) (v string, err er
 // ResetProviderID resets all changes to the "provider_id" field.
 func (m *OAuthAuthMutation) ResetProviderID() {
 	m.provider_id = nil
-}
-
-// SetIsActive sets the "is_active" field.
-func (m *OAuthAuthMutation) SetIsActive(b bool) {
-	m.is_active = &b
-}
-
-// IsActive returns the value of the "is_active" field in the mutation.
-func (m *OAuthAuthMutation) IsActive() (r bool, exists bool) {
-	v := m.is_active
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIsActive returns the old "is_active" field's value of the OAuthAuth entity.
-// If the OAuthAuth object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OAuthAuthMutation) OldIsActive(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsActive is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsActive requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsActive: %w", err)
-	}
-	return oldValue.IsActive, nil
-}
-
-// ResetIsActive resets all changes to the "is_active" field.
-func (m *OAuthAuthMutation) ResetIsActive() {
-	m.is_active = nil
 }
 
 // SetIsVerified sets the "is_verified" field.
@@ -2535,7 +2390,7 @@ func (m *OAuthAuthMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OAuthAuthMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 10)
 	if m.auth_account != nil {
 		fields = append(fields, oauthauth.FieldAuthAccountID)
 	}
@@ -2544,9 +2399,6 @@ func (m *OAuthAuthMutation) Fields() []string {
 	}
 	if m.provider_id != nil {
 		fields = append(fields, oauthauth.FieldProviderID)
-	}
-	if m.is_active != nil {
-		fields = append(fields, oauthauth.FieldIsActive)
 	}
 	if m.is_verified != nil {
 		fields = append(fields, oauthauth.FieldIsVerified)
@@ -2583,8 +2435,6 @@ func (m *OAuthAuthMutation) Field(name string) (ent.Value, bool) {
 		return m.Provider()
 	case oauthauth.FieldProviderID:
 		return m.ProviderID()
-	case oauthauth.FieldIsActive:
-		return m.IsActive()
 	case oauthauth.FieldIsVerified:
 		return m.IsVerified()
 	case oauthauth.FieldCreatedAt:
@@ -2614,8 +2464,6 @@ func (m *OAuthAuthMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldProvider(ctx)
 	case oauthauth.FieldProviderID:
 		return m.OldProviderID(ctx)
-	case oauthauth.FieldIsActive:
-		return m.OldIsActive(ctx)
 	case oauthauth.FieldIsVerified:
 		return m.OldIsVerified(ctx)
 	case oauthauth.FieldCreatedAt:
@@ -2659,13 +2507,6 @@ func (m *OAuthAuthMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProviderID(v)
-		return nil
-	case oauthauth.FieldIsActive:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIsActive(v)
 		return nil
 	case oauthauth.FieldIsVerified:
 		v, ok := value.(bool)
@@ -2809,9 +2650,6 @@ func (m *OAuthAuthMutation) ResetField(name string) error {
 		return nil
 	case oauthauth.FieldProviderID:
 		m.ResetProviderID()
-		return nil
-	case oauthauth.FieldIsActive:
-		m.ResetIsActive()
 		return nil
 	case oauthauth.FieldIsVerified:
 		m.ResetIsVerified()

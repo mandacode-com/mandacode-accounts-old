@@ -26,9 +26,6 @@ func (l *loginUsecase) IssueLoginCode(ctx context.Context, input localauthdomain
 		joinedErr := errors.Join(err, "failed to get user by ID")
 		return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
 	}
-	if !auth.IsActive {
-		return "", uuid.Nil, errors.New("user is not active", PubUserNotActive, errcode.ErrUnauthorized)
-	}
 	if !auth.IsVerified {
 		return "", uuid.Nil, errors.New("user is not verified", PubUserNotVerified, errcode.ErrUnauthorized)
 	}
@@ -37,9 +34,6 @@ func (l *loginUsecase) IssueLoginCode(ctx context.Context, input localauthdomain
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to get auth account by user ID")
 		return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
-	}
-	if !account.IsActive {
-		return "", uuid.Nil, errors.New("account is not active", PubUserNotActive, errcode.ErrUnauthorized)
 	}
 
 	verified, err := l.localAuth.ComparePassword(ctx, account.ID, input.Password)
@@ -83,9 +77,6 @@ func (l *loginUsecase) Login(ctx context.Context, input localauthdomain.LoginInp
 		joinedErr := errors.Join(err, "failed to get user by email")
 		return "", "", errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
 	}
-	if !auth.IsActive {
-		return "", "", errors.New("user is not active", PubUserNotActive, errcode.ErrUnauthorized)
-	}
 	if !auth.IsVerified {
 		return "", "", errors.New("user is not verified", PubUserNotVerified, errcode.ErrUnauthorized)
 	}
@@ -94,9 +85,6 @@ func (l *loginUsecase) Login(ctx context.Context, input localauthdomain.LoginInp
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to get auth account by user ID")
 		return "", "", errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
-	}
-	if !account.IsActive {
-		return "", "", errors.New("account is not active", PubUserNotActive, errcode.ErrUnauthorized)
 	}
 
 	verified, err := l.localAuth.ComparePassword(ctx, account.ID, input.Password)

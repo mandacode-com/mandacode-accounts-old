@@ -11,7 +11,6 @@ type CreateLocalAuthInput struct {
 	AccountID  uuid.UUID `json:"account_id" validate:"required"`
 	Email      string    `json:"email" validate:"required,email"`
 	Password   string    `json:"password" validate:"required,min=8,max=100"`
-	IsActive   bool      `json:"is_active" validate:"required"`
 	IsVerified bool      `json:"is_verified" validate:"required"`
 }
 
@@ -20,7 +19,6 @@ type CreateLocalAuthInput struct {
 type SecureLocalAuth struct {
 	AccountID           uuid.UUID `json:"account_id" validate:"required"`
 	Email               string    `json:"email" validate:"required,email"`
-	IsActive            bool      `json:"is_active" validate:"required"`
 	IsVerified          bool      `json:"is_verified" validate:"required"`
 	LastLoginAt         time.Time `json:"last_login_at"`
 	LastFailedLoginAt   time.Time `json:"last_failed_login_at"`
@@ -32,7 +30,6 @@ func NewSecureLocalAuth(localAuth *ent.LocalAuth) *SecureLocalAuth {
 	return &SecureLocalAuth{
 		AccountID:           localAuth.AuthAccountID,
 		Email:               localAuth.Email,
-		IsActive:            localAuth.IsActive,
 		IsVerified:          localAuth.IsVerified,
 		LastLoginAt:         localAuth.LastLoginAt,
 		LastFailedLoginAt:   localAuth.LastFailedLoginAt,

@@ -41,11 +41,6 @@ func (LocalAuth) Fields() []ent.Field {
 			NotEmpty().
 			Comment("The hashed password for the local authentication"),
 
-		// IsActive
-		field.Bool("is_active").
-			Default(true).
-			Comment("Indicates if the local authentication is active and can be used to log in"),
-
 		// IsVerified
 		field.Bool("is_verified").
 			Default(false).

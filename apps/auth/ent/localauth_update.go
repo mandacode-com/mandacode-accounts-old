@@ -72,20 +72,6 @@ func (lau *LocalAuthUpdate) SetNillablePassword(s *string) *LocalAuthUpdate {
 	return lau
 }
 
-// SetIsActive sets the "is_active" field.
-func (lau *LocalAuthUpdate) SetIsActive(b bool) *LocalAuthUpdate {
-	lau.mutation.SetIsActive(b)
-	return lau
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (lau *LocalAuthUpdate) SetNillableIsActive(b *bool) *LocalAuthUpdate {
-	if b != nil {
-		lau.SetIsActive(*b)
-	}
-	return lau
-}
-
 // SetIsVerified sets the "is_verified" field.
 func (lau *LocalAuthUpdate) SetIsVerified(b bool) *LocalAuthUpdate {
 	lau.mutation.SetIsVerified(b)
@@ -255,9 +241,6 @@ func (lau *LocalAuthUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := lau.mutation.Password(); ok {
 		_spec.SetField(localauth.FieldPassword, field.TypeString, value)
 	}
-	if value, ok := lau.mutation.IsActive(); ok {
-		_spec.SetField(localauth.FieldIsActive, field.TypeBool, value)
-	}
 	if value, ok := lau.mutation.IsVerified(); ok {
 		_spec.SetField(localauth.FieldIsVerified, field.TypeBool, value)
 	}
@@ -369,20 +352,6 @@ func (lauo *LocalAuthUpdateOne) SetPassword(s string) *LocalAuthUpdateOne {
 func (lauo *LocalAuthUpdateOne) SetNillablePassword(s *string) *LocalAuthUpdateOne {
 	if s != nil {
 		lauo.SetPassword(*s)
-	}
-	return lauo
-}
-
-// SetIsActive sets the "is_active" field.
-func (lauo *LocalAuthUpdateOne) SetIsActive(b bool) *LocalAuthUpdateOne {
-	lauo.mutation.SetIsActive(b)
-	return lauo
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (lauo *LocalAuthUpdateOne) SetNillableIsActive(b *bool) *LocalAuthUpdateOne {
-	if b != nil {
-		lauo.SetIsActive(*b)
 	}
 	return lauo
 }
@@ -585,9 +554,6 @@ func (lauo *LocalAuthUpdateOne) sqlSave(ctx context.Context) (_node *LocalAuth, 
 	}
 	if value, ok := lauo.mutation.Password(); ok {
 		_spec.SetField(localauth.FieldPassword, field.TypeString, value)
-	}
-	if value, ok := lauo.mutation.IsActive(); ok {
-		_spec.SetField(localauth.FieldIsActive, field.TypeBool, value)
 	}
 	if value, ok := lauo.mutation.IsVerified(); ok {
 		_spec.SetField(localauth.FieldIsVerified, field.TypeBool, value)

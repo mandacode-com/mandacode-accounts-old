@@ -21,8 +21,6 @@ type AuthAccount struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// The unique identifier for the user associated with this authentication account
 	UserID uuid.UUID `json:"user_id,omitempty"`
-	// Indicates if the authentication account is active and can be used to log in
-	IsActive bool `json:"is_active,omitempty"`
 	// The time when the authentication account was created
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// The time when the authentication account was last updated
@@ -73,8 +71,6 @@ func (*AuthAccount) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case authaccount.FieldIsActive:
-			values[i] = new(sql.NullBool)
 		case authaccount.FieldFailedLoginAttempts:
 			values[i] = new(sql.NullInt64)
 		case authaccount.FieldCreatedAt, authaccount.FieldUpdatedAt, authaccount.FieldLastLoginAt, authaccount.FieldLastFailedLoginAt:
@@ -107,12 +103,6 @@ func (aa *AuthAccount) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
 				aa.UserID = *value
-			}
-		case authaccount.FieldIsActive:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_active", values[i])
-			} else if value.Valid {
-				aa.IsActive = value.Bool
 			}
 		case authaccount.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -192,9 +182,6 @@ func (aa *AuthAccount) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", aa.ID))
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", aa.UserID))
-	builder.WriteString(", ")
-	builder.WriteString("is_active=")
-	builder.WriteString(fmt.Sprintf("%v", aa.IsActive))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(aa.CreatedAt.Format(time.ANSIC))

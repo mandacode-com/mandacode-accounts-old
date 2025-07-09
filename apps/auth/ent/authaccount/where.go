@@ -61,11 +61,6 @@ func UserID(v uuid.UUID) predicate.AuthAccount {
 	return predicate.AuthAccount(sql.FieldEQ(FieldUserID, v))
 }
 
-// IsActive applies equality check predicate on the "is_active" field. It's identical to IsActiveEQ.
-func IsActive(v bool) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldEQ(FieldIsActive, v))
-}
-
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.AuthAccount {
 	return predicate.AuthAccount(sql.FieldEQ(FieldCreatedAt, v))
@@ -129,16 +124,6 @@ func UserIDLT(v uuid.UUID) predicate.AuthAccount {
 // UserIDLTE applies the LTE predicate on the "user_id" field.
 func UserIDLTE(v uuid.UUID) predicate.AuthAccount {
 	return predicate.AuthAccount(sql.FieldLTE(FieldUserID, v))
-}
-
-// IsActiveEQ applies the EQ predicate on the "is_active" field.
-func IsActiveEQ(v bool) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldEQ(FieldIsActive, v))
-}
-
-// IsActiveNEQ applies the NEQ predicate on the "is_active" field.
-func IsActiveNEQ(v bool) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldNEQ(FieldIsActive, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

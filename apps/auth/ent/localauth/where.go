@@ -71,11 +71,6 @@ func Password(v string) predicate.LocalAuth {
 	return predicate.LocalAuth(sql.FieldEQ(FieldPassword, v))
 }
 
-// IsActive applies equality check predicate on the "is_active" field. It's identical to IsActiveEQ.
-func IsActive(v bool) predicate.LocalAuth {
-	return predicate.LocalAuth(sql.FieldEQ(FieldIsActive, v))
-}
-
 // IsVerified applies equality check predicate on the "is_verified" field. It's identical to IsVerifiedEQ.
 func IsVerified(v bool) predicate.LocalAuth {
 	return predicate.LocalAuth(sql.FieldEQ(FieldIsVerified, v))
@@ -254,16 +249,6 @@ func PasswordEqualFold(v string) predicate.LocalAuth {
 // PasswordContainsFold applies the ContainsFold predicate on the "password" field.
 func PasswordContainsFold(v string) predicate.LocalAuth {
 	return predicate.LocalAuth(sql.FieldContainsFold(FieldPassword, v))
-}
-
-// IsActiveEQ applies the EQ predicate on the "is_active" field.
-func IsActiveEQ(v bool) predicate.LocalAuth {
-	return predicate.LocalAuth(sql.FieldEQ(FieldIsActive, v))
-}
-
-// IsActiveNEQ applies the NEQ predicate on the "is_active" field.
-func IsActiveNEQ(v bool) predicate.LocalAuth {
-	return predicate.LocalAuth(sql.FieldNEQ(FieldIsActive, v))
 }
 
 // IsVerifiedEQ applies the EQ predicate on the "is_verified" field.

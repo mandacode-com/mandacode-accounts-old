@@ -186,7 +186,6 @@ func (l *LoginUsecase) createOAuthAuth(ctx context.Context, provider oauthauth.P
 		ctx,
 		&dbmodels.CreateAuthAccountInput{
 			UserID:   uuid.New(), // Generate a new UUID for the user
-			IsActive: true,
 		},
 	)
 	oauthAuth, err := l.oauthAuth.CreateOAuthAuth(
@@ -196,7 +195,6 @@ func (l *LoginUsecase) createOAuthAuth(ctx context.Context, provider oauthauth.P
 			Provider:   provider,
 			ProviderID: userInfo.ProviderID,
 			Email:      userInfo.Email,
-			IsActive:   true,
 			IsVerified: userInfo.EmailVerified,
 		},
 	)

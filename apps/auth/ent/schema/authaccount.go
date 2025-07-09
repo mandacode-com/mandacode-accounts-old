@@ -28,11 +28,6 @@ func (AuthAccount) Fields() []ent.Field {
 		field.UUID("user_id", uuid.UUID{}).
 			Comment("The unique identifier for the user associated with this authentication account"),
 
-		// IsActive
-		field.Bool("is_active").
-			Default(true).
-			Comment("Indicates if the authentication account is active and can be used to log in"),
-
 		// CreatedAt
 		field.Time("created_at").
 			Default(time.Now).

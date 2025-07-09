@@ -29,9 +29,6 @@ type LocalAuthRepository interface {
 	// SetPassword updates the password of a LocalAuth record by its account ID.
 	SetPassword(ctx context.Context, authAccountID uuid.UUID, password string) (*dbmodels.SecureLocalAuth, error)
 
-	// SetIsActive updates the active status of a LocalAuth record by its account ID.
-	SetIsActive(ctx context.Context, authAccountID uuid.UUID, isActive bool) (*dbmodels.SecureLocalAuth, error)
-
 	// SetIsVerified updates the verification status of a LocalAuth record by its account ID.
 	SetIsVerified(ctx context.Context, authAccountID uuid.UUID, isVerified bool) (*dbmodels.SecureLocalAuth, error)
 

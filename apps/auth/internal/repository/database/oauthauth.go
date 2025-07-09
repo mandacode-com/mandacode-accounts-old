@@ -158,29 +158,6 @@ func (o *oauthAuthRepository) SetEmail(ctx context.Context, provider oauthauth.P
 	return auth, nil
 }
 
-// SetIsActive implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) SetIsActive(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, isActive bool) (*ent.OAuthAuth, error) {
-	auth, err := o.client.OAuthAuth.Query().
-		Where(oauthauth.ProviderEQ(provider)).
-		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
-		Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, errors.New("OAuthAuth not found", "NotFound", errcode.ErrNotFound)
-		}
-		return nil, errors.New(err.Error(), "Failed to get OAuthAuth for updating active status", errcode.ErrInternalFailure)
-	}
-
-	auth, err = o.client.OAuthAuth.UpdateOne(auth).
-		SetIsActive(isActive).
-		Save(ctx)
-	if err != nil {
-		return nil, errors.New(err.Error(), "Failed to update OAuthAuth isActive status", errcode.ErrInternalFailure)
-	}
-
-	return auth, nil
-}
-
 // SetIsVerified implements dbdomain.OAuthAuthRepository.
 func (o *oauthAuthRepository) SetIsVerified(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, isVerified bool) (*ent.OAuthAuth, error) {
 	auth, err := o.client.OAuthAuth.Query().
@@ -211,7 +188,6 @@ func (o *oauthAuthRepository) CreateOAuthAuth(ctx context.Context, input *dbmode
 		SetProviderID(input.ProviderID).
 		SetAuthAccountID(input.AccountID).
 		SetEmail(input.Email).
-		SetIsActive(input.IsActive).
 		SetIsVerified(input.IsVerified).
 		Save(ctx)
 	if err != nil {

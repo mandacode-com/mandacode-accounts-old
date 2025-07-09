@@ -29,20 +29,6 @@ func (aac *AuthAccountCreate) SetUserID(u uuid.UUID) *AuthAccountCreate {
 	return aac
 }
 
-// SetIsActive sets the "is_active" field.
-func (aac *AuthAccountCreate) SetIsActive(b bool) *AuthAccountCreate {
-	aac.mutation.SetIsActive(b)
-	return aac
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (aac *AuthAccountCreate) SetNillableIsActive(b *bool) *AuthAccountCreate {
-	if b != nil {
-		aac.SetIsActive(*b)
-	}
-	return aac
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (aac *AuthAccountCreate) SetCreatedAt(t time.Time) *AuthAccountCreate {
 	aac.mutation.SetCreatedAt(t)
@@ -192,10 +178,6 @@ func (aac *AuthAccountCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (aac *AuthAccountCreate) defaults() {
-	if _, ok := aac.mutation.IsActive(); !ok {
-		v := authaccount.DefaultIsActive
-		aac.mutation.SetIsActive(v)
-	}
 	if _, ok := aac.mutation.CreatedAt(); !ok {
 		v := authaccount.DefaultCreatedAt()
 		aac.mutation.SetCreatedAt(v)
@@ -218,9 +200,6 @@ func (aac *AuthAccountCreate) defaults() {
 func (aac *AuthAccountCreate) check() error {
 	if _, ok := aac.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "AuthAccount.user_id"`)}
-	}
-	if _, ok := aac.mutation.IsActive(); !ok {
-		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "AuthAccount.is_active"`)}
 	}
 	if _, ok := aac.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "AuthAccount.created_at"`)}
@@ -269,10 +248,6 @@ func (aac *AuthAccountCreate) createSpec() (*AuthAccount, *sqlgraph.CreateSpec) 
 	if value, ok := aac.mutation.UserID(); ok {
 		_spec.SetField(authaccount.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
-	}
-	if value, ok := aac.mutation.IsActive(); ok {
-		_spec.SetField(authaccount.FieldIsActive, field.TypeBool, value)
-		_node.IsActive = value
 	}
 	if value, ok := aac.mutation.CreatedAt(); ok {
 		_spec.SetField(authaccount.FieldCreatedAt, field.TypeTime, value)

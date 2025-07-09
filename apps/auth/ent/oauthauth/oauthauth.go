@@ -22,8 +22,6 @@ const (
 	FieldProvider = "provider"
 	// FieldProviderID holds the string denoting the provider_id field in the database.
 	FieldProviderID = "provider_id"
-	// FieldIsActive holds the string denoting the is_active field in the database.
-	FieldIsActive = "is_active"
 	// FieldIsVerified holds the string denoting the is_verified field in the database.
 	FieldIsVerified = "is_verified"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -57,7 +55,6 @@ var Columns = []string{
 	FieldAuthAccountID,
 	FieldProvider,
 	FieldProviderID,
-	FieldIsActive,
 	FieldIsVerified,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -80,8 +77,6 @@ func ValidColumn(column string) bool {
 var (
 	// ProviderIDValidator is a validator for the "provider_id" field. It is called by the builders before save.
 	ProviderIDValidator func(string) error
-	// DefaultIsActive holds the default value on creation for the "is_active" field.
-	DefaultIsActive bool
 	// DefaultIsVerified holds the default value on creation for the "is_verified" field.
 	DefaultIsVerified bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -144,11 +139,6 @@ func ByProvider(opts ...sql.OrderTermOption) OrderOption {
 // ByProviderID orders the results by the provider_id field.
 func ByProviderID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProviderID, opts...).ToFunc()
-}
-
-// ByIsActive orders the results by the is_active field.
-func ByIsActive(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsActive, opts...).ToFunc()
 }
 
 // ByIsVerified orders the results by the is_verified field.

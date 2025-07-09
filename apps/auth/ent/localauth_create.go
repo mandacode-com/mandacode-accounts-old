@@ -40,20 +40,6 @@ func (lac *LocalAuthCreate) SetPassword(s string) *LocalAuthCreate {
 	return lac
 }
 
-// SetIsActive sets the "is_active" field.
-func (lac *LocalAuthCreate) SetIsActive(b bool) *LocalAuthCreate {
-	lac.mutation.SetIsActive(b)
-	return lac
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (lac *LocalAuthCreate) SetNillableIsActive(b *bool) *LocalAuthCreate {
-	if b != nil {
-		lac.SetIsActive(*b)
-	}
-	return lac
-}
-
 // SetIsVerified sets the "is_verified" field.
 func (lac *LocalAuthCreate) SetIsVerified(b bool) *LocalAuthCreate {
 	lac.mutation.SetIsVerified(b)
@@ -192,10 +178,6 @@ func (lac *LocalAuthCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (lac *LocalAuthCreate) defaults() {
-	if _, ok := lac.mutation.IsActive(); !ok {
-		v := localauth.DefaultIsActive
-		lac.mutation.SetIsActive(v)
-	}
 	if _, ok := lac.mutation.IsVerified(); !ok {
 		v := localauth.DefaultIsVerified
 		lac.mutation.SetIsVerified(v)
@@ -238,9 +220,6 @@ func (lac *LocalAuthCreate) check() error {
 		if err := localauth.PasswordValidator(v); err != nil {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "LocalAuth.password": %w`, err)}
 		}
-	}
-	if _, ok := lac.mutation.IsActive(); !ok {
-		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "LocalAuth.is_active"`)}
 	}
 	if _, ok := lac.mutation.IsVerified(); !ok {
 		return &ValidationError{Name: "is_verified", err: errors.New(`ent: missing required field "LocalAuth.is_verified"`)}
@@ -299,10 +278,6 @@ func (lac *LocalAuthCreate) createSpec() (*LocalAuth, *sqlgraph.CreateSpec) {
 	if value, ok := lac.mutation.Password(); ok {
 		_spec.SetField(localauth.FieldPassword, field.TypeString, value)
 		_node.Password = value
-	}
-	if value, ok := lac.mutation.IsActive(); ok {
-		_spec.SetField(localauth.FieldIsActive, field.TypeBool, value)
-		_node.IsActive = value
 	}
 	if value, ok := lac.mutation.IsVerified(); ok {
 		_spec.SetField(localauth.FieldIsVerified, field.TypeBool, value)

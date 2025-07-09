@@ -42,7 +42,6 @@ func (s *signupUsecase) Signup(ctx context.Context, input localauthdomain.Signup
 	// Create auth account
 	account, err := s.authAccount.CreateAuthAccount(ctx, &dbmodels.CreateAuthAccountInput{
 		UserID:   uuid.New(),
-		IsActive: true,
 	})
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to create auth account")
@@ -55,7 +54,6 @@ func (s *signupUsecase) Signup(ctx context.Context, input localauthdomain.Signup
 			AccountID:  account.ID,
 			Email:      input.Email,
 			Password:   input.Password,
-			IsActive:   true,
 			IsVerified: false,
 		},
 	)

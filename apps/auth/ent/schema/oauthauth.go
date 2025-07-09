@@ -39,11 +39,6 @@ func (OAuthAuth) Fields() []ent.Field {
 			NotEmpty().
 			Comment("The unique identifier provided by the OAuth provider for the user"),
 
-		// IsActive
-		field.Bool("is_active").
-			Default(true).
-			Comment("Indicates if the OAuth authentication is active and can be used to log in"),
-
 		// IsVerified
 		field.Bool("is_verified").
 			Default(true).

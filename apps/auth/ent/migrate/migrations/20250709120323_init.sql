@@ -2,7 +2,6 @@
 CREATE TABLE "public"."auth_accounts" (
   "id" uuid NOT NULL,
   "user_id" uuid NOT NULL,
-  "is_active" boolean NOT NULL DEFAULT true,
   "created_at" timestamptz NOT NULL,
   "updated_at" timestamptz NOT NULL,
   "last_login_at" timestamptz NULL,
@@ -15,7 +14,6 @@ CREATE TABLE "public"."local_auths" (
   "id" uuid NOT NULL,
   "email" character varying NOT NULL,
   "password" character varying NOT NULL,
-  "is_active" boolean NOT NULL DEFAULT true,
   "is_verified" boolean NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL,
   "updated_at" timestamptz NOT NULL,
@@ -37,7 +35,6 @@ CREATE TABLE "public"."oauth_auths" (
   "id" uuid NOT NULL,
   "provider" character varying NOT NULL,
   "provider_id" character varying NOT NULL,
-  "is_active" boolean NOT NULL DEFAULT true,
   "is_verified" boolean NOT NULL DEFAULT true,
   "created_at" timestamptz NOT NULL,
   "updated_at" timestamptz NOT NULL,

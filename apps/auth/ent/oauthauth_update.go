@@ -72,20 +72,6 @@ func (oau *OAuthAuthUpdate) SetNillableProviderID(s *string) *OAuthAuthUpdate {
 	return oau
 }
 
-// SetIsActive sets the "is_active" field.
-func (oau *OAuthAuthUpdate) SetIsActive(b bool) *OAuthAuthUpdate {
-	oau.mutation.SetIsActive(b)
-	return oau
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (oau *OAuthAuthUpdate) SetNillableIsActive(b *bool) *OAuthAuthUpdate {
-	if b != nil {
-		oau.SetIsActive(*b)
-	}
-	return oau
-}
-
 // SetIsVerified sets the "is_verified" field.
 func (oau *OAuthAuthUpdate) SetIsVerified(b bool) *OAuthAuthUpdate {
 	oau.mutation.SetIsVerified(b)
@@ -275,9 +261,6 @@ func (oau *OAuthAuthUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := oau.mutation.ProviderID(); ok {
 		_spec.SetField(oauthauth.FieldProviderID, field.TypeString, value)
 	}
-	if value, ok := oau.mutation.IsActive(); ok {
-		_spec.SetField(oauthauth.FieldIsActive, field.TypeBool, value)
-	}
 	if value, ok := oau.mutation.IsVerified(); ok {
 		_spec.SetField(oauthauth.FieldIsVerified, field.TypeBool, value)
 	}
@@ -395,20 +378,6 @@ func (oauo *OAuthAuthUpdateOne) SetProviderID(s string) *OAuthAuthUpdateOne {
 func (oauo *OAuthAuthUpdateOne) SetNillableProviderID(s *string) *OAuthAuthUpdateOne {
 	if s != nil {
 		oauo.SetProviderID(*s)
-	}
-	return oauo
-}
-
-// SetIsActive sets the "is_active" field.
-func (oauo *OAuthAuthUpdateOne) SetIsActive(b bool) *OAuthAuthUpdateOne {
-	oauo.mutation.SetIsActive(b)
-	return oauo
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (oauo *OAuthAuthUpdateOne) SetNillableIsActive(b *bool) *OAuthAuthUpdateOne {
-	if b != nil {
-		oauo.SetIsActive(*b)
 	}
 	return oauo
 }
@@ -631,9 +600,6 @@ func (oauo *OAuthAuthUpdateOne) sqlSave(ctx context.Context) (_node *OAuthAuth, 
 	}
 	if value, ok := oauo.mutation.ProviderID(); ok {
 		_spec.SetField(oauthauth.FieldProviderID, field.TypeString, value)
-	}
-	if value, ok := oauo.mutation.IsActive(); ok {
-		_spec.SetField(oauthauth.FieldIsActive, field.TypeBool, value)
 	}
 	if value, ok := oauo.mutation.IsVerified(); ok {
 		_spec.SetField(oauthauth.FieldIsVerified, field.TypeBool, value)

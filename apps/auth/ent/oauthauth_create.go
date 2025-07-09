@@ -40,20 +40,6 @@ func (oac *OAuthAuthCreate) SetProviderID(s string) *OAuthAuthCreate {
 	return oac
 }
 
-// SetIsActive sets the "is_active" field.
-func (oac *OAuthAuthCreate) SetIsActive(b bool) *OAuthAuthCreate {
-	oac.mutation.SetIsActive(b)
-	return oac
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (oac *OAuthAuthCreate) SetNillableIsActive(b *bool) *OAuthAuthCreate {
-	if b != nil {
-		oac.SetIsActive(*b)
-	}
-	return oac
-}
-
 // SetIsVerified sets the "is_verified" field.
 func (oac *OAuthAuthCreate) SetIsVerified(b bool) *OAuthAuthCreate {
 	oac.mutation.SetIsVerified(b)
@@ -206,10 +192,6 @@ func (oac *OAuthAuthCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (oac *OAuthAuthCreate) defaults() {
-	if _, ok := oac.mutation.IsActive(); !ok {
-		v := oauthauth.DefaultIsActive
-		oac.mutation.SetIsActive(v)
-	}
 	if _, ok := oac.mutation.IsVerified(); !ok {
 		v := oauthauth.DefaultIsVerified
 		oac.mutation.SetIsVerified(v)
@@ -252,9 +234,6 @@ func (oac *OAuthAuthCreate) check() error {
 		if err := oauthauth.ProviderIDValidator(v); err != nil {
 			return &ValidationError{Name: "provider_id", err: fmt.Errorf(`ent: validator failed for field "OAuthAuth.provider_id": %w`, err)}
 		}
-	}
-	if _, ok := oac.mutation.IsActive(); !ok {
-		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "OAuthAuth.is_active"`)}
 	}
 	if _, ok := oac.mutation.IsVerified(); !ok {
 		return &ValidationError{Name: "is_verified", err: errors.New(`ent: missing required field "OAuthAuth.is_verified"`)}
@@ -313,10 +292,6 @@ func (oac *OAuthAuthCreate) createSpec() (*OAuthAuth, *sqlgraph.CreateSpec) {
 	if value, ok := oac.mutation.ProviderID(); ok {
 		_spec.SetField(oauthauth.FieldProviderID, field.TypeString, value)
 		_node.ProviderID = value
-	}
-	if value, ok := oac.mutation.IsActive(); ok {
-		_spec.SetField(oauthauth.FieldIsActive, field.TypeBool, value)
-		_node.IsActive = value
 	}
 	if value, ok := oac.mutation.IsVerified(); ok {
 		_spec.SetField(oauthauth.FieldIsVerified, field.TypeBool, value)

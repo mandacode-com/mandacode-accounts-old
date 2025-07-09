@@ -66,11 +66,6 @@ func ProviderID(v string) predicate.OAuthAuth {
 	return predicate.OAuthAuth(sql.FieldEQ(FieldProviderID, v))
 }
 
-// IsActive applies equality check predicate on the "is_active" field. It's identical to IsActiveEQ.
-func IsActive(v bool) predicate.OAuthAuth {
-	return predicate.OAuthAuth(sql.FieldEQ(FieldIsActive, v))
-}
-
 // IsVerified applies equality check predicate on the "is_verified" field. It's identical to IsVerifiedEQ.
 func IsVerified(v bool) predicate.OAuthAuth {
 	return predicate.OAuthAuth(sql.FieldEQ(FieldIsVerified, v))
@@ -209,16 +204,6 @@ func ProviderIDEqualFold(v string) predicate.OAuthAuth {
 // ProviderIDContainsFold applies the ContainsFold predicate on the "provider_id" field.
 func ProviderIDContainsFold(v string) predicate.OAuthAuth {
 	return predicate.OAuthAuth(sql.FieldContainsFold(FieldProviderID, v))
-}
-
-// IsActiveEQ applies the EQ predicate on the "is_active" field.
-func IsActiveEQ(v bool) predicate.OAuthAuth {
-	return predicate.OAuthAuth(sql.FieldEQ(FieldIsActive, v))
-}
-
-// IsActiveNEQ applies the NEQ predicate on the "is_active" field.
-func IsActiveNEQ(v bool) predicate.OAuthAuth {
-	return predicate.OAuthAuth(sql.FieldNEQ(FieldIsActive, v))
 }
 
 // IsVerifiedEQ applies the EQ predicate on the "is_verified" field.

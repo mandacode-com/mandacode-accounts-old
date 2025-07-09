@@ -97,7 +97,6 @@ func (l *localAuthRepository) CreateLocalAuth(ctx context.Context, input *dbmode
 		SetAuthAccountID(input.AccountID).
 		SetEmail(input.Email).
 		SetPassword(string(hashedPassword)).
-		SetIsActive(input.IsActive).
 		SetIsVerified(input.IsVerified).
 		Save(ctx)
 
@@ -227,28 +226,6 @@ func (l *localAuthRepository) SetEmail(ctx context.Context, authAccountID uuid.U
 		Save(ctx)
 	if err != nil {
 		return nil, errors.Upgrade(err, errcode.ErrInternalFailure, "Failed to update email in local auth record")
-	}
-
-	return dbmodels.NewSecureLocalAuth(localAuth), nil
-}
-
-// SetIsActive implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) SetIsActive(ctx context.Context, authAccountID uuid.UUID, isActive bool) (*dbmodels.SecureLocalAuth, error) {
-	localAuth, err := l.client.LocalAuth.Query().
-		Where(localauth.AuthAccountID(authAccountID)).
-		Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, errors.Upgrade(err, errcode.ErrNotFound, "LocalAuth not found for the given AuthAccountID")
-		}
-		return nil, errors.Upgrade(err, errcode.ErrInternalFailure, "Failed to retrieve local auth record by AuthAccountID")
-	}
-
-	localAuth, err = localAuth.Update().
-		SetIsActive(isActive).
-		Save(ctx)
-	if err != nil {
-		return nil, errors.Upgrade(err, errcode.ErrInternalFailure, "Failed to update active status in local auth record")
 	}
 
 	return dbmodels.NewSecureLocalAuth(localAuth), nil

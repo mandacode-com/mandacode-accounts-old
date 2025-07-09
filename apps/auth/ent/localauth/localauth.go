@@ -21,8 +21,6 @@ const (
 	FieldEmail = "email"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
-	// FieldIsActive holds the string denoting the is_active field in the database.
-	FieldIsActive = "is_active"
 	// FieldIsVerified holds the string denoting the is_verified field in the database.
 	FieldIsVerified = "is_verified"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -54,7 +52,6 @@ var Columns = []string{
 	FieldAuthAccountID,
 	FieldEmail,
 	FieldPassword,
-	FieldIsActive,
 	FieldIsVerified,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -78,8 +75,6 @@ var (
 	EmailValidator func(string) error
 	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	PasswordValidator func(string) error
-	// DefaultIsActive holds the default value on creation for the "is_active" field.
-	DefaultIsActive bool
 	// DefaultIsVerified holds the default value on creation for the "is_verified" field.
 	DefaultIsVerified bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -115,11 +110,6 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByPassword orders the results by the password field.
 func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
-}
-
-// ByIsActive orders the results by the is_active field.
-func ByIsActive(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsActive, opts...).ToFunc()
 }
 
 // ByIsVerified orders the results by the is_verified field.

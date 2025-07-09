@@ -26,8 +26,6 @@ type OAuthAuth struct {
 	Provider oauthauth.Provider `json:"provider,omitempty"`
 	// The unique identifier provided by the OAuth provider for the user
 	ProviderID string `json:"provider_id,omitempty"`
-	// Indicates if the OAuth authentication is active and can be used to log in
-	IsActive bool `json:"is_active,omitempty"`
 	// Indicates if the OAuth authentication has verified the email address
 	IsVerified bool `json:"is_verified,omitempty"`
 	// The time when the OAuth authentication was created
@@ -73,7 +71,7 @@ func (*OAuthAuth) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case oauthauth.FieldIsActive, oauthauth.FieldIsVerified:
+		case oauthauth.FieldIsVerified:
 			values[i] = new(sql.NullBool)
 		case oauthauth.FieldFailedLoginAttempts:
 			values[i] = new(sql.NullInt64)
@@ -121,12 +119,6 @@ func (oa *OAuthAuth) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field provider_id", values[i])
 			} else if value.Valid {
 				oa.ProviderID = value.String
-			}
-		case oauthauth.FieldIsActive:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_active", values[i])
-			} else if value.Valid {
-				oa.IsActive = value.Bool
 			}
 		case oauthauth.FieldIsVerified:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -219,9 +211,6 @@ func (oa *OAuthAuth) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("provider_id=")
 	builder.WriteString(oa.ProviderID)
-	builder.WriteString(", ")
-	builder.WriteString("is_active=")
-	builder.WriteString(fmt.Sprintf("%v", oa.IsActive))
 	builder.WriteString(", ")
 	builder.WriteString("is_verified=")
 	builder.WriteString(fmt.Sprintf("%v", oa.IsVerified))

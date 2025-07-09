@@ -22,9 +22,6 @@ type OAuthAuthRepository interface {
 	// SetEmail updates the email of an OAuthAuth record by its account ID.
 	SetEmail(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, email string) (*ent.OAuthAuth, error)
 
-	// SetIsActive updates the active status of an OAuthAuth record by its account ID.
-	SetIsActive(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, isActive bool) (*ent.OAuthAuth, error)
-
 	// SetIsVerified updates the verification status of an OAuthAuth record by its account ID.
 	SetIsVerified(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, isVerified bool) (*ent.OAuthAuth, error)
 

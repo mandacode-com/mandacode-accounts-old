@@ -21,8 +21,7 @@ type authAccountRepository struct {
 func (a *authAccountRepository) CreateAuthAccount(ctx context.Context, account *dbmodels.CreateAuthAccountInput) (*ent.AuthAccount, error) {
 	create := a.client.AuthAccount.Create().
 		SetID(uuid.New()).
-		SetUserID(account.UserID).
-		SetIsActive(account.IsActive)
+		SetUserID(account.UserID)
 
 	authAccount, err := create.Save(ctx)
 	if err != nil {
@@ -129,28 +128,9 @@ func (a *authAccountRepository) ResetFailedLoginAttempts(ctx context.Context, id
 	return authAccount, nil
 }
 
-// SetActiveStatus implements dbdomain.AuthAccountRepository.
-func (a *authAccountRepository) SetActiveStatus(ctx context.Context, id uuid.UUID, isActive bool) (*ent.AuthAccount, error) {
-	authAccount, err := a.client.AuthAccount.UpdateOneID(id).
-		SetIsActive(isActive).
-		Save(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, errors.New("AuthAccount not found", "NotFound", errcode.ErrNotFound)
-		}
-		return nil, errors.New(err.Error(), "Failed to update AuthAccount active status", errcode.ErrInternalFailure)
-	}
-
-	return authAccount, nil
-}
-
 // UpdateAuthAccount implements dbdomain.AuthAccountRepository.
 func (a *authAccountRepository) UpdateAuthAccount(ctx context.Context, id uuid.UUID, account *dbmodels.UpdateAuthAccountInput) (*ent.AuthAccount, error) {
 	update := a.client.AuthAccount.UpdateOneID(id)
-
-	if account.IsActive != nil {
-		update = update.SetIsActive(*account.IsActive)
-	}
 
 	if account.UserID != nil {
 		update = update.SetUserID(*account.UserID)

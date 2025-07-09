@@ -26,8 +26,6 @@ type LocalAuth struct {
 	Email string `json:"email,omitempty"`
 	// The hashed password for the local authentication
 	Password string `json:"password,omitempty"`
-	// Indicates if the local authentication is active and can be used to log in
-	IsActive bool `json:"is_active,omitempty"`
 	// Indicates if the local authentication has verified the email address
 	IsVerified bool `json:"is_verified,omitempty"`
 	// The time when the local authentication was created
@@ -71,7 +69,7 @@ func (*LocalAuth) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case localauth.FieldIsActive, localauth.FieldIsVerified:
+		case localauth.FieldIsVerified:
 			values[i] = new(sql.NullBool)
 		case localauth.FieldFailedLoginAttempts:
 			values[i] = new(sql.NullInt64)
@@ -119,12 +117,6 @@ func (la *LocalAuth) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field password", values[i])
 			} else if value.Valid {
 				la.Password = value.String
-			}
-		case localauth.FieldIsActive:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_active", values[i])
-			} else if value.Valid {
-				la.IsActive = value.Bool
 			}
 		case localauth.FieldIsVerified:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -211,9 +203,6 @@ func (la *LocalAuth) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("password=")
 	builder.WriteString(la.Password)
-	builder.WriteString(", ")
-	builder.WriteString("is_active=")
-	builder.WriteString(fmt.Sprintf("%v", la.IsActive))
 	builder.WriteString(", ")
 	builder.WriteString("is_verified=")
 	builder.WriteString(fmt.Sprintf("%v", la.IsVerified))

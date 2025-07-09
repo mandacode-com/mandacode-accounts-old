@@ -12,7 +12,6 @@ var (
 	AuthAccountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "user_id", Type: field.TypeUUID},
-		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "last_login_at", Type: field.TypeTime, Nullable: true},
@@ -30,7 +29,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password", Type: field.TypeString},
-		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "is_verified", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -47,7 +45,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "local_auths_auth_accounts_local_auths",
-				Columns:    []*schema.Column{LocalAuthsColumns[10]},
+				Columns:    []*schema.Column{LocalAuthsColumns[9]},
 				RefColumns: []*schema.Column{AuthAccountsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -61,7 +59,7 @@ var (
 			{
 				Name:    "localauth_auth_account_id",
 				Unique:  true,
-				Columns: []*schema.Column{LocalAuthsColumns[10]},
+				Columns: []*schema.Column{LocalAuthsColumns[9]},
 			},
 		},
 	}
@@ -70,7 +68,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "provider", Type: field.TypeEnum, Enums: []string{"google", "github", "facebook", "kakao", "naver", "apple"}},
 		{Name: "provider_id", Type: field.TypeString},
-		{Name: "is_active", Type: field.TypeBool, Default: true},
 		{Name: "is_verified", Type: field.TypeBool, Default: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -88,7 +85,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "oauth_auths_auth_accounts_oauth_auths",
-				Columns:    []*schema.Column{OauthAuthsColumns[11]},
+				Columns:    []*schema.Column{OauthAuthsColumns[10]},
 				RefColumns: []*schema.Column{AuthAccountsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -97,7 +94,7 @@ var (
 			{
 				Name:    "oauthauth_auth_account_id_provider",
 				Unique:  true,
-				Columns: []*schema.Column{OauthAuthsColumns[11], OauthAuthsColumns[1]},
+				Columns: []*schema.Column{OauthAuthsColumns[10], OauthAuthsColumns[1]},
 			},
 			{
 				Name:    "oauthauth_provider_provider_id",

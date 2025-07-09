@@ -21,9 +21,6 @@ type AuthAccountRepository interface {
 	// UpdateAuthAccount updates an existing authentication account.
 	UpdateAuthAccount(ctx context.Context, id uuid.UUID, account *dbmodels.UpdateAuthAccountInput) (*ent.AuthAccount, error)
 
-	// SetActiveStatus sets the active status of an authentication account.
-	SetActiveStatus(ctx context.Context, id uuid.UUID, isActive bool) (*ent.AuthAccount, error)
-
 	// OnLoginSuccess handles the logic for a successful login attempt, updating the last login time and resetting failed attempts.
 	OnLoginSuccess(ctx context.Context, id uuid.UUID) (*ent.AuthAccount, error)
 

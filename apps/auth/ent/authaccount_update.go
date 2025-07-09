@@ -45,20 +45,6 @@ func (aau *AuthAccountUpdate) SetNillableUserID(u *uuid.UUID) *AuthAccountUpdate
 	return aau
 }
 
-// SetIsActive sets the "is_active" field.
-func (aau *AuthAccountUpdate) SetIsActive(b bool) *AuthAccountUpdate {
-	aau.mutation.SetIsActive(b)
-	return aau
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (aau *AuthAccountUpdate) SetNillableIsActive(b *bool) *AuthAccountUpdate {
-	if b != nil {
-		aau.SetIsActive(*b)
-	}
-	return aau
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (aau *AuthAccountUpdate) SetUpdatedAt(t time.Time) *AuthAccountUpdate {
 	aau.mutation.SetUpdatedAt(t)
@@ -251,9 +237,6 @@ func (aau *AuthAccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := aau.mutation.UserID(); ok {
 		_spec.SetField(authaccount.FieldUserID, field.TypeUUID, value)
 	}
-	if value, ok := aau.mutation.IsActive(); ok {
-		_spec.SetField(authaccount.FieldIsActive, field.TypeBool, value)
-	}
 	if value, ok := aau.mutation.UpdatedAt(); ok {
 		_spec.SetField(authaccount.FieldUpdatedAt, field.TypeTime, value)
 	}
@@ -395,20 +378,6 @@ func (aauo *AuthAccountUpdateOne) SetUserID(u uuid.UUID) *AuthAccountUpdateOne {
 func (aauo *AuthAccountUpdateOne) SetNillableUserID(u *uuid.UUID) *AuthAccountUpdateOne {
 	if u != nil {
 		aauo.SetUserID(*u)
-	}
-	return aauo
-}
-
-// SetIsActive sets the "is_active" field.
-func (aauo *AuthAccountUpdateOne) SetIsActive(b bool) *AuthAccountUpdateOne {
-	aauo.mutation.SetIsActive(b)
-	return aauo
-}
-
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (aauo *AuthAccountUpdateOne) SetNillableIsActive(b *bool) *AuthAccountUpdateOne {
-	if b != nil {
-		aauo.SetIsActive(*b)
 	}
 	return aauo
 }
@@ -634,9 +603,6 @@ func (aauo *AuthAccountUpdateOne) sqlSave(ctx context.Context) (_node *AuthAccou
 	}
 	if value, ok := aauo.mutation.UserID(); ok {
 		_spec.SetField(authaccount.FieldUserID, field.TypeUUID, value)
-	}
-	if value, ok := aauo.mutation.IsActive(); ok {
-		_spec.SetField(authaccount.FieldIsActive, field.TypeBool, value)
 	}
 	if value, ok := aauo.mutation.UpdatedAt(); ok {
 		_spec.SetField(authaccount.FieldUpdatedAt, field.TypeTime, value)
