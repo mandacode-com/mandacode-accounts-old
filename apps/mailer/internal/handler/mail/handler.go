@@ -6,11 +6,11 @@ import (
 	kafka "github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/proto"
 	kafkaserver "mandacode.com/accounts/mailer/cmd/server/kafka"
-	maildomain "mandacode.com/accounts/mailer/internal/domain/usecase/mail"
+	"mandacode.com/accounts/mailer/internal/usecase/mail"
 )
 
 type MailHandler struct {
-	MailApp   maildomain.MailUsecase
+	MailApp   *mail.MailUsecase
 	validator *validator.Validate
 }
 
@@ -27,7 +27,7 @@ func (h *MailHandler) HandleMessage(m kafka.Message) error {
 	return nil
 }
 
-func NewMailHandler(mail maildomain.MailUsecase, validator *validator.Validate) kafkaserver.KafkaHandler {
+func NewMailHandler(mail *mail.MailUsecase, validator *validator.Validate) kafkaserver.KafkaHandler {
 	return &MailHandler{
 		MailApp:   mail,
 		validator: validator,

@@ -8,10 +8,9 @@ import (
 
 	"go.uber.org/zap"
 	"gopkg.in/gomail.v2"
-	maildomain "mandacode.com/accounts/mailer/internal/domain/usecase/mail"
 )
 
-type mailUsecase struct {
+type MailUsecase struct {
 	dialer              *gomail.Dialer
 	verifyEmailTemplate *template.Template
 	logger              *zap.Logger
@@ -19,8 +18,12 @@ type mailUsecase struct {
 	sender              string
 }
 
-// SendEmailVerificationMail implements MailApp.
-func (m *mailUsecase) SendEmailVerificationMail(email string, link string) error {
+// SendEmailVerificationMail sends an email verification mail to the user.
+//
+// Parameters:
+//   - email: The email address of the user to send the verification mail to.
+//   - verificationLink: The link to be included in the email for verification.
+func (m *MailUsecase) SendEmailVerificationMail(email string, link string) error {
 	data := struct {
 		Link string
 	}{
@@ -49,7 +52,7 @@ func (m *mailUsecase) SendEmailVerificationMail(email string, link string) error
 }
 
 // NewMailApp creates a new instance of MailApp with the provided SMTP configuration.
-func NewMailApp(host string, port int, username, password, sender string, logger *zap.Logger) (maildomain.MailUsecase, error) {
+func NewMailApp(host string, port int, username, password, sender string, logger *zap.Logger) (*MailUsecase, error) {
 	dialer := gomail.NewDialer(host, port, username, password)
 	cwd, err := os.Getwd()
 	tmplPath := filepath.Join(cwd, "internal", "template", "verify_email.html")
@@ -59,7 +62,7 @@ func NewMailApp(host string, port int, username, password, sender string, logger
 		return nil, err
 	}
 
-	return &mailUsecase{
+	return &MailUsecase{
 		dialer:              dialer,
 		verifyEmailTemplate: tmpl,
 		logger:              logger,
