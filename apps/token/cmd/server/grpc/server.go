@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
-	// handlerv1 "mandacode.com/accounts/token/internal/handler/v1"
 )
 
 type GRPCServer struct {
