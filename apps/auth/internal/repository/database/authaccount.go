@@ -1,4 +1,4 @@
-package dbrepository
+package dbrepo
 
 import (
 	"context"
@@ -9,16 +9,15 @@ import (
 	"github.com/mandacode-com/golib/errors/errcode"
 	"mandacode.com/accounts/auth/ent"
 	"mandacode.com/accounts/auth/ent/authaccount"
-	dbmodels "mandacode.com/accounts/auth/internal/domain/models/database"
-	dbdomain "mandacode.com/accounts/auth/internal/domain/repository/database"
+	dbmodels "mandacode.com/accounts/auth/internal/models/database"
 )
 
-type authAccountRepository struct {
+type AuthAccountRepository struct {
 	client *ent.Client
 }
 
-// CreateAuthAccount implements dbdomain.AuthAccountRepository.
-func (a *authAccountRepository) CreateAuthAccount(ctx context.Context, account *dbmodels.CreateAuthAccountInput) (*ent.AuthAccount, error) {
+// CreateAuthAccount creates a new authentication account.
+func (a *AuthAccountRepository) CreateAuthAccount(ctx context.Context, account *dbmodels.CreateAuthAccountInput) (*ent.AuthAccount, error) {
 	create := a.client.AuthAccount.Create().
 		SetID(uuid.New()).
 		SetUserID(account.UserID)
@@ -34,8 +33,8 @@ func (a *authAccountRepository) CreateAuthAccount(ctx context.Context, account *
 	return authAccount, nil
 }
 
-// DeleteAuthAccount implements dbdomain.AuthAccountRepository.
-func (a *authAccountRepository) DeleteAuthAccount(ctx context.Context, id uuid.UUID) error {
+// DeleteAuthAccount deletes an authentication account by its ID.
+func (a *AuthAccountRepository) DeleteAuthAccount(ctx context.Context, id uuid.UUID) error {
 	delete := a.client.AuthAccount.DeleteOneID(id)
 
 	err := delete.Exec(ctx)
@@ -49,8 +48,8 @@ func (a *authAccountRepository) DeleteAuthAccount(ctx context.Context, id uuid.U
 	return nil
 }
 
-// GetAuthAccountByID implements dbdomain.AuthAccountRepository.
-func (a *authAccountRepository) GetAuthAccountByID(ctx context.Context, id uuid.UUID) (*ent.AuthAccount, error) {
+// GetAuthAccountByID retrieves an authentication account by its ID.
+func (a *AuthAccountRepository) GetAuthAccountByID(ctx context.Context, id uuid.UUID) (*ent.AuthAccount, error) {
 	authAccount, err := a.client.AuthAccount.Query().
 		Where(authaccount.IDEQ(id)).
 		Only(ctx)
@@ -64,8 +63,8 @@ func (a *authAccountRepository) GetAuthAccountByID(ctx context.Context, id uuid.
 	return authAccount, nil
 }
 
-// GetAuthAccountByUserID implements dbdomain.AuthAccountRepository.
-func (a *authAccountRepository) GetAuthAccountByUserID(ctx context.Context, userID uuid.UUID) (*ent.AuthAccount, error) {
+// GetAuthAccountByUserID retrieves an authentication account by the associated user ID.
+func (a *AuthAccountRepository) GetAuthAccountByUserID(ctx context.Context, userID uuid.UUID) (*ent.AuthAccount, error) {
 	authAccount, err := a.client.AuthAccount.Query().
 		Where(authaccount.UserIDEQ(userID)).
 		Only(ctx)
@@ -79,8 +78,8 @@ func (a *authAccountRepository) GetAuthAccountByUserID(ctx context.Context, user
 	return authAccount, nil
 }
 
-// OnLoginFailed implements dbdomain.AuthAccountRepository.
-func (a *authAccountRepository) OnLoginFailed(ctx context.Context, id uuid.UUID) (*ent.AuthAccount, error) {
+// OnLoginFailed sets the last failed login time and increments the failed login attempts for an authentication account.
+func (a *AuthAccountRepository) OnLoginFailed(ctx context.Context, id uuid.UUID) (*ent.AuthAccount, error) {
 	authAccount, err := a.client.AuthAccount.UpdateOneID(id).
 		SetLastFailedLoginAt(time.Now()).
 		AddFailedLoginAttempts(1).
@@ -95,8 +94,8 @@ func (a *authAccountRepository) OnLoginFailed(ctx context.Context, id uuid.UUID)
 	return authAccount, nil
 }
 
-// OnLoginSuccess implements dbdomain.AuthAccountRepository.
-func (a *authAccountRepository) OnLoginSuccess(ctx context.Context, id uuid.UUID) (*ent.AuthAccount, error) {
+// OnLoginSuccess sets the last login time, resets the last failed login time, and resets the failed login attempts for an authentication account.
+func (a *AuthAccountRepository) OnLoginSuccess(ctx context.Context, id uuid.UUID) (*ent.AuthAccount, error) {
 	authAccount, err := a.client.AuthAccount.UpdateOneID(id).
 		SetLastLoginAt(time.Now()).
 		SetLastFailedLoginAt(time.Time{}).
@@ -112,8 +111,8 @@ func (a *authAccountRepository) OnLoginSuccess(ctx context.Context, id uuid.UUID
 	return authAccount, nil
 }
 
-// ResetFailedLoginAttempts implements dbdomain.AuthAccountRepository.
-func (a *authAccountRepository) ResetFailedLoginAttempts(ctx context.Context, id uuid.UUID) (*ent.AuthAccount, error) {
+// ResetFailedLoginAttempts resets the failed login attempts for an authentication account.
+func (a *AuthAccountRepository) ResetFailedLoginAttempts(ctx context.Context, id uuid.UUID) (*ent.AuthAccount, error) {
 	authAccount, err := a.client.AuthAccount.UpdateOneID(id).
 		SetFailedLoginAttempts(0).
 		SetLastFailedLoginAt(time.Time{}).
@@ -128,8 +127,8 @@ func (a *authAccountRepository) ResetFailedLoginAttempts(ctx context.Context, id
 	return authAccount, nil
 }
 
-// UpdateAuthAccount implements dbdomain.AuthAccountRepository.
-func (a *authAccountRepository) UpdateAuthAccount(ctx context.Context, id uuid.UUID, account *dbmodels.UpdateAuthAccountInput) (*ent.AuthAccount, error) {
+// UpdateAuthAccount updates an existing authentication account.
+func (a *AuthAccountRepository) UpdateAuthAccount(ctx context.Context, id uuid.UUID, account *dbmodels.UpdateAuthAccountInput) (*ent.AuthAccount, error) {
 	update := a.client.AuthAccount.UpdateOneID(id)
 
 	if account.UserID != nil {
@@ -156,8 +155,8 @@ func (a *authAccountRepository) UpdateAuthAccount(ctx context.Context, id uuid.U
 }
 
 // NewAuthAccountRepository creates a new instance of authAccountRepository.
-func NewAuthAccountRepository(client *ent.Client) dbdomain.AuthAccountRepository {
-	return &authAccountRepository{
+func NewAuthAccountRepository(client *ent.Client) *AuthAccountRepository {
+	return &AuthAccountRepository{
 		client: client,
 	}
 }

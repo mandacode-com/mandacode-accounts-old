@@ -1,4 +1,4 @@
-package dbrepository
+package dbrepo
 
 import (
 	"context"
@@ -9,16 +9,15 @@ import (
 	"github.com/mandacode-com/golib/errors/errcode"
 	"mandacode.com/accounts/auth/ent"
 	"mandacode.com/accounts/auth/ent/oauthauth"
-	dbmodels "mandacode.com/accounts/auth/internal/domain/models/database"
-	dbdomain "mandacode.com/accounts/auth/internal/domain/repository/database"
+	dbmodels "mandacode.com/accounts/auth/internal/models/database"
 )
 
-type oauthAuthRepository struct {
+type OAuthAuthRepository struct {
 	client *ent.Client
 }
 
-// OnLoginFailed implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) OnLoginFailed(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
+// OnLoginFailed sets the last failed login time and increments the failed login attempts for an OAuthAuth record.
+func (o *OAuthAuthRepository) OnLoginFailed(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
 	auth, err := o.client.OAuthAuth.Query().
 		Where(oauthauth.ProviderEQ(provider)).
 		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
@@ -41,8 +40,8 @@ func (o *oauthAuthRepository) OnLoginFailed(ctx context.Context, provider oautha
 	return auth, nil
 }
 
-// OnLoginSuccess implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) OnLoginSuccess(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
+// OnLoginSuccess sets the last login time, resets the last failed login time, and resets the failed login attempts for an OAuthAuth record.
+func (o *OAuthAuthRepository) OnLoginSuccess(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
 	auth, err := o.client.OAuthAuth.Query().
 		Where(oauthauth.ProviderEQ(provider)).
 		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
@@ -66,8 +65,8 @@ func (o *oauthAuthRepository) OnLoginSuccess(ctx context.Context, provider oauth
 	return auth, nil
 }
 
-// DeleteOAuthAuthByProviderID implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) DeleteOAuthAuthByProviderID(ctx context.Context, provider oauthauth.Provider, providerID string) error {
+// DeleteOAuthAuthByProviderID deletes an OAuthAuth record by provider and provider ID.
+func (o *OAuthAuthRepository) DeleteOAuthAuthByProviderID(ctx context.Context, provider oauthauth.Provider, providerID string) error {
 	_, err := o.client.OAuthAuth.Delete().
 		Where(oauthauth.ProviderEQ(provider)).
 		Where(oauthauth.ProviderIDEQ(providerID)).
@@ -81,8 +80,8 @@ func (o *oauthAuthRepository) DeleteOAuthAuthByProviderID(ctx context.Context, p
 	return nil
 }
 
-// GetOAuthAuthByAuthAccountID implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) GetOAuthAuthByAuthAccountID(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
+// GetOAuthAuthByAuthAccountID retrieves an OAuthAuth record by provider and auth account ID.
+func (o *OAuthAuthRepository) GetOAuthAuthByAuthAccountID(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
 	auth, err := o.client.OAuthAuth.Query().
 		Where(oauthauth.ProviderEQ(provider)).
 		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
@@ -96,8 +95,8 @@ func (o *oauthAuthRepository) GetOAuthAuthByAuthAccountID(ctx context.Context, p
 	return auth, nil
 }
 
-// GetOAuthAuthByProviderID implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) GetOAuthAuthByProviderID(ctx context.Context, provider oauthauth.Provider, providerID string) (*ent.OAuthAuth, error) {
+// GetOAuthAuthByProviderID retrieves an OAuthAuth record by provider and provider ID.
+func (o *OAuthAuthRepository) GetOAuthAuthByProviderID(ctx context.Context, provider oauthauth.Provider, providerID string) (*ent.OAuthAuth, error) {
 	auth, err := o.client.OAuthAuth.Query().
 		Where(oauthauth.ProviderEQ(provider)).
 		Where(oauthauth.ProviderIDEQ(providerID)).
@@ -111,8 +110,8 @@ func (o *oauthAuthRepository) GetOAuthAuthByProviderID(ctx context.Context, prov
 	return auth, nil
 }
 
-// ResetFailedLoginAttempts implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) ResetFailedLoginAttempts(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
+// ResetFailedLoginAttempts resets the failed login attempts and last failed login time for an OAuthAuth record.
+func (o *OAuthAuthRepository) ResetFailedLoginAttempts(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) (*ent.OAuthAuth, error) {
 	auth, err := o.client.OAuthAuth.Query().
 		Where(oauthauth.ProviderEQ(provider)).
 		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
@@ -135,8 +134,8 @@ func (o *oauthAuthRepository) ResetFailedLoginAttempts(ctx context.Context, prov
 	return auth, nil
 }
 
-// SetEmail implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) SetEmail(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, email string) (*ent.OAuthAuth, error) {
+// SetEmail updates the email address for an OAuthAuth record.
+func (o *OAuthAuthRepository) SetEmail(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, email string) (*ent.OAuthAuth, error) {
 	auth, err := o.client.OAuthAuth.Query().
 		Where(oauthauth.ProviderEQ(provider)).
 		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
@@ -158,8 +157,8 @@ func (o *oauthAuthRepository) SetEmail(ctx context.Context, provider oauthauth.P
 	return auth, nil
 }
 
-// SetIsVerified implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) SetIsVerified(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, isVerified bool) (*ent.OAuthAuth, error) {
+// SetIsVerified updates the verification status for an OAuthAuth record.
+func (o *OAuthAuthRepository) SetIsVerified(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID, isVerified bool) (*ent.OAuthAuth, error) {
 	auth, err := o.client.OAuthAuth.Query().
 		Where(oauthauth.ProviderEQ(provider)).
 		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
@@ -181,8 +180,8 @@ func (o *oauthAuthRepository) SetIsVerified(ctx context.Context, provider oautha
 	return auth, nil
 }
 
-// CreateOAuthAuth implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) CreateOAuthAuth(ctx context.Context, input *dbmodels.CreateOAuthAuthInput) (*ent.OAuthAuth, error) {
+// CreateOAuthAuth creates a new OAuthAuth record in the database.
+func (o *OAuthAuthRepository) CreateOAuthAuth(ctx context.Context, input *dbmodels.CreateOAuthAuthInput) (*ent.OAuthAuth, error) {
 	auth, err := o.client.OAuthAuth.Create().
 		SetProvider(input.Provider).
 		SetProviderID(input.ProviderID).
@@ -201,8 +200,8 @@ func (o *oauthAuthRepository) CreateOAuthAuth(ctx context.Context, input *dbmode
 	return auth, nil
 }
 
-// DeleteOAuthAuth implements dbdomain.OAuthAuthRepository.
-func (o *oauthAuthRepository) DeleteOAuthAuth(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) error {
+// DeleteOAuthAuth deletes an OAuthAuth record by provider and auth account ID.
+func (o *OAuthAuthRepository) DeleteOAuthAuth(ctx context.Context, provider oauthauth.Provider, authAccountID uuid.UUID) error {
 	_, err := o.client.OAuthAuth.Delete().
 		Where(oauthauth.ProviderEQ(provider)).
 		Where(oauthauth.AuthAccountIDEQ(authAccountID)).
@@ -217,8 +216,8 @@ func (o *oauthAuthRepository) DeleteOAuthAuth(ctx context.Context, provider oaut
 }
 
 // NewOAuthAuthRepository creates a new instance of OAuthAuthRepository.
-func NewOAuthAuthRepository(client *ent.Client) dbdomain.OAuthAuthRepository {
-	return &oauthAuthRepository{
+func NewOAuthAuthRepository(client *ent.Client) *OAuthAuthRepository {
+	return &OAuthAuthRepository{
 		client: client,
 	}
 }

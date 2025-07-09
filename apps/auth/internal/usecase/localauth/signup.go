@@ -6,30 +6,30 @@ import (
 	"github.com/google/uuid"
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
-	mailerdomain "mandacode.com/accounts/auth/internal/domain/infra/mailer"
-	dbmodels "mandacode.com/accounts/auth/internal/domain/models/database"
-	codedomain "mandacode.com/accounts/auth/internal/domain/repository/code"
-	dbdomain "mandacode.com/accounts/auth/internal/domain/repository/database"
-	tokendomain "mandacode.com/accounts/auth/internal/domain/repository/token"
-	localauthdomain "mandacode.com/accounts/auth/internal/domain/usecase/localauth"
+	"mandacode.com/accounts/auth/internal/infra/mailer"
+	dbmodels "mandacode.com/accounts/auth/internal/models/database"
+	coderepo "mandacode.com/accounts/auth/internal/repository/code"
+	dbrepo "mandacode.com/accounts/auth/internal/repository/database"
+	tokenrepo "mandacode.com/accounts/auth/internal/repository/token"
+	localauthdto "mandacode.com/accounts/auth/internal/usecase/localauth/dto"
 )
 
-type signupUsecase struct {
-	authAccount      dbdomain.AuthAccountRepository
-	localAuth        dbdomain.LocalAuthRepository
-	token            tokendomain.TokenRepository
-	mailer           mailerdomain.Mailer
-	emailCodeManager codedomain.CodeManager
+type SignupUsecase struct {
+	authAccount      *dbrepo.AuthAccountRepository
+	localAuth        *dbrepo.LocalAuthRepository
+	token            *tokenrepo.TokenRepository
+	mailer           *mailer.Mailer
+	emailCodeManager *coderepo.CodeManager
 	verifyEmailURL   string
 }
 
 // ResendVerificationEmail implements localauthdomain.SignupUsecase.
-func (s *signupUsecase) ResendVerificationEmail(ctx context.Context, email string) (success bool, err error) {
+func (s *SignupUsecase) ResendVerificationEmail(ctx context.Context, email string) (success bool, err error) {
 	panic("unimplemented")
 }
 
 // Signup implements localauthdomain.SignupUsecase.
-func (s *signupUsecase) Signup(ctx context.Context, input localauthdomain.SignupInput) (userID uuid.UUID, err error) {
+func (s *SignupUsecase) Signup(ctx context.Context, input localauthdto.SignupInput) (userID uuid.UUID, err error) {
 	auth, err := s.localAuth.GetLocalAuthByEmail(ctx, input.Email)
 	if err != nil && !errors.Is(err, errcode.ErrNotFound) {
 		joinedErr := errors.Join(err, "failed to get user by email")
@@ -41,7 +41,7 @@ func (s *signupUsecase) Signup(ctx context.Context, input localauthdomain.Signup
 
 	// Create auth account
 	account, err := s.authAccount.CreateAuthAccount(ctx, &dbmodels.CreateAuthAccountInput{
-		UserID:   uuid.New(),
+		UserID: uuid.New(),
 	})
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to create auth account")
@@ -82,7 +82,7 @@ func (s *signupUsecase) Signup(ctx context.Context, input localauthdomain.Signup
 }
 
 // VerifyEmail implements localauthdomain.SignupUsecase.
-func (s *signupUsecase) VerifyEmail(ctx context.Context, email string, token string) (success bool, err error) {
+func (s *SignupUsecase) VerifyEmail(ctx context.Context, email string, token string) (success bool, err error) {
 	result, err := s.token.VerifyEmailVerificationToken(ctx, token)
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to verify email verification token")
@@ -134,14 +134,14 @@ func (s *signupUsecase) VerifyEmail(ctx context.Context, email string, token str
 
 // NewSignupUsecase creates a new instance of SignupUsecase.
 func NewSignupUsecase(
-	authAccount dbdomain.AuthAccountRepository,
-	localAuth dbdomain.LocalAuthRepository,
-	token tokendomain.TokenRepository,
-	mailer mailerdomain.Mailer,
-	emailCodeManager codedomain.CodeManager,
+	authAccount *dbrepo.AuthAccountRepository,
+	localAuth *dbrepo.LocalAuthRepository,
+	token *tokenrepo.TokenRepository,
+	mailer *mailer.Mailer,
+	emailCodeManager *coderepo.CodeManager,
 	verifyEmailURL string,
-) localauthdomain.SignupUsecase {
-	return &signupUsecase{
+) *SignupUsecase {
+	return &SignupUsecase{
 		authAccount:      authAccount,
 		localAuth:        localAuth,
 		token:            token,

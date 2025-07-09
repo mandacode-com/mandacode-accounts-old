@@ -6,11 +6,10 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	oauthapidomain "mandacode.com/accounts/auth/internal/domain/infra/oauthapi"
-	"mandacode.com/accounts/auth/internal/domain/models"
 	codeapidto "mandacode.com/accounts/auth/internal/infra/oauthapi/dto/codeapi"
 	infoapidto "mandacode.com/accounts/auth/internal/infra/oauthapi/dto/infoapi"
 	oauthapimeta "mandacode.com/accounts/auth/internal/infra/oauthapi/meta"
+	oauthmodels "mandacode.com/accounts/auth/internal/models/oauth"
 )
 
 type NaverAPI struct {
@@ -22,7 +21,7 @@ type NaverAPI struct {
 }
 
 // GetUserInfo implements oauthapidomain.OAuthCode.
-func (n *NaverAPI) GetUserInfo(accessToken string) (*models.OAuthUserInfo, error) {
+func (n *NaverAPI) GetUserInfo(accessToken string) (*oauthmodels.UserInfo, error) {
 	req, err := http.NewRequest("GET", oauthapimeta.NaverUserInfoEndpoint, nil)
 	if err != nil {
 		return nil, errors.New("failed to create request: " + err.Error())
@@ -45,7 +44,7 @@ func (n *NaverAPI) GetUserInfo(accessToken string) (*models.OAuthUserInfo, error
 		return nil, errors.New("failed to decode user info: " + err.Error())
 	}
 
-	oauthUserInfo := models.NewOAuthUserInfo(
+	oauthUserInfo := oauthmodels.NewUserInfo(
 		rawUserInfo.ID,
 		rawUserInfo.Email,
 		rawUserInfo.Name,
@@ -59,7 +58,7 @@ func (n *NaverAPI) GetUserInfo(accessToken string) (*models.OAuthUserInfo, error
 }
 
 // NewNaverAPI creates a new instance of NaverAPI with the required parameters.
-func NewNaverAPI(clientID, clientSecret, redirectURL string, validator *validator.Validate) (oauthapidomain.OAuthAPI, error) {
+func NewNaverAPI(clientID, clientSecret, redirectURL string, validator *validator.Validate) (OAuthAPI, error) {
 	if clientID == "" || clientSecret == "" || redirectURL == "" {
 		return nil, errors.New("client ID, client secret, and redirect URL must be set")
 	}

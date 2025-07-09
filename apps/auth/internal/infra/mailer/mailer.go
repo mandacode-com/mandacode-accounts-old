@@ -9,14 +9,17 @@ import (
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	mailerdomain "mandacode.com/accounts/auth/internal/domain/infra/mailer"
 )
 
 type Mailer struct {
 	writer *kafka.Writer
 }
 
-// SendEmailVerificationMail implements mailerdomain.Mailer.
+// SendEmailVerificationMail sends an email verification mail to the user.
+//
+// Parameters:
+//   - email: The email address of the user to send the verification mail to.
+//   - verificationLink: The link to be included in the email for verification.
 func (m *Mailer) SendEmailVerificationMail(email string, verificationLink string) error {
 	event := &mailerv1.EmailVerificationEvent{
 		Email:            email,
@@ -39,7 +42,7 @@ func (m *Mailer) SendEmailVerificationMail(email string, verificationLink string
 }
 
 // NewMailer creates a new Mailer instance with the provided Kafka writer.
-func NewMailer(writer *kafka.Writer) mailerdomain.Mailer {
+func NewMailer(writer *kafka.Writer) *Mailer {
 	return &Mailer{
 		writer: writer,
 	}

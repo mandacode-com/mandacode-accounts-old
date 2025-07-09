@@ -6,21 +6,22 @@ import (
 	"github.com/google/uuid"
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
-	codedomain "mandacode.com/accounts/auth/internal/domain/repository/code"
-	dbdomain "mandacode.com/accounts/auth/internal/domain/repository/database"
-	tokendomain "mandacode.com/accounts/auth/internal/domain/repository/token"
-	localauthdomain "mandacode.com/accounts/auth/internal/domain/usecase/localauth"
+
+	coderepo "mandacode.com/accounts/auth/internal/repository/code"
+	dbrepo "mandacode.com/accounts/auth/internal/repository/database"
+	tokenrepo "mandacode.com/accounts/auth/internal/repository/token"
+	localauthdto "mandacode.com/accounts/auth/internal/usecase/localauth/dto"
 )
 
-type loginUsecase struct {
-	authAccount      dbdomain.AuthAccountRepository
-	localAuth        dbdomain.LocalAuthRepository
-	token            tokendomain.TokenRepository
-	loginCodeManager codedomain.CodeManager
+type LoginUsecase struct {
+	authAccount      *dbrepo.AuthAccountRepository
+	localAuth        *dbrepo.LocalAuthRepository
+	token            *tokenrepo.TokenRepository
+	loginCodeManager *coderepo.CodeManager
 }
 
 // IssueLoginCode implements localauthdomain.LoginUsecase.
-func (l *loginUsecase) IssueLoginCode(ctx context.Context, input localauthdomain.LoginInput) (code string, userID uuid.UUID, err error) {
+func (l *LoginUsecase) IssueLoginCode(ctx context.Context, input localauthdto.LoginInput) (code string, userID uuid.UUID, err error) {
 	auth, err := l.localAuth.GetLocalAuthByEmail(ctx, input.Email)
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to get user by ID")
@@ -56,7 +57,7 @@ func (l *loginUsecase) IssueLoginCode(ctx context.Context, input localauthdomain
 }
 
 // VerifyLoginCode implements localauthdomain.LoginUsecase.
-func (l *loginUsecase) VerifyLoginCode(ctx context.Context, userID uuid.UUID, code string) (accessToken string, refreshToken string, err error) {
+func (l *LoginUsecase) VerifyLoginCode(ctx context.Context, userID uuid.UUID, code string) (accessToken string, refreshToken string, err error) {
 	valid, err := l.loginCodeManager.ValidateCode(ctx, userID, code)
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to validate login code")
@@ -71,7 +72,7 @@ func (l *loginUsecase) VerifyLoginCode(ctx context.Context, userID uuid.UUID, co
 }
 
 // Login implements localauthdomain.LoginUsecase.
-func (l *loginUsecase) Login(ctx context.Context, input localauthdomain.LoginInput) (accessToken string, refreshToken string, err error) {
+func (l *LoginUsecase) Login(ctx context.Context, input localauthdto.LoginInput) (accessToken string, refreshToken string, err error) {
 	auth, err := l.localAuth.GetLocalAuthByEmail(ctx, input.Email)
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to get user by email")
@@ -101,7 +102,7 @@ func (l *loginUsecase) Login(ctx context.Context, input localauthdomain.LoginInp
 }
 
 // issueToken issues a new access token and refresh token for the user.
-func (l *loginUsecase) issueToken(ctx context.Context, userID uuid.UUID) (accessToken string, refreshToken string, err error) {
+func (l *LoginUsecase) issueToken(ctx context.Context, userID uuid.UUID) (accessToken string, refreshToken string, err error) {
 	accessToken, _, err = l.token.GenerateAccessToken(ctx, userID)
 	if err != nil {
 		joinedErr := errors.Join(err, "failed to generate access token")
@@ -116,12 +117,12 @@ func (l *loginUsecase) issueToken(ctx context.Context, userID uuid.UUID) (access
 }
 
 func NewLoginUsecase(
-	authAccount dbdomain.AuthAccountRepository,
-	localAuth dbdomain.LocalAuthRepository,
-	token tokendomain.TokenRepository,
-	loginCodeManager codedomain.CodeManager,
-) localauthdomain.LoginUsecase {
-	return &loginUsecase{
+	authAccount *dbrepo.AuthAccountRepository,
+	localAuth *dbrepo.LocalAuthRepository,
+	token *tokenrepo.TokenRepository,
+	loginCodeManager *coderepo.CodeManager,
+) *LoginUsecase {
+	return &LoginUsecase{
 		authAccount:      authAccount,
 		localAuth:        localAuth,
 		token:            token,

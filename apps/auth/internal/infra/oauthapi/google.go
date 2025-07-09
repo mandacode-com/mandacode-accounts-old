@@ -6,14 +6,13 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	oauthapidomain "mandacode.com/accounts/auth/internal/domain/infra/oauthapi"
-	"mandacode.com/accounts/auth/internal/domain/models"
 	codeapidto "mandacode.com/accounts/auth/internal/infra/oauthapi/dto/codeapi"
 	infoapidto "mandacode.com/accounts/auth/internal/infra/oauthapi/dto/infoapi"
 	oauthapimeta "mandacode.com/accounts/auth/internal/infra/oauthapi/meta"
+	oauthmodels "mandacode.com/accounts/auth/internal/models/oauth"
 )
 
-type GoogleAPI struct {
+type googleAPI struct {
 	clientID     string
 	clientSecret string
 	redirectURL  string
@@ -21,7 +20,7 @@ type GoogleAPI struct {
 }
 
 // GetUserInfo fetches user information from Google using the provided access token.
-func (g *GoogleAPI) GetUserInfo(accessToken string) (*models.OAuthUserInfo, error) {
+func (g *googleAPI) GetUserInfo(accessToken string) (*oauthmodels.UserInfo, error) {
 	req, err := http.NewRequest("GET", oauthapimeta.GoogleUserInfoEndpoint, nil)
 	if err != nil {
 		return nil, errors.New("failed to create request: " + err.Error())
@@ -44,7 +43,7 @@ func (g *GoogleAPI) GetUserInfo(accessToken string) (*models.OAuthUserInfo, erro
 		return nil, errors.New("failed to decode user info: " + err.Error())
 	}
 
-	oauthUserInfo := models.NewOAuthUserInfo(
+	oauthUserInfo := oauthmodels.NewUserInfo(
 		rawUserInfo.Sub,
 		rawUserInfo.Email,
 		rawUserInfo.Name,
@@ -58,12 +57,12 @@ func (g *GoogleAPI) GetUserInfo(accessToken string) (*models.OAuthUserInfo, erro
 }
 
 // NewGoogleAPI creates a new instance of GoogleAPI with the required parameters.
-func NewGoogleAPI(clientID, clientSecret, redirectURL string, validator *validator.Validate) (oauthapidomain.OAuthAPI, error) {
+func NewGoogleAPI(clientID, clientSecret, redirectURL string, validator *validator.Validate) (OAuthAPI, error) {
 	if clientID == "" || clientSecret == "" || redirectURL == "" {
 		return nil, errors.New("client ID, client secret, and redirect URL must be set")
 	}
 
-	return &GoogleAPI{
+	return &googleAPI{
 		clientID:     clientID,
 		clientSecret: clientSecret,
 		redirectURL:  redirectURL,
@@ -71,7 +70,7 @@ func NewGoogleAPI(clientID, clientSecret, redirectURL string, validator *validat
 	}, nil
 }
 
-func (g *GoogleAPI) GetAccessToken(code string) (string, error) {
+func (g *googleAPI) GetAccessToken(code string) (string, error) {
 	req, err := http.NewRequest("POST", oauthapimeta.GoogleTokenEndpoint, nil)
 	if err != nil {
 		return "", err
@@ -107,7 +106,7 @@ func (g *GoogleAPI) GetAccessToken(code string) (string, error) {
 	return tokenResponse.AccessToken, nil
 }
 
-func (g *GoogleAPI) GetLoginURL() string {
+func (g *googleAPI) GetLoginURL() string {
 	loginUrl := oauthapimeta.GoogleAuthEndpoint + "?client_id=" + g.clientID +
 		"&redirect_uri=" + g.redirectURL +
 		"&response_type=code" +

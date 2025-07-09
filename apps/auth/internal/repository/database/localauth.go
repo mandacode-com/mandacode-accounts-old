@@ -1,4 +1,4 @@
-package dbrepository
+package dbrepo
 
 import (
 	"context"
@@ -10,16 +10,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"mandacode.com/accounts/auth/ent"
 	"mandacode.com/accounts/auth/ent/localauth"
-	dbmodels "mandacode.com/accounts/auth/internal/domain/models/database"
-	dbdomain "mandacode.com/accounts/auth/internal/domain/repository/database"
+	dbmodels "mandacode.com/accounts/auth/internal/models/database"
 )
 
-type localAuthRepository struct {
+type LocalAuthRepository struct {
 	client *ent.Client
 }
 
-// OnLoginFailed implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) OnLoginFailed(ctx context.Context, authAccountID uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
+// OnLoginFailed implements the logic for handling a failed login attempt.
+func (l *LocalAuthRepository) OnLoginFailed(ctx context.Context, authAccountID uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.AuthAccountID(authAccountID)).
 		Only(ctx)
@@ -41,8 +40,8 @@ func (l *localAuthRepository) OnLoginFailed(ctx context.Context, authAccountID u
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-// OnLoginSuccess implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) OnLoginSuccess(ctx context.Context, authAccountID uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
+// OnLoginSuccess implements the logic for handling a successful login attempt.
+func (l *LocalAuthRepository) OnLoginSuccess(ctx context.Context, authAccountID uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.AuthAccountID(authAccountID)).
 		Only(ctx)
@@ -65,8 +64,8 @@ func (l *localAuthRepository) OnLoginSuccess(ctx context.Context, authAccountID 
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-// ComparePassword implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) ComparePassword(ctx context.Context, authAccountID uuid.UUID, password string) (bool, error) {
+// ComparePassword checks if the provided password matches the stored hashed password for the given AuthAccountID.
+func (l *LocalAuthRepository) ComparePassword(ctx context.Context, authAccountID uuid.UUID, password string) (bool, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.AuthAccountID(authAccountID)).
 		Only(ctx)
@@ -86,8 +85,8 @@ func (l *localAuthRepository) ComparePassword(ctx context.Context, authAccountID
 	return true, nil // Password matches
 }
 
-// CreateLocalAuth implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) CreateLocalAuth(ctx context.Context, input *dbmodels.CreateLocalAuthInput) (*dbmodels.SecureLocalAuth, error) {
+// CreateLocalAuth creates a new local authentication record with the provided input.
+func (l *LocalAuthRepository) CreateLocalAuth(ctx context.Context, input *dbmodels.CreateLocalAuthInput) (*dbmodels.SecureLocalAuth, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, errors.Upgrade(err, errcode.ErrInternalFailure, "Failed to hash password")
@@ -112,8 +111,8 @@ func (l *localAuthRepository) CreateLocalAuth(ctx context.Context, input *dbmode
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-// DeleteLocalAuth implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) DeleteLocalAuth(ctx context.Context, id uuid.UUID) error {
+// DeleteLocalAuth deletes a local authentication record by its ID.
+func (l *LocalAuthRepository) DeleteLocalAuth(ctx context.Context, id uuid.UUID) error {
 	err := l.client.LocalAuth.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -124,8 +123,8 @@ func (l *localAuthRepository) DeleteLocalAuth(ctx context.Context, id uuid.UUID)
 	return nil
 }
 
-// DeleteLocalAuthByAuthAccountID implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) DeleteLocalAuthByAuthAccountID(ctx context.Context, authAccountID uuid.UUID) error {
+// DeleteLocalAuthByAuthAccountID deletes a local authentication record by its associated AuthAccountID.
+func (l *LocalAuthRepository) DeleteLocalAuthByAuthAccountID(ctx context.Context, authAccountID uuid.UUID) error {
 	_, err := l.client.LocalAuth.Delete().
 		Where(localauth.AuthAccountID(authAccountID)).
 		Exec(ctx)
@@ -138,8 +137,8 @@ func (l *localAuthRepository) DeleteLocalAuthByAuthAccountID(ctx context.Context
 	return nil
 }
 
-// GetLocalAuthByAuthAccountID implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) GetLocalAuthByAuthAccountID(ctx context.Context, authAccountID uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
+// GetLocalAuthByAuthAccountID retrieves a local authentication record by its associated AuthAccountID.
+func (l *LocalAuthRepository) GetLocalAuthByAuthAccountID(ctx context.Context, authAccountID uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.AuthAccountID(authAccountID)).
 		Only(ctx)
@@ -154,8 +153,8 @@ func (l *localAuthRepository) GetLocalAuthByAuthAccountID(ctx context.Context, a
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-// GetLocalAuthByEmail implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) GetLocalAuthByEmail(ctx context.Context, email string) (*dbmodels.SecureLocalAuth, error) {
+// GetLocalAuthByEmail retrieves a local authentication record by its email address.
+func (l *LocalAuthRepository) GetLocalAuthByEmail(ctx context.Context, email string) (*dbmodels.SecureLocalAuth, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.Email(email)).
 		Only(ctx)
@@ -170,8 +169,8 @@ func (l *localAuthRepository) GetLocalAuthByEmail(ctx context.Context, email str
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-// GetLocalAuthByID implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) GetLocalAuthByID(ctx context.Context, id uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
+// GetLocalAuthByID retrieves a local authentication record by its ID.
+func (l *LocalAuthRepository) GetLocalAuthByID(ctx context.Context, id uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.ID(id)).
 		Only(ctx)
@@ -186,8 +185,8 @@ func (l *localAuthRepository) GetLocalAuthByID(ctx context.Context, id uuid.UUID
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-// ResetFailedLoginAttempts implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) ResetFailedLoginAttempts(ctx context.Context, authAccountID uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
+// ResetFailedLoginAttempts resets the failed login attempts for a local authentication record.
+func (l *LocalAuthRepository) ResetFailedLoginAttempts(ctx context.Context, authAccountID uuid.UUID) (*dbmodels.SecureLocalAuth, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.AuthAccountID(authAccountID)).
 		Only(ctx)
@@ -209,8 +208,8 @@ func (l *localAuthRepository) ResetFailedLoginAttempts(ctx context.Context, auth
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-// SetEmail implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) SetEmail(ctx context.Context, authAccountID uuid.UUID, email string) (*dbmodels.SecureLocalAuth, error) {
+// SetEmail updates the email address for a local authentication record.
+func (l *LocalAuthRepository) SetEmail(ctx context.Context, authAccountID uuid.UUID, email string) (*dbmodels.SecureLocalAuth, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.AuthAccountID(authAccountID)).
 		Only(ctx)
@@ -231,8 +230,8 @@ func (l *localAuthRepository) SetEmail(ctx context.Context, authAccountID uuid.U
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-// SetIsVerified implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) SetIsVerified(ctx context.Context, authAccountID uuid.UUID, isVerified bool) (*dbmodels.SecureLocalAuth, error) {
+// SetIsVerified updates the verification status of a local authentication record.
+func (l *LocalAuthRepository) SetIsVerified(ctx context.Context, authAccountID uuid.UUID, isVerified bool) (*dbmodels.SecureLocalAuth, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.AuthAccountID(authAccountID)).
 		Only(ctx)
@@ -253,8 +252,8 @@ func (l *localAuthRepository) SetIsVerified(ctx context.Context, authAccountID u
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-// SetPassword implements dbdomain.LocalAuthRepository.
-func (l *localAuthRepository) SetPassword(ctx context.Context, authAccountID uuid.UUID, password string) (*dbmodels.SecureLocalAuth, error) {
+// SetPassword updates the password for a local authentication record.
+func (l *LocalAuthRepository) SetPassword(ctx context.Context, authAccountID uuid.UUID, password string) (*dbmodels.SecureLocalAuth, error) {
 	localAuth, err := l.client.LocalAuth.Query().
 		Where(localauth.AuthAccountID(authAccountID)).
 		Only(ctx)
@@ -280,6 +279,6 @@ func (l *localAuthRepository) SetPassword(ctx context.Context, authAccountID uui
 	return dbmodels.NewSecureLocalAuth(localAuth), nil
 }
 
-func NewLocalAuthRepository(client *ent.Client) dbdomain.LocalAuthRepository {
-	return &localAuthRepository{client: client}
+func NewLocalAuthRepository(client *ent.Client) *LocalAuthRepository {
+	return &LocalAuthRepository{client: client}
 }

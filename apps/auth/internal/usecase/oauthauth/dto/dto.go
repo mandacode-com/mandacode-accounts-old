@@ -1,8 +1,6 @@
-package oauthauthdomain
+package oauthdto
 
-import (
-	"mandacode.com/accounts/auth/ent/oauthauth"
-)
+import "mandacode.com/accounts/auth/ent/oauthauth"
 
 type LoginInput struct {
 	Provider    oauthauth.Provider `json:"provider"`

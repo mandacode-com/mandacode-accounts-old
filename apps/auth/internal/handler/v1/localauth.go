@@ -11,20 +11,21 @@ import (
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
 	"go.uber.org/zap"
-	localauthdomain "mandacode.com/accounts/auth/internal/domain/usecase/localauth"
 	handlerv1dto "mandacode.com/accounts/auth/internal/handler/v1/dto"
+	"mandacode.com/accounts/auth/internal/usecase/localauth"
+	localauthdto "mandacode.com/accounts/auth/internal/usecase/localauth/dto"
 )
 
 type LocalAuthHandler struct {
-	localLogin  localauthdomain.LoginUsecase
-	localSignup localauthdomain.SignupUsecase
+	localLogin  *localauth.LoginUsecase
+	localSignup *localauth.SignupUsecase
 	logger      *zap.Logger
 	validator   *validator.Validate
 }
 
 func NewLocalAuthHandler(
-	localLogin localauthdomain.LoginUsecase,
-	localSignup localauthdomain.SignupUsecase,
+	localLogin *localauth.LoginUsecase,
+	localSignup *localauth.SignupUsecase,
 	logger *zap.Logger,
 	validator *validator.Validate,
 ) (*LocalAuthHandler, error) {
@@ -96,7 +97,7 @@ func (h *LocalAuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	input := localauthdomain.LoginInput{
+	input := localauthdto.LoginInput{
 		Email:    req.Email,
 		Password: req.Password,
 	}
@@ -161,7 +162,7 @@ func (h *LocalAuthHandler) LoginCode(c *gin.Context) {
 		return
 	}
 
-	input := localauthdomain.LoginInput{
+	input := localauthdto.LoginInput{
 		Email:    req.Email,
 		Password: req.Password,
 	}
@@ -199,7 +200,7 @@ func (h *LocalAuthHandler) Signup(c *gin.Context) {
 		return
 	}
 
-	input := localauthdomain.SignupInput{
+	input := localauthdto.SignupInput{
 		Email:    req.Email,
 		Password: req.Password,
 	}

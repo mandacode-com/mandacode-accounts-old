@@ -1,4 +1,4 @@
-package models
+package reqmodels
 
 type RequestInfo struct {
 	IP        string `json:"ip"`

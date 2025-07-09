@@ -6,15 +6,22 @@ import (
 	"github.com/google/uuid"
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
-	tokenrepodomain "mandacode.com/accounts/auth/internal/domain/repository/token"
-	tokendomain "mandacode.com/accounts/auth/internal/domain/usecase/token"
+	tokenrepo "mandacode.com/accounts/auth/internal/repository/token"
 )
 
 type RefreshUsecase struct {
-	token tokenrepodomain.TokenRepository
+	token *tokenrepo.TokenRepository
 }
 
-// Refresh implements tokendomain.RefreshUsecase.
+// Refresh generates new access and refresh tokens based on a valid refresh token.
+//
+// Parameters:
+//    - ctx: The context for the operation.
+//
+// Returns:
+//    - newAccessToken: The newly generated access token.
+//    - newRefreshToken: The newly generated refresh token.
+//    - err: An error if the operation fails, or nil if successful.
 func (r *RefreshUsecase) Refresh(ctx context.Context, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
 	// Validate the refresh token
 	valid, userID, err := r.token.VerifyRefreshToken(ctx, refreshToken)
@@ -44,7 +51,8 @@ func (r *RefreshUsecase) Refresh(ctx context.Context, refreshToken string) (newA
 	return newAccessToken, newRefreshToken, nil
 }
 
-func NewRefreshUsecase(token tokenrepodomain.TokenRepository) tokendomain.RefreshUsecase {
+// NewRefreshUsecase creates a new instance of RefreshUsecase with the provided token repository.
+func NewRefreshUsecase(token *tokenrepo.TokenRepository) *RefreshUsecase {
 	return &RefreshUsecase{
 		token: token,
 	}

@@ -11,20 +11,21 @@ import (
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
 	"go.uber.org/zap"
-	oauthauthdomain "mandacode.com/accounts/auth/internal/domain/usecase/oauthauth"
 	handlerv1dto "mandacode.com/accounts/auth/internal/handler/v1/dto"
+	"mandacode.com/accounts/auth/internal/usecase/oauthauth"
+	oauthdto "mandacode.com/accounts/auth/internal/usecase/oauthauth/dto"
 	"mandacode.com/accounts/auth/internal/util"
 )
 
 type OAuthHandler struct {
-	oauthLogin oauthauthdomain.LoginUsecase
+	oauthLogin *oauthauth.LoginUsecase
 	logger     *zap.Logger
 	validator  *validator.Validate
 }
 
 // NewOAuthHandler creates a new OAuthHandler instance
 func NewOAuthHandler(
-	oauthLogin oauthauthdomain.LoginUsecase,
+	oauthLogin *oauthauth.LoginUsecase,
 	logger *zap.Logger,
 	validator *validator.Validate,
 ) (*OAuthHandler, error) {
@@ -122,7 +123,7 @@ func (h *OAuthHandler) MobileLogin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid provider"})
 		return
 	}
-	input := oauthauthdomain.LoginInput{
+	input := oauthdto.LoginInput{
 		Provider:    providerEnum,
 		AccessToken: req.AccessToken,
 		Code:        "",
@@ -168,7 +169,7 @@ func (h *OAuthHandler) Callback(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid provider"})
 		return
 	}
-	input := oauthauthdomain.LoginInput{
+	input := oauthdto.LoginInput{
 		Provider:    providerEnum,
 		Code:        code,
 		AccessToken: "",

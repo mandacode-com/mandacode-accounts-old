@@ -14,7 +14,6 @@ import (
 	httpserver "mandacode.com/accounts/auth/cmd/server/http"
 	"mandacode.com/accounts/auth/config"
 	"mandacode.com/accounts/auth/ent/oauthauth"
-	oauthapidomain "mandacode.com/accounts/auth/internal/domain/infra/oauthapi"
 	handlerv1 "mandacode.com/accounts/auth/internal/handler/v1"
 	dbinfra "mandacode.com/accounts/auth/internal/infra/database"
 	"mandacode.com/accounts/auth/internal/infra/mailer"
@@ -90,7 +89,7 @@ func main() {
 	if err != nil {
 		logger.Fatal("failed to create Kakao OAuth API", zap.Error(err))
 	}
-	oauthApis := map[oauthauth.Provider]oauthapidomain.OAuthAPI{
+	oauthApis := map[oauthauth.Provider]oauthapi.OAuthAPI{
 		oauthauth.ProviderGoogle: googleApi,
 		oauthauth.ProviderNaver:  naverApi,
 		oauthauth.ProviderKakao:  kakaoApi,

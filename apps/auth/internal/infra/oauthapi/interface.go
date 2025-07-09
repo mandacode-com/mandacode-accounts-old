@@ -1,6 +1,6 @@
-package oauthapidomain
+package oauthapi
 
-import "mandacode.com/accounts/auth/internal/domain/models"
+import oauthmodels "mandacode.com/accounts/auth/internal/models/oauth"
 
 type OAuthAPI interface {
 	// GetAccessToken retrieves an access token using the provided authorization code.
@@ -20,5 +20,5 @@ type OAuthAPI interface {
 	//
 	// Parameters:
 	//   - accessToken: The access token obtained from the OAuth provider.
-	GetUserInfo(accessToken string) (*models.OAuthUserInfo, error)
+	GetUserInfo(accessToken string) (*oauthmodels.UserInfo, error)
 }

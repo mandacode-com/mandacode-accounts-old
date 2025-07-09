@@ -5,15 +5,23 @@ import (
 
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
-	tokenrepodomain "mandacode.com/accounts/auth/internal/domain/repository/token"
-	tokendomain "mandacode.com/accounts/auth/internal/domain/usecase/token"
+	tokenrepo "mandacode.com/accounts/auth/internal/repository/token"
 )
 
 type VerifyUsecase struct {
-	token tokenrepodomain.TokenRepository
+	token *tokenrepo.TokenRepository
 }
 
-// Verify implements tokendomain.VerifyUsecase.
+// Verify verifies the access token and returns whether it is valid, the user ID if valid, or an error if verification fails.
+//
+// Parameters:
+//   - ctx: The context for the operation.
+//   - token: The access token to be verified.
+//
+// Returns:
+//   - valid: A boolean indicating whether the token is valid.
+//   - userID: The user ID associated with the token if valid, or nil if invalid.
+//   - err: An error if the verification fails, or nil if successful.
 func (v *VerifyUsecase) Verify(ctx context.Context, token string) (valid bool, userID *string, err error) {
 	valid, userID, err = v.token.VerifyAccessToken(ctx, token)
 	if err != nil {
@@ -26,7 +34,15 @@ func (v *VerifyUsecase) Verify(ctx context.Context, token string) (valid bool, u
 	return true, userID, nil
 }
 
-// VerifyRefresh implements tokendomain.VerifyUsecase.
+// VerifyRefresh verifies the refresh token and returns whether it is valid, the user ID if valid, or an error if verification fails.
+//
+// Parameters:
+//   - ctx: The context for the operation.
+//   - token: The refresh token to be verified.
+//
+// Returns:
+//   - valid: A boolean indicating whether the token is valid.
+//   - userID: The user ID associated with the token if valid, or nil if invalid.
 func (v *VerifyUsecase) VerifyRefresh(ctx context.Context, token string) (valid bool, userID *string, err error) {
 	valid, userID, err = v.token.VerifyRefreshToken(ctx, token)
 	if err != nil {
@@ -40,7 +56,7 @@ func (v *VerifyUsecase) VerifyRefresh(ctx context.Context, token string) (valid 
 }
 
 // NewVerifyUsecase creates a new instance of VerifyUsecase.
-func NewVerifyUsecase(token tokenrepodomain.TokenRepository) tokendomain.VerifyUsecase {
+func NewVerifyUsecase(token *tokenrepo.TokenRepository) *VerifyUsecase {
 	return &VerifyUsecase{
 		token: token,
 	}

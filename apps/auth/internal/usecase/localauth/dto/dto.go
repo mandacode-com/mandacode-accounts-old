@@ -1,4 +1,4 @@
-package localauthdomain
+package localauthdto
 
 type LoginInput struct {
 	Email    string             `json:"email"`

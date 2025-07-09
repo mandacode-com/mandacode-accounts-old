@@ -8,3 +8,4 @@ type OAuthCallbackResponse struct {
 	Code   string `json:"code"`
 	UserID string `json:"user_id"`
 }
+

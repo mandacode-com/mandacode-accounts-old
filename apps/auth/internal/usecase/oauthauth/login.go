@@ -10,21 +10,21 @@ import (
 	"mandacode.com/accounts/auth/ent"
 	"mandacode.com/accounts/auth/ent/oauthauth"
 
-	oauthapidomain "mandacode.com/accounts/auth/internal/domain/infra/oauthapi"
-	"mandacode.com/accounts/auth/internal/domain/models"
-	dbmodels "mandacode.com/accounts/auth/internal/domain/models/database"
-	codedomain "mandacode.com/accounts/auth/internal/domain/repository/code"
-	dbdomain "mandacode.com/accounts/auth/internal/domain/repository/database"
-	tokendomain "mandacode.com/accounts/auth/internal/domain/repository/token"
-	oauthauthdomain "mandacode.com/accounts/auth/internal/domain/usecase/oauthauth"
+	"mandacode.com/accounts/auth/internal/infra/oauthapi"
+	dbmodels "mandacode.com/accounts/auth/internal/models/database"
+	oauthmodels "mandacode.com/accounts/auth/internal/models/oauth"
+	coderepo "mandacode.com/accounts/auth/internal/repository/code"
+	dbrepo "mandacode.com/accounts/auth/internal/repository/database"
+	tokenrepo "mandacode.com/accounts/auth/internal/repository/token"
+	oauthdto "mandacode.com/accounts/auth/internal/usecase/oauthauth/dto"
 )
 
 type LoginUsecase struct {
-	authAccount      dbdomain.AuthAccountRepository
-	oauthAuth        dbdomain.OAuthAuthRepository
-	token            tokendomain.TokenRepository
-	loginCodeManager codedomain.CodeManager
-	oauthApiMap      map[oauthauth.Provider]oauthapidomain.OAuthAPI
+	authAccount      *dbrepo.AuthAccountRepository
+	oauthAuth        *dbrepo.OAuthAuthRepository
+	token            *tokenrepo.TokenRepository
+	loginCodeManager *coderepo.CodeManager
+	oauthApiMap      map[oauthauth.Provider]oauthapi.OAuthAPI
 }
 
 // GetLoginURL implements oauthdomain.LoginUsecase.
@@ -41,7 +41,7 @@ func (l *LoginUsecase) GetLoginURL(ctx context.Context, provider string) (loginU
 }
 
 // IssueLoginCode implements oauthdomain.LoginUsecase.
-func (l *LoginUsecase) IssueLoginCode(ctx context.Context, input oauthauthdomain.LoginInput) (code string, userID uuid.UUID, err error) {
+func (l *LoginUsecase) IssueLoginCode(ctx context.Context, input oauthdto.LoginInput) (code string, userID uuid.UUID, err error) {
 	// Get Access Token
 	var accessToken string
 	if input.AccessToken == "" && input.Code != "" {
@@ -98,7 +98,7 @@ func (l *LoginUsecase) IssueLoginCode(ctx context.Context, input oauthauthdomain
 }
 
 // Login implements oauthdomain.LoginUsecase.
-func (l *LoginUsecase) Login(ctx context.Context, input oauthauthdomain.LoginInput) (accessToken string, refreshToken string, err error) {
+func (l *LoginUsecase) Login(ctx context.Context, input oauthdto.LoginInput) (accessToken string, refreshToken string, err error) {
 	// Get Access Token
 	var accessTokenStr string
 	if input.AccessToken == "" && input.Code != "" {
@@ -181,11 +181,11 @@ func (l *LoginUsecase) issueToken(ctx context.Context, userID uuid.UUID) (access
 	return accessToken, refreshToken, nil
 }
 
-func (l *LoginUsecase) createOAuthAuth(ctx context.Context, provider oauthauth.Provider, userInfo *models.OAuthUserInfo) (*ent.OAuthAuth, error) {
+func (l *LoginUsecase) createOAuthAuth(ctx context.Context, provider oauthauth.Provider, userInfo *oauthmodels.UserInfo) (*ent.OAuthAuth, error) {
 	account, err := l.authAccount.CreateAuthAccount(
 		ctx,
 		&dbmodels.CreateAuthAccountInput{
-			UserID:   uuid.New(), // Generate a new UUID for the user
+			UserID: uuid.New(), // Generate a new UUID for the user
 		},
 	)
 	oauthAuth, err := l.oauthAuth.CreateOAuthAuth(
@@ -206,12 +206,12 @@ func (l *LoginUsecase) createOAuthAuth(ctx context.Context, provider oauthauth.P
 
 // NewLoginUsecase creates a new instance of LoginUsecase.
 func NewLoginUsecase(
-	authAccount dbdomain.AuthAccountRepository,
-	oauthAuth dbdomain.OAuthAuthRepository,
-	token tokendomain.TokenRepository,
-	loginCodeManager codedomain.CodeManager,
-	oauthApiMap map[oauthauth.Provider]oauthapidomain.OAuthAPI,
-) oauthauthdomain.LoginUsecase {
+	authAccount *dbrepo.AuthAccountRepository,
+	oauthAuth *dbrepo.OAuthAuthRepository,
+	token *tokenrepo.TokenRepository,
+	loginCodeManager *coderepo.CodeManager,
+	oauthApiMap map[oauthauth.Provider]oauthapi.OAuthAPI,
+) *LoginUsecase {
 	return &LoginUsecase{
 		authAccount:      authAccount,
 		oauthAuth:        oauthAuth,
