@@ -64,7 +64,7 @@ func (h *TokenHandler) GenerateAccessToken(ctx context.Context, req *tokenv1.Gen
 
 func (h *TokenHandler) VerifyAccessToken(ctx context.Context, req *tokenv1.VerifyAccessTokenRequest) (*tokenv1.VerifyAccessTokenResponse, error) {
 	if err := req.Validate(); err != nil {
-		err = errors.Upgrade(err, errcode.ErrInvalidInput, "Invalid Input")
+		err = errors.Upgrade(err, "Invalid Input", errcode.ErrInvalidInput)
 		h.logError(err)
 		return nil, util.NewGRPCError(err)
 	}
@@ -83,7 +83,7 @@ func (h *TokenHandler) VerifyAccessToken(ctx context.Context, req *tokenv1.Verif
 
 func (h *TokenHandler) GenerateRefreshToken(ctx context.Context, req *tokenv1.GenerateRefreshTokenRequest) (*tokenv1.GenerateRefreshTokenResponse, error) {
 	if err := req.Validate(); err != nil {
-		err = errors.Upgrade(err, errcode.ErrInvalidInput, "Invalid Input")
+		err = errors.Upgrade(err, "Invalid Refresh Token Request", errcode.ErrInvalidInput)
 		h.logError(err)
 		return nil, util.NewGRPCError(err)
 	}
@@ -102,7 +102,7 @@ func (h *TokenHandler) GenerateRefreshToken(ctx context.Context, req *tokenv1.Ge
 
 func (h *TokenHandler) VerifyRefreshToken(ctx context.Context, req *tokenv1.VerifyRefreshTokenRequest) (*tokenv1.VerifyRefreshTokenResponse, error) {
 	if err := req.Validate(); err != nil {
-		err = errors.Upgrade(err, errcode.ErrInvalidInput, "Invalid Input")
+		err = errors.Upgrade(err, "Invalid Refresh Token Request", errcode.ErrInvalidInput)
 		h.logError(err)
 		return nil, util.NewGRPCError(err)
 	}
@@ -121,7 +121,7 @@ func (h *TokenHandler) VerifyRefreshToken(ctx context.Context, req *tokenv1.Veri
 
 func (h *TokenHandler) GenerateEmailVerificationToken(ctx context.Context, req *tokenv1.GenerateEmailVerificationTokenRequest) (*tokenv1.GenerateEmailVerificationTokenResponse, error) {
 	if err := req.Validate(); err != nil {
-		err = errors.Upgrade(err, errcode.ErrInvalidInput, "Invalid Input")
+		err = errors.Upgrade(err, "Invalid Email Verification Token Request", errcode.ErrInvalidInput)
 		h.logError(err)
 		return nil, util.NewGRPCError(err)
 	}
@@ -140,7 +140,7 @@ func (h *TokenHandler) GenerateEmailVerificationToken(ctx context.Context, req *
 
 func (h *TokenHandler) VerifyEmailVerificationToken(ctx context.Context, req *tokenv1.VerifyEmailVerificationTokenRequest) (*tokenv1.VerifyEmailVerificationTokenResponse, error) {
 	if err := req.Validate(); err != nil {
-		err = errors.Upgrade(err, errcode.ErrInvalidInput, "Invalid Input")
+		err = errors.Upgrade(err, "Invalid Email Verification Token Request", errcode.ErrInvalidInput)
 		h.logError(err)
 		return nil, util.NewGRPCError(err)
 	}
