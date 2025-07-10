@@ -8,55 +8,44 @@ import (
 )
 
 var (
-	// LocalUsersColumns holds the columns for the "local_users" table.
-	LocalUsersColumns = []*schema.Column{
+	// AuthAccountsColumns holds the columns for the "auth_accounts" table.
+	AuthAccountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
-		{Name: "email", Type: field.TypeString, Unique: true},
-		{Name: "password", Type: field.TypeString},
-		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"local", "google", "kakao", "naver", "apple"}},
+		{Name: "provider_id", Type: field.TypeString, Nullable: true},
 		{Name: "is_verified", Type: field.TypeBool, Default: false},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-	}
-	// LocalUsersTable holds the schema information for the "local_users" table.
-	LocalUsersTable = &schema.Table{
-		Name:       "local_users",
-		Columns:    LocalUsersColumns,
-		PrimaryKey: []*schema.Column{LocalUsersColumns[0]},
-	}
-	// OauthUsersColumns holds the columns for the "oauth_users" table.
-	OauthUsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID},
 		{Name: "email", Type: field.TypeString},
-		{Name: "provider", Type: field.TypeEnum, Enums: []string{"google", "github", "facebook", "kakao", "naver", "apple"}},
-		{Name: "provider_id", Type: field.TypeString},
-		{Name: "is_active", Type: field.TypeBool, Default: true},
-		{Name: "is_verified", Type: field.TypeBool, Default: true},
+		{Name: "password_hash", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}
-	// OauthUsersTable holds the schema information for the "oauth_users" table.
-	OauthUsersTable = &schema.Table{
-		Name:       "oauth_users",
-		Columns:    OauthUsersColumns,
-		PrimaryKey: []*schema.Column{OauthUsersColumns[0]},
+	// AuthAccountsTable holds the schema information for the "auth_accounts" table.
+	AuthAccountsTable = &schema.Table{
+		Name:       "auth_accounts",
+		Columns:    AuthAccountsColumns,
+		PrimaryKey: []*schema.Column{AuthAccountsColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "oauthuser_id_provider",
+				Name:    "authaccount_user_id_provider",
 				Unique:  true,
-				Columns: []*schema.Column{OauthUsersColumns[0], OauthUsersColumns[2]},
+				Columns: []*schema.Column{AuthAccountsColumns[1], AuthAccountsColumns[2]},
 			},
 			{
-				Name:    "oauthuser_provider_provider_id",
+				Name:    "authaccount_provider_provider_id",
 				Unique:  true,
-				Columns: []*schema.Column{OauthUsersColumns[2], OauthUsersColumns[3]},
+				Columns: []*schema.Column{AuthAccountsColumns[2], AuthAccountsColumns[3]},
+			},
+			{
+				Name:    "authaccount_email_provider",
+				Unique:  true,
+				Columns: []*schema.Column{AuthAccountsColumns[5], AuthAccountsColumns[2]},
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		LocalUsersTable,
-		OauthUsersTable,
+		AuthAccountsTable,
 	}
 )
 
