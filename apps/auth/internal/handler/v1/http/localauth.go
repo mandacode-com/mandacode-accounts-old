@@ -1,4 +1,4 @@
-package handlerv1
+package httphandlerv1
 
 import (
 	stdErrors "errors"
@@ -11,7 +11,8 @@ import (
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
 	"go.uber.org/zap"
-	handlerv1dto "mandacode.com/accounts/auth/internal/handler/v1/dto"
+
+	handlerv1dto "mandacode.com/accounts/auth/internal/handler/v1/http/dto"
 	"mandacode.com/accounts/auth/internal/usecase/localauth"
 	localauthdto "mandacode.com/accounts/auth/internal/usecase/localauth/dto"
 )
@@ -58,16 +59,6 @@ func (h *LocalAuthHandler) ValidateRequest(req interface{}) error {
 	return nil
 }
 
-func (h *LocalAuthHandler) LogError(err error) {
-	if err != nil {
-		if appErr, ok := err.(*errors.AppError); ok {
-			h.logger.Error(errors.Trace(appErr))
-		} else {
-			h.logger.Error("error occurred", zap.Error(err))
-		}
-	}
-}
-
 // RegisterRoutes registers the local authentication routes
 func (h *LocalAuthHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	rg.POST("/login", h.Login)
@@ -86,14 +77,12 @@ func (h *LocalAuthHandler) Login(c *gin.Context) {
 
 	var req handlerv1dto.LocalLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		h.LogError(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		c.Error(err)
 		return
 	}
 
 	if err := h.ValidateRequest(&req); err != nil {
-		h.LogError(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.Public(err)})
+		c.Error(err)
 		return
 	}
 
@@ -106,12 +95,7 @@ func (h *LocalAuthHandler) Login(c *gin.Context) {
 	if responseType == "direct" {
 		accessToken, refreshToken, err := h.localLogin.Login(c.Request.Context(), input)
 		if err != nil {
-			h.LogError(err)
-			if appErr, ok := err.(*errors.AppError); ok {
-				c.JSON(errcode.MapCodeToHTTP(appErr.Code()), gin.H{"error": appErr.Public()})
-			} else {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-			}
+			c.Error(err)
 			return
 		}
 		response := handlerv1dto.TokenResponse{
@@ -125,20 +109,14 @@ func (h *LocalAuthHandler) Login(c *gin.Context) {
 	// If responseType is not "direct", save the refresh token in the session
 	accessToken, refreshToken, err := h.localLogin.Login(c.Request.Context(), input)
 	if err != nil {
-		h.LogError(err)
-		if appErr, ok := err.(*errors.AppError); ok {
-			c.JSON(errcode.MapCodeToHTTP(appErr.Code()), gin.H{"error": appErr.Public()})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-		}
+		c.Error(err)
 		return
 	}
 
 	session := sessions.Default(c)
 	session.Set("refresh_token", refreshToken)
 	if err := session.Save(); err != nil {
-		h.LogError(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save session"})
+		c.Error(err)
 		return
 	}
 	response := handlerv1dto.AccessTokenResponse{
@@ -151,14 +129,12 @@ func (h *LocalAuthHandler) Login(c *gin.Context) {
 func (h *LocalAuthHandler) LoginCode(c *gin.Context) {
 	var req handlerv1dto.LocalLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		h.LogError(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		c.Error(err)
 		return
 	}
 
 	if err := h.ValidateRequest(&req); err != nil {
-		h.LogError(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.Public(err)})
+		c.Error(err)
 		return
 	}
 
@@ -169,12 +145,7 @@ func (h *LocalAuthHandler) LoginCode(c *gin.Context) {
 
 	code, userID, err := h.localLogin.IssueLoginCode(c.Request.Context(), input)
 	if err != nil {
-		h.LogError(err)
-		if appErr, ok := err.(*errors.AppError); ok {
-			c.JSON(errcode.MapCodeToHTTP(appErr.Code()), gin.H{"error": appErr.Public()})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-		}
+		c.Error(err)
 		return
 	}
 
@@ -189,14 +160,12 @@ func (h *LocalAuthHandler) LoginCode(c *gin.Context) {
 func (h *LocalAuthHandler) Signup(c *gin.Context) {
 	var req handlerv1dto.LocalSignupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		h.LogError(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		c.Error(err)
 		return
 	}
 
 	if err := h.ValidateRequest(&req); err != nil {
-		h.LogError(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.Public(err)})
+		c.Error(err)
 		return
 	}
 
@@ -207,12 +176,7 @@ func (h *LocalAuthHandler) Signup(c *gin.Context) {
 
 	userID, err := h.localSignup.Signup(c.Request.Context(), input)
 	if err != nil {
-		h.LogError(err)
-		if appErr, ok := err.(*errors.AppError); ok {
-			c.JSON(errcode.MapCodeToHTTP(appErr.Code()), gin.H{"error": appErr.Public()})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-		}
+		c.Error(err)
 		return
 	}
 
@@ -224,39 +188,30 @@ func (h *LocalAuthHandler) VerifyCode(c *gin.Context) {
 	// Get userID and code from the request
 	userID := c.Param("userID")
 	if userID == "" {
-		h.LogError(errors.New("userID is required", "InvalidUserID", errcode.ErrInvalidInput))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "userID is required"})
+		c.Error(errors.New("userID is required", "InvalidUserID", errcode.ErrInvalidInput))
 		return
 	}
 	code := c.Query("code")
 	if code == "" {
-		h.LogError(errors.New("code is required", "InvalidCode", errcode.ErrInvalidInput))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "code is required"})
+		c.Error(errors.New("code is required", "InvalidCode", errcode.ErrInvalidInput))
 		return
 	}
 	responseType := c.Query("response_type")
 	if responseType != "direct" && responseType != "" {
-		h.LogError(errors.New("invalid response type", "InvalidResponseType", errcode.ErrInvalidInput))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid response type"})
+		c.Error(errors.New("invalid response type", "InvalidResponseType", errcode.ErrInvalidInput))
 		return
 	}
 
 	// Validate userID format
 	userIDParsed, err := uuid.Parse(userID)
 	if err != nil {
-		h.LogError(errors.New("invalid userID format", "InvalidUserIDFormat", errcode.ErrInvalidInput))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid userID format"})
+		c.Error(errors.New("invalid userID format", "InvalidUserIDFormat", errcode.ErrInvalidInput))
 		return
 	}
 	// Verify the login code
 	accessToken, refreshToken, err := h.localLogin.VerifyLoginCode(c.Request.Context(), userIDParsed, code)
 	if err != nil {
-		h.LogError(err)
-		if appErr, ok := err.(*errors.AppError); ok {
-			c.JSON(errcode.MapCodeToHTTP(appErr.Code()), gin.H{"error": appErr.Public()})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-		}
+		c.Error(err)
 		return
 	}
 
@@ -272,8 +227,7 @@ func (h *LocalAuthHandler) VerifyCode(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Set("refresh_token", refreshToken)
 	if err := session.Save(); err != nil {
-		h.LogError(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save session"})
+		c.Error(err)
 		return
 	}
 	response := handlerv1dto.AccessTokenResponse{

@@ -14,10 +14,6 @@ type Tx struct {
 	config
 	// AuthAccount is the client for interacting with the AuthAccount builders.
 	AuthAccount *AuthAccountClient
-	// LocalAuth is the client for interacting with the LocalAuth builders.
-	LocalAuth *LocalAuthClient
-	// OAuthAuth is the client for interacting with the OAuthAuth builders.
-	OAuthAuth *OAuthAuthClient
 
 	// lazily loaded.
 	client     *Client
@@ -150,8 +146,6 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.AuthAccount = NewAuthAccountClient(tx.config)
-	tx.LocalAuth = NewLocalAuthClient(tx.config)
-	tx.OAuthAuth = NewOAuthAuthClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

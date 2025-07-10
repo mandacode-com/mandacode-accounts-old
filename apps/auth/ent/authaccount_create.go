@@ -12,8 +12,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"mandacode.com/accounts/auth/ent/authaccount"
-	"mandacode.com/accounts/auth/ent/localauth"
-	"mandacode.com/accounts/auth/ent/oauthauth"
 )
 
 // AuthAccountCreate is the builder for creating a AuthAccount entity.
@@ -26,6 +24,60 @@ type AuthAccountCreate struct {
 // SetUserID sets the "user_id" field.
 func (aac *AuthAccountCreate) SetUserID(u uuid.UUID) *AuthAccountCreate {
 	aac.mutation.SetUserID(u)
+	return aac
+}
+
+// SetProvider sets the "provider" field.
+func (aac *AuthAccountCreate) SetProvider(a authaccount.Provider) *AuthAccountCreate {
+	aac.mutation.SetProvider(a)
+	return aac
+}
+
+// SetProviderID sets the "provider_id" field.
+func (aac *AuthAccountCreate) SetProviderID(s string) *AuthAccountCreate {
+	aac.mutation.SetProviderID(s)
+	return aac
+}
+
+// SetNillableProviderID sets the "provider_id" field if the given value is not nil.
+func (aac *AuthAccountCreate) SetNillableProviderID(s *string) *AuthAccountCreate {
+	if s != nil {
+		aac.SetProviderID(*s)
+	}
+	return aac
+}
+
+// SetIsVerified sets the "is_verified" field.
+func (aac *AuthAccountCreate) SetIsVerified(b bool) *AuthAccountCreate {
+	aac.mutation.SetIsVerified(b)
+	return aac
+}
+
+// SetNillableIsVerified sets the "is_verified" field if the given value is not nil.
+func (aac *AuthAccountCreate) SetNillableIsVerified(b *bool) *AuthAccountCreate {
+	if b != nil {
+		aac.SetIsVerified(*b)
+	}
+	return aac
+}
+
+// SetEmail sets the "email" field.
+func (aac *AuthAccountCreate) SetEmail(s string) *AuthAccountCreate {
+	aac.mutation.SetEmail(s)
+	return aac
+}
+
+// SetPasswordHash sets the "password_hash" field.
+func (aac *AuthAccountCreate) SetPasswordHash(s string) *AuthAccountCreate {
+	aac.mutation.SetPasswordHash(s)
+	return aac
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (aac *AuthAccountCreate) SetNillablePasswordHash(s *string) *AuthAccountCreate {
+	if s != nil {
+		aac.SetPasswordHash(*s)
+	}
 	return aac
 }
 
@@ -57,48 +109,6 @@ func (aac *AuthAccountCreate) SetNillableUpdatedAt(t *time.Time) *AuthAccountCre
 	return aac
 }
 
-// SetLastLoginAt sets the "last_login_at" field.
-func (aac *AuthAccountCreate) SetLastLoginAt(t time.Time) *AuthAccountCreate {
-	aac.mutation.SetLastLoginAt(t)
-	return aac
-}
-
-// SetNillableLastLoginAt sets the "last_login_at" field if the given value is not nil.
-func (aac *AuthAccountCreate) SetNillableLastLoginAt(t *time.Time) *AuthAccountCreate {
-	if t != nil {
-		aac.SetLastLoginAt(*t)
-	}
-	return aac
-}
-
-// SetLastFailedLoginAt sets the "last_failed_login_at" field.
-func (aac *AuthAccountCreate) SetLastFailedLoginAt(t time.Time) *AuthAccountCreate {
-	aac.mutation.SetLastFailedLoginAt(t)
-	return aac
-}
-
-// SetNillableLastFailedLoginAt sets the "last_failed_login_at" field if the given value is not nil.
-func (aac *AuthAccountCreate) SetNillableLastFailedLoginAt(t *time.Time) *AuthAccountCreate {
-	if t != nil {
-		aac.SetLastFailedLoginAt(*t)
-	}
-	return aac
-}
-
-// SetFailedLoginAttempts sets the "failed_login_attempts" field.
-func (aac *AuthAccountCreate) SetFailedLoginAttempts(i int) *AuthAccountCreate {
-	aac.mutation.SetFailedLoginAttempts(i)
-	return aac
-}
-
-// SetNillableFailedLoginAttempts sets the "failed_login_attempts" field if the given value is not nil.
-func (aac *AuthAccountCreate) SetNillableFailedLoginAttempts(i *int) *AuthAccountCreate {
-	if i != nil {
-		aac.SetFailedLoginAttempts(*i)
-	}
-	return aac
-}
-
 // SetID sets the "id" field.
 func (aac *AuthAccountCreate) SetID(u uuid.UUID) *AuthAccountCreate {
 	aac.mutation.SetID(u)
@@ -113,36 +123,6 @@ func (aac *AuthAccountCreate) SetNillableID(u *uuid.UUID) *AuthAccountCreate {
 	return aac
 }
 
-// AddLocalAuthIDs adds the "local_auths" edge to the LocalAuth entity by IDs.
-func (aac *AuthAccountCreate) AddLocalAuthIDs(ids ...uuid.UUID) *AuthAccountCreate {
-	aac.mutation.AddLocalAuthIDs(ids...)
-	return aac
-}
-
-// AddLocalAuths adds the "local_auths" edges to the LocalAuth entity.
-func (aac *AuthAccountCreate) AddLocalAuths(l ...*LocalAuth) *AuthAccountCreate {
-	ids := make([]uuid.UUID, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
-	}
-	return aac.AddLocalAuthIDs(ids...)
-}
-
-// AddOauthAuthIDs adds the "oauth_auths" edge to the OAuthAuth entity by IDs.
-func (aac *AuthAccountCreate) AddOauthAuthIDs(ids ...uuid.UUID) *AuthAccountCreate {
-	aac.mutation.AddOauthAuthIDs(ids...)
-	return aac
-}
-
-// AddOauthAuths adds the "oauth_auths" edges to the OAuthAuth entity.
-func (aac *AuthAccountCreate) AddOauthAuths(o ...*OAuthAuth) *AuthAccountCreate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return aac.AddOauthAuthIDs(ids...)
-}
-
 // Mutation returns the AuthAccountMutation object of the builder.
 func (aac *AuthAccountCreate) Mutation() *AuthAccountMutation {
 	return aac.mutation
@@ -150,7 +130,9 @@ func (aac *AuthAccountCreate) Mutation() *AuthAccountMutation {
 
 // Save creates the AuthAccount in the database.
 func (aac *AuthAccountCreate) Save(ctx context.Context) (*AuthAccount, error) {
-	aac.defaults()
+	if err := aac.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, aac.sqlSave, aac.mutation, aac.hooks)
 }
 
@@ -177,23 +159,33 @@ func (aac *AuthAccountCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (aac *AuthAccountCreate) defaults() {
+func (aac *AuthAccountCreate) defaults() error {
+	if _, ok := aac.mutation.IsVerified(); !ok {
+		v := authaccount.DefaultIsVerified
+		aac.mutation.SetIsVerified(v)
+	}
 	if _, ok := aac.mutation.CreatedAt(); !ok {
+		if authaccount.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized authaccount.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := authaccount.DefaultCreatedAt()
 		aac.mutation.SetCreatedAt(v)
 	}
 	if _, ok := aac.mutation.UpdatedAt(); !ok {
+		if authaccount.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized authaccount.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := authaccount.DefaultUpdatedAt()
 		aac.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := aac.mutation.FailedLoginAttempts(); !ok {
-		v := authaccount.DefaultFailedLoginAttempts
-		aac.mutation.SetFailedLoginAttempts(v)
-	}
 	if _, ok := aac.mutation.ID(); !ok {
+		if authaccount.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized authaccount.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := authaccount.DefaultID()
 		aac.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -201,14 +193,30 @@ func (aac *AuthAccountCreate) check() error {
 	if _, ok := aac.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "AuthAccount.user_id"`)}
 	}
+	if _, ok := aac.mutation.Provider(); !ok {
+		return &ValidationError{Name: "provider", err: errors.New(`ent: missing required field "AuthAccount.provider"`)}
+	}
+	if v, ok := aac.mutation.Provider(); ok {
+		if err := authaccount.ProviderValidator(v); err != nil {
+			return &ValidationError{Name: "provider", err: fmt.Errorf(`ent: validator failed for field "AuthAccount.provider": %w`, err)}
+		}
+	}
+	if _, ok := aac.mutation.IsVerified(); !ok {
+		return &ValidationError{Name: "is_verified", err: errors.New(`ent: missing required field "AuthAccount.is_verified"`)}
+	}
+	if _, ok := aac.mutation.Email(); !ok {
+		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "AuthAccount.email"`)}
+	}
+	if v, ok := aac.mutation.Email(); ok {
+		if err := authaccount.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "AuthAccount.email": %w`, err)}
+		}
+	}
 	if _, ok := aac.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "AuthAccount.created_at"`)}
 	}
 	if _, ok := aac.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "AuthAccount.updated_at"`)}
-	}
-	if _, ok := aac.mutation.FailedLoginAttempts(); !ok {
-		return &ValidationError{Name: "failed_login_attempts", err: errors.New(`ent: missing required field "AuthAccount.failed_login_attempts"`)}
 	}
 	return nil
 }
@@ -249,6 +257,26 @@ func (aac *AuthAccountCreate) createSpec() (*AuthAccount, *sqlgraph.CreateSpec) 
 		_spec.SetField(authaccount.FieldUserID, field.TypeUUID, value)
 		_node.UserID = value
 	}
+	if value, ok := aac.mutation.Provider(); ok {
+		_spec.SetField(authaccount.FieldProvider, field.TypeEnum, value)
+		_node.Provider = value
+	}
+	if value, ok := aac.mutation.ProviderID(); ok {
+		_spec.SetField(authaccount.FieldProviderID, field.TypeString, value)
+		_node.ProviderID = &value
+	}
+	if value, ok := aac.mutation.IsVerified(); ok {
+		_spec.SetField(authaccount.FieldIsVerified, field.TypeBool, value)
+		_node.IsVerified = value
+	}
+	if value, ok := aac.mutation.Email(); ok {
+		_spec.SetField(authaccount.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
+	if value, ok := aac.mutation.PasswordHash(); ok {
+		_spec.SetField(authaccount.FieldPasswordHash, field.TypeString, value)
+		_node.PasswordHash = &value
+	}
 	if value, ok := aac.mutation.CreatedAt(); ok {
 		_spec.SetField(authaccount.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -256,50 +284,6 @@ func (aac *AuthAccountCreate) createSpec() (*AuthAccount, *sqlgraph.CreateSpec) 
 	if value, ok := aac.mutation.UpdatedAt(); ok {
 		_spec.SetField(authaccount.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := aac.mutation.LastLoginAt(); ok {
-		_spec.SetField(authaccount.FieldLastLoginAt, field.TypeTime, value)
-		_node.LastLoginAt = value
-	}
-	if value, ok := aac.mutation.LastFailedLoginAt(); ok {
-		_spec.SetField(authaccount.FieldLastFailedLoginAt, field.TypeTime, value)
-		_node.LastFailedLoginAt = value
-	}
-	if value, ok := aac.mutation.FailedLoginAttempts(); ok {
-		_spec.SetField(authaccount.FieldFailedLoginAttempts, field.TypeInt, value)
-		_node.FailedLoginAttempts = value
-	}
-	if nodes := aac.mutation.LocalAuthsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.LocalAuthsTable,
-			Columns: []string{authaccount.LocalAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(localauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := aac.mutation.OauthAuthsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.OauthAuthsTable,
-			Columns: []string{authaccount.OauthAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

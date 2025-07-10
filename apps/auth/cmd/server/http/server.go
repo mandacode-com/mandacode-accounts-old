@@ -2,21 +2,23 @@ package httpserver
 
 import (
 	"context"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/mandacode-com/golib/server"
 	"go.uber.org/zap"
-	handlerv1 "mandacode.com/accounts/auth/internal/handler/v1"
-	"net/http"
-	"strconv"
+	"mandacode.com/accounts/auth/internal/handler/v1/http"
+	httpmiddleware "mandacode.com/accounts/auth/internal/middleware/http"
 )
 
 type Server struct {
 	http             *http.Server
 	engine           *gin.Engine
 	logger           *zap.Logger
-	localAuthHandler *handlerv1.LocalAuthHandler
-	oauthHandler     *handlerv1.OAuthHandler
+	localAuthHandler *httphandlerv1.LocalAuthHandler
+	oauthHandler     *httphandlerv1.OAuthHandler
 	port             int
 	sessionStore     sessions.Store
 }
@@ -25,6 +27,7 @@ type Server struct {
 func (s *Server) Start(ctx context.Context) error {
 	s.engine.Use(gin.Recovery())
 	s.engine.Use(sessions.Sessions("session", s.sessionStore))
+	s.engine.Use(httpmiddleware.ErrorHandler(s.logger))
 
 	localAuthGroup := s.engine.Group("/v1/auth/local")
 	s.localAuthHandler.RegisterRoutes(localAuthGroup)
@@ -51,7 +54,7 @@ func (s *Server) Stop(ctx context.Context) error {
 	return nil
 }
 
-func NewServer(port int, logger *zap.Logger, localAuthHandler *handlerv1.LocalAuthHandler, oauthHandler *handlerv1.OAuthHandler, sessionStore sessions.Store) server.Server {
+func NewServer(port int, logger *zap.Logger, localAuthHandler *httphandlerv1.LocalAuthHandler, oauthHandler *httphandlerv1.OAuthHandler, sessionStore sessions.Store) server.Server {
 	engine := gin.Default()
 	return &Server{
 		http:             &http.Server{Addr: ":" + strconv.Itoa(port), Handler: engine},

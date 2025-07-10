@@ -27,8 +27,10 @@ type TokenRepository struct {
 func (t *TokenRepository) GenerateAccessToken(ctx context.Context, userID uuid.UUID) (string, int64, error) {
 	resp, err := t.client.GenerateAccessToken(ctx, &tokenv1.GenerateAccessTokenRequest{UserId: userID.String()})
 	if err != nil {
-		joinedErr := errors.Join(err, "Failed to generate access token")
-		return "", 0, errors.Upgrade(joinedErr, errcode.ErrInternalFailure, "TokenGenerationFailed")
+		return "", 0, errors.Upgrade(err, "Failed to generate access token", errcode.ErrInternalFailure)
+	}
+	if err := resp.ValidateAll(); err != nil {
+		return "", 0, errors.Upgrade(err, "Invalid response from token service", errcode.ErrInternalFailure)
 	}
 	return resp.Token, resp.ExpiresAt, nil
 }
@@ -47,8 +49,10 @@ func (t *TokenRepository) GenerateEmailVerificationToken(ctx context.Context, us
 		Code:   code,
 	})
 	if err != nil {
-		joinedErr := errors.Join(err, "Failed to generate email verification token")
-		return "", 0, errors.Upgrade(joinedErr, errcode.ErrInternalFailure, "TokenGenerationFailed")
+		return "", 0, errors.Upgrade(err, "Failed to generate email verification token", errcode.ErrInternalFailure)
+	}
+	if err := resp.ValidateAll(); err != nil {
+		return "", 0, errors.Upgrade(err, "Invalid response from token service", errcode.ErrInternalFailure)
 	}
 	return resp.Token, resp.ExpiresAt, nil
 }
@@ -64,8 +68,10 @@ func (t *TokenRepository) GenerateEmailVerificationToken(ctx context.Context, us
 func (t *TokenRepository) GenerateRefreshToken(ctx context.Context, userID uuid.UUID) (string, int64, error) {
 	resp, err := t.client.GenerateRefreshToken(ctx, &tokenv1.GenerateRefreshTokenRequest{UserId: userID.String()})
 	if err != nil {
-		joinedErr := errors.Join(err, "Failed to generate refresh token")
-		return "", 0, errors.Upgrade(joinedErr, errcode.ErrInternalFailure, "TokenGenerationFailed")
+		return "", 0, errors.Upgrade(err, "Failed to generate refresh token", errcode.ErrInternalFailure)
+	}
+	if err := resp.ValidateAll(); err != nil {
+		return "", 0, errors.Upgrade(err, "Invalid response from token service", errcode.ErrInternalFailure)
 	}
 	return resp.Token, resp.ExpiresAt, nil
 }
@@ -83,8 +89,10 @@ func (t *TokenRepository) GenerateRefreshToken(ctx context.Context, userID uuid.
 func (t *TokenRepository) VerifyAccessToken(ctx context.Context, token string) (bool, *string, error) {
 	resp, err := t.client.VerifyAccessToken(ctx, &tokenv1.VerifyAccessTokenRequest{Token: token})
 	if err != nil {
-		joinErr := errors.Join(err, "Failed to verify access token")
-		return false, nil, errors.Upgrade(joinErr, errcode.ErrInternalFailure, "TokenVerificationFailed")
+		return false, nil, errors.Upgrade(err, "Failed to verify access token", errcode.ErrInternalFailure)
+	}
+	if err := resp.ValidateAll(); err != nil {
+		return false, nil, errors.Upgrade(err, "Invalid response from token service", errcode.ErrInternalFailure)
 	}
 	return resp.Valid, resp.UserId, nil
 }
@@ -101,18 +109,15 @@ func (t *TokenRepository) VerifyAccessToken(ctx context.Context, token string) (
 func (t *TokenRepository) VerifyEmailVerificationToken(ctx context.Context, token string) (*tokenmodels.EmailVerificationResult, error) {
 	resp, err := t.client.VerifyEmailVerificationToken(ctx, &tokenv1.VerifyEmailVerificationTokenRequest{Token: token})
 	if err != nil {
-		joinErr := errors.Join(err, "Failed to verify email verification token")
-		return nil, errors.Upgrade(joinErr, errcode.ErrInternalFailure, "TokenVerificationFailed")
+		return nil, errors.Upgrade(err, "Failed to verify email verification token", errcode.ErrInternalFailure)
 	}
-
-	if !resp.Valid {
-		return nil, errors.New("Invalid email verification token", "InvalidToken", errcode.ErrUnauthorized)
+	if err := resp.ValidateAll(); err != nil {
+		return nil, errors.Upgrade(err, "Invalid response from token service", errcode.ErrInternalFailure)
 	}
 
 	userUUID, err := uuid.Parse(*resp.UserId)
 	if err != nil {
-		joinErr := errors.Join(err, "Failed to parse user ID from email verification token response")
-		return nil, errors.Upgrade(joinErr, errcode.ErrInternalFailure, "TokenVerificationFailed")
+		return nil, errors.Upgrade(err, "Invalid user ID in response", errcode.ErrInternalFailure)
 	}
 	data := &tokenmodels.EmailVerificationResult{
 		Valid:  resp.Valid,
@@ -136,8 +141,10 @@ func (t *TokenRepository) VerifyEmailVerificationToken(ctx context.Context, toke
 func (t *TokenRepository) VerifyRefreshToken(ctx context.Context, token string) (bool, *string, error) {
 	resp, err := t.client.VerifyRefreshToken(ctx, &tokenv1.VerifyRefreshTokenRequest{Token: token})
 	if err != nil {
-		joinErr := errors.Join(err, "Failed to verify refresh token")
-		return false, nil, errors.Upgrade(joinErr, errcode.ErrInternalFailure, "TokenVerificationFailed")
+		return false, nil, errors.Upgrade(err, "Failed to verify refresh token", errcode.ErrInternalFailure)
+	}
+	if err := resp.ValidateAll(); err != nil {
+		return false, nil, errors.Upgrade(err, "Invalid response from token service", errcode.ErrInternalFailure)
 	}
 	return resp.Valid, resp.UserId, nil
 }

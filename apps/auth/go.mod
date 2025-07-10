@@ -10,8 +10,8 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
-	github.com/mandacode-com/accounts-proto v0.1.3
-	github.com/mandacode-com/golib v0.1.14
+	github.com/mandacode-com/accounts-proto v0.1.10
+	github.com/mandacode-com/golib v0.1.15
 	github.com/redis/go-redis/v9 v9.11.0
 	github.com/segmentio/kafka-go v0.4.48
 	go.uber.org/zap v1.27.0

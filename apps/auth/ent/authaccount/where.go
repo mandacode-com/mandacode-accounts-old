@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"mandacode.com/accounts/auth/ent/predicate"
 )
@@ -61,6 +60,26 @@ func UserID(v uuid.UUID) predicate.AuthAccount {
 	return predicate.AuthAccount(sql.FieldEQ(FieldUserID, v))
 }
 
+// ProviderID applies equality check predicate on the "provider_id" field. It's identical to ProviderIDEQ.
+func ProviderID(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEQ(FieldProviderID, v))
+}
+
+// IsVerified applies equality check predicate on the "is_verified" field. It's identical to IsVerifiedEQ.
+func IsVerified(v bool) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEQ(FieldIsVerified, v))
+}
+
+// Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
+func Email(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEQ(FieldEmail, v))
+}
+
+// PasswordHash applies equality check predicate on the "password_hash" field. It's identical to PasswordHashEQ.
+func PasswordHash(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEQ(FieldPasswordHash, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.AuthAccount {
 	return predicate.AuthAccount(sql.FieldEQ(FieldCreatedAt, v))
@@ -69,21 +88,6 @@ func CreatedAt(v time.Time) predicate.AuthAccount {
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.AuthAccount {
 	return predicate.AuthAccount(sql.FieldEQ(FieldUpdatedAt, v))
-}
-
-// LastLoginAt applies equality check predicate on the "last_login_at" field. It's identical to LastLoginAtEQ.
-func LastLoginAt(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldEQ(FieldLastLoginAt, v))
-}
-
-// LastFailedLoginAt applies equality check predicate on the "last_failed_login_at" field. It's identical to LastFailedLoginAtEQ.
-func LastFailedLoginAt(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldEQ(FieldLastFailedLoginAt, v))
-}
-
-// FailedLoginAttempts applies equality check predicate on the "failed_login_attempts" field. It's identical to FailedLoginAttemptsEQ.
-func FailedLoginAttempts(v int) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldEQ(FieldFailedLoginAttempts, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
@@ -124,6 +128,251 @@ func UserIDLT(v uuid.UUID) predicate.AuthAccount {
 // UserIDLTE applies the LTE predicate on the "user_id" field.
 func UserIDLTE(v uuid.UUID) predicate.AuthAccount {
 	return predicate.AuthAccount(sql.FieldLTE(FieldUserID, v))
+}
+
+// ProviderEQ applies the EQ predicate on the "provider" field.
+func ProviderEQ(v Provider) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEQ(FieldProvider, v))
+}
+
+// ProviderNEQ applies the NEQ predicate on the "provider" field.
+func ProviderNEQ(v Provider) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNEQ(FieldProvider, v))
+}
+
+// ProviderIn applies the In predicate on the "provider" field.
+func ProviderIn(vs ...Provider) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldIn(FieldProvider, vs...))
+}
+
+// ProviderNotIn applies the NotIn predicate on the "provider" field.
+func ProviderNotIn(vs ...Provider) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNotIn(FieldProvider, vs...))
+}
+
+// ProviderIDEQ applies the EQ predicate on the "provider_id" field.
+func ProviderIDEQ(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEQ(FieldProviderID, v))
+}
+
+// ProviderIDNEQ applies the NEQ predicate on the "provider_id" field.
+func ProviderIDNEQ(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNEQ(FieldProviderID, v))
+}
+
+// ProviderIDIn applies the In predicate on the "provider_id" field.
+func ProviderIDIn(vs ...string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldIn(FieldProviderID, vs...))
+}
+
+// ProviderIDNotIn applies the NotIn predicate on the "provider_id" field.
+func ProviderIDNotIn(vs ...string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNotIn(FieldProviderID, vs...))
+}
+
+// ProviderIDGT applies the GT predicate on the "provider_id" field.
+func ProviderIDGT(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldGT(FieldProviderID, v))
+}
+
+// ProviderIDGTE applies the GTE predicate on the "provider_id" field.
+func ProviderIDGTE(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldGTE(FieldProviderID, v))
+}
+
+// ProviderIDLT applies the LT predicate on the "provider_id" field.
+func ProviderIDLT(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldLT(FieldProviderID, v))
+}
+
+// ProviderIDLTE applies the LTE predicate on the "provider_id" field.
+func ProviderIDLTE(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldLTE(FieldProviderID, v))
+}
+
+// ProviderIDContains applies the Contains predicate on the "provider_id" field.
+func ProviderIDContains(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldContains(FieldProviderID, v))
+}
+
+// ProviderIDHasPrefix applies the HasPrefix predicate on the "provider_id" field.
+func ProviderIDHasPrefix(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldHasPrefix(FieldProviderID, v))
+}
+
+// ProviderIDHasSuffix applies the HasSuffix predicate on the "provider_id" field.
+func ProviderIDHasSuffix(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldHasSuffix(FieldProviderID, v))
+}
+
+// ProviderIDIsNil applies the IsNil predicate on the "provider_id" field.
+func ProviderIDIsNil() predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldIsNull(FieldProviderID))
+}
+
+// ProviderIDNotNil applies the NotNil predicate on the "provider_id" field.
+func ProviderIDNotNil() predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNotNull(FieldProviderID))
+}
+
+// ProviderIDEqualFold applies the EqualFold predicate on the "provider_id" field.
+func ProviderIDEqualFold(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEqualFold(FieldProviderID, v))
+}
+
+// ProviderIDContainsFold applies the ContainsFold predicate on the "provider_id" field.
+func ProviderIDContainsFold(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldContainsFold(FieldProviderID, v))
+}
+
+// IsVerifiedEQ applies the EQ predicate on the "is_verified" field.
+func IsVerifiedEQ(v bool) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEQ(FieldIsVerified, v))
+}
+
+// IsVerifiedNEQ applies the NEQ predicate on the "is_verified" field.
+func IsVerifiedNEQ(v bool) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNEQ(FieldIsVerified, v))
+}
+
+// EmailEQ applies the EQ predicate on the "email" field.
+func EmailEQ(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEQ(FieldEmail, v))
+}
+
+// EmailNEQ applies the NEQ predicate on the "email" field.
+func EmailNEQ(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNEQ(FieldEmail, v))
+}
+
+// EmailIn applies the In predicate on the "email" field.
+func EmailIn(vs ...string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldIn(FieldEmail, vs...))
+}
+
+// EmailNotIn applies the NotIn predicate on the "email" field.
+func EmailNotIn(vs ...string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNotIn(FieldEmail, vs...))
+}
+
+// EmailGT applies the GT predicate on the "email" field.
+func EmailGT(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldGT(FieldEmail, v))
+}
+
+// EmailGTE applies the GTE predicate on the "email" field.
+func EmailGTE(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldGTE(FieldEmail, v))
+}
+
+// EmailLT applies the LT predicate on the "email" field.
+func EmailLT(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldLT(FieldEmail, v))
+}
+
+// EmailLTE applies the LTE predicate on the "email" field.
+func EmailLTE(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldLTE(FieldEmail, v))
+}
+
+// EmailContains applies the Contains predicate on the "email" field.
+func EmailContains(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldContains(FieldEmail, v))
+}
+
+// EmailHasPrefix applies the HasPrefix predicate on the "email" field.
+func EmailHasPrefix(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldHasPrefix(FieldEmail, v))
+}
+
+// EmailHasSuffix applies the HasSuffix predicate on the "email" field.
+func EmailHasSuffix(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldHasSuffix(FieldEmail, v))
+}
+
+// EmailEqualFold applies the EqualFold predicate on the "email" field.
+func EmailEqualFold(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEqualFold(FieldEmail, v))
+}
+
+// EmailContainsFold applies the ContainsFold predicate on the "email" field.
+func EmailContainsFold(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldContainsFold(FieldEmail, v))
+}
+
+// PasswordHashEQ applies the EQ predicate on the "password_hash" field.
+func PasswordHashEQ(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEQ(FieldPasswordHash, v))
+}
+
+// PasswordHashNEQ applies the NEQ predicate on the "password_hash" field.
+func PasswordHashNEQ(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNEQ(FieldPasswordHash, v))
+}
+
+// PasswordHashIn applies the In predicate on the "password_hash" field.
+func PasswordHashIn(vs ...string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldIn(FieldPasswordHash, vs...))
+}
+
+// PasswordHashNotIn applies the NotIn predicate on the "password_hash" field.
+func PasswordHashNotIn(vs ...string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNotIn(FieldPasswordHash, vs...))
+}
+
+// PasswordHashGT applies the GT predicate on the "password_hash" field.
+func PasswordHashGT(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldGT(FieldPasswordHash, v))
+}
+
+// PasswordHashGTE applies the GTE predicate on the "password_hash" field.
+func PasswordHashGTE(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldGTE(FieldPasswordHash, v))
+}
+
+// PasswordHashLT applies the LT predicate on the "password_hash" field.
+func PasswordHashLT(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldLT(FieldPasswordHash, v))
+}
+
+// PasswordHashLTE applies the LTE predicate on the "password_hash" field.
+func PasswordHashLTE(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldLTE(FieldPasswordHash, v))
+}
+
+// PasswordHashContains applies the Contains predicate on the "password_hash" field.
+func PasswordHashContains(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldContains(FieldPasswordHash, v))
+}
+
+// PasswordHashHasPrefix applies the HasPrefix predicate on the "password_hash" field.
+func PasswordHashHasPrefix(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldHasPrefix(FieldPasswordHash, v))
+}
+
+// PasswordHashHasSuffix applies the HasSuffix predicate on the "password_hash" field.
+func PasswordHashHasSuffix(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldHasSuffix(FieldPasswordHash, v))
+}
+
+// PasswordHashIsNil applies the IsNil predicate on the "password_hash" field.
+func PasswordHashIsNil() predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldIsNull(FieldPasswordHash))
+}
+
+// PasswordHashNotNil applies the NotNil predicate on the "password_hash" field.
+func PasswordHashNotNil() predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldNotNull(FieldPasswordHash))
+}
+
+// PasswordHashEqualFold applies the EqualFold predicate on the "password_hash" field.
+func PasswordHashEqualFold(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldEqualFold(FieldPasswordHash, v))
+}
+
+// PasswordHashContainsFold applies the ContainsFold predicate on the "password_hash" field.
+func PasswordHashContainsFold(v string) predicate.AuthAccount {
+	return predicate.AuthAccount(sql.FieldContainsFold(FieldPasswordHash, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -204,192 +453,6 @@ func UpdatedAtLT(v time.Time) predicate.AuthAccount {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.AuthAccount {
 	return predicate.AuthAccount(sql.FieldLTE(FieldUpdatedAt, v))
-}
-
-// LastLoginAtEQ applies the EQ predicate on the "last_login_at" field.
-func LastLoginAtEQ(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldEQ(FieldLastLoginAt, v))
-}
-
-// LastLoginAtNEQ applies the NEQ predicate on the "last_login_at" field.
-func LastLoginAtNEQ(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldNEQ(FieldLastLoginAt, v))
-}
-
-// LastLoginAtIn applies the In predicate on the "last_login_at" field.
-func LastLoginAtIn(vs ...time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldIn(FieldLastLoginAt, vs...))
-}
-
-// LastLoginAtNotIn applies the NotIn predicate on the "last_login_at" field.
-func LastLoginAtNotIn(vs ...time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldNotIn(FieldLastLoginAt, vs...))
-}
-
-// LastLoginAtGT applies the GT predicate on the "last_login_at" field.
-func LastLoginAtGT(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldGT(FieldLastLoginAt, v))
-}
-
-// LastLoginAtGTE applies the GTE predicate on the "last_login_at" field.
-func LastLoginAtGTE(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldGTE(FieldLastLoginAt, v))
-}
-
-// LastLoginAtLT applies the LT predicate on the "last_login_at" field.
-func LastLoginAtLT(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldLT(FieldLastLoginAt, v))
-}
-
-// LastLoginAtLTE applies the LTE predicate on the "last_login_at" field.
-func LastLoginAtLTE(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldLTE(FieldLastLoginAt, v))
-}
-
-// LastLoginAtIsNil applies the IsNil predicate on the "last_login_at" field.
-func LastLoginAtIsNil() predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldIsNull(FieldLastLoginAt))
-}
-
-// LastLoginAtNotNil applies the NotNil predicate on the "last_login_at" field.
-func LastLoginAtNotNil() predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldNotNull(FieldLastLoginAt))
-}
-
-// LastFailedLoginAtEQ applies the EQ predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtEQ(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldEQ(FieldLastFailedLoginAt, v))
-}
-
-// LastFailedLoginAtNEQ applies the NEQ predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtNEQ(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldNEQ(FieldLastFailedLoginAt, v))
-}
-
-// LastFailedLoginAtIn applies the In predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtIn(vs ...time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldIn(FieldLastFailedLoginAt, vs...))
-}
-
-// LastFailedLoginAtNotIn applies the NotIn predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtNotIn(vs ...time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldNotIn(FieldLastFailedLoginAt, vs...))
-}
-
-// LastFailedLoginAtGT applies the GT predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtGT(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldGT(FieldLastFailedLoginAt, v))
-}
-
-// LastFailedLoginAtGTE applies the GTE predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtGTE(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldGTE(FieldLastFailedLoginAt, v))
-}
-
-// LastFailedLoginAtLT applies the LT predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtLT(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldLT(FieldLastFailedLoginAt, v))
-}
-
-// LastFailedLoginAtLTE applies the LTE predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtLTE(v time.Time) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldLTE(FieldLastFailedLoginAt, v))
-}
-
-// LastFailedLoginAtIsNil applies the IsNil predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtIsNil() predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldIsNull(FieldLastFailedLoginAt))
-}
-
-// LastFailedLoginAtNotNil applies the NotNil predicate on the "last_failed_login_at" field.
-func LastFailedLoginAtNotNil() predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldNotNull(FieldLastFailedLoginAt))
-}
-
-// FailedLoginAttemptsEQ applies the EQ predicate on the "failed_login_attempts" field.
-func FailedLoginAttemptsEQ(v int) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldEQ(FieldFailedLoginAttempts, v))
-}
-
-// FailedLoginAttemptsNEQ applies the NEQ predicate on the "failed_login_attempts" field.
-func FailedLoginAttemptsNEQ(v int) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldNEQ(FieldFailedLoginAttempts, v))
-}
-
-// FailedLoginAttemptsIn applies the In predicate on the "failed_login_attempts" field.
-func FailedLoginAttemptsIn(vs ...int) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldIn(FieldFailedLoginAttempts, vs...))
-}
-
-// FailedLoginAttemptsNotIn applies the NotIn predicate on the "failed_login_attempts" field.
-func FailedLoginAttemptsNotIn(vs ...int) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldNotIn(FieldFailedLoginAttempts, vs...))
-}
-
-// FailedLoginAttemptsGT applies the GT predicate on the "failed_login_attempts" field.
-func FailedLoginAttemptsGT(v int) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldGT(FieldFailedLoginAttempts, v))
-}
-
-// FailedLoginAttemptsGTE applies the GTE predicate on the "failed_login_attempts" field.
-func FailedLoginAttemptsGTE(v int) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldGTE(FieldFailedLoginAttempts, v))
-}
-
-// FailedLoginAttemptsLT applies the LT predicate on the "failed_login_attempts" field.
-func FailedLoginAttemptsLT(v int) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldLT(FieldFailedLoginAttempts, v))
-}
-
-// FailedLoginAttemptsLTE applies the LTE predicate on the "failed_login_attempts" field.
-func FailedLoginAttemptsLTE(v int) predicate.AuthAccount {
-	return predicate.AuthAccount(sql.FieldLTE(FieldFailedLoginAttempts, v))
-}
-
-// HasLocalAuths applies the HasEdge predicate on the "local_auths" edge.
-func HasLocalAuths() predicate.AuthAccount {
-	return predicate.AuthAccount(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, LocalAuthsTable, LocalAuthsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasLocalAuthsWith applies the HasEdge predicate on the "local_auths" edge with a given conditions (other predicates).
-func HasLocalAuthsWith(preds ...predicate.LocalAuth) predicate.AuthAccount {
-	return predicate.AuthAccount(func(s *sql.Selector) {
-		step := newLocalAuthsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasOauthAuths applies the HasEdge predicate on the "oauth_auths" edge.
-func HasOauthAuths() predicate.AuthAccount {
-	return predicate.AuthAccount(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, OauthAuthsTable, OauthAuthsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasOauthAuthsWith applies the HasEdge predicate on the "oauth_auths" edge with a given conditions (other predicates).
-func HasOauthAuthsWith(preds ...predicate.OAuthAuth) predicate.AuthAccount {
-	return predicate.AuthAccount(func(s *sql.Selector) {
-		step := newOauthAuthsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

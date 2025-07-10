@@ -8,9 +8,3 @@ import (
 
 // AuthAccount is the predicate function for authaccount builders.
 type AuthAccount func(*sql.Selector)
-
-// LocalAuth is the predicate function for localauth builders.
-type LocalAuth func(*sql.Selector)
-
-// OAuthAuth is the predicate function for oauthauth builders.
-type OAuthAuth func(*sql.Selector)

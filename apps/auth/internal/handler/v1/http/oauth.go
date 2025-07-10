@@ -1,4 +1,4 @@
-package handlerv1
+package httphandlerv1
 
 import (
 	stdErrors "errors"
@@ -11,7 +11,7 @@ import (
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
 	"go.uber.org/zap"
-	handlerv1dto "mandacode.com/accounts/auth/internal/handler/v1/dto"
+	handlerv1dto "mandacode.com/accounts/auth/internal/handler/v1/http/dto"
 	"mandacode.com/accounts/auth/internal/usecase/oauthauth"
 	oauthdto "mandacode.com/accounts/auth/internal/usecase/oauthauth/dto"
 	"mandacode.com/accounts/auth/internal/util"

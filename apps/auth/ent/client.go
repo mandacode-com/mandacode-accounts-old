@@ -15,10 +15,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"mandacode.com/accounts/auth/ent/authaccount"
-	"mandacode.com/accounts/auth/ent/localauth"
-	"mandacode.com/accounts/auth/ent/oauthauth"
 )
 
 // Client is the client that holds all ent builders.
@@ -28,10 +25,6 @@ type Client struct {
 	Schema *migrate.Schema
 	// AuthAccount is the client for interacting with the AuthAccount builders.
 	AuthAccount *AuthAccountClient
-	// LocalAuth is the client for interacting with the LocalAuth builders.
-	LocalAuth *LocalAuthClient
-	// OAuthAuth is the client for interacting with the OAuthAuth builders.
-	OAuthAuth *OAuthAuthClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -44,8 +37,6 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AuthAccount = NewAuthAccountClient(c.config)
-	c.LocalAuth = NewLocalAuthClient(c.config)
-	c.OAuthAuth = NewOAuthAuthClient(c.config)
 }
 
 type (
@@ -139,8 +130,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:         ctx,
 		config:      cfg,
 		AuthAccount: NewAuthAccountClient(cfg),
-		LocalAuth:   NewLocalAuthClient(cfg),
-		OAuthAuth:   NewOAuthAuthClient(cfg),
 	}, nil
 }
 
@@ -161,8 +150,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:         ctx,
 		config:      cfg,
 		AuthAccount: NewAuthAccountClient(cfg),
-		LocalAuth:   NewLocalAuthClient(cfg),
-		OAuthAuth:   NewOAuthAuthClient(cfg),
 	}, nil
 }
 
@@ -192,16 +179,12 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.AuthAccount.Use(hooks...)
-	c.LocalAuth.Use(hooks...)
-	c.OAuthAuth.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.AuthAccount.Intercept(interceptors...)
-	c.LocalAuth.Intercept(interceptors...)
-	c.OAuthAuth.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -209,10 +192,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AuthAccountMutation:
 		return c.AuthAccount.mutate(ctx, m)
-	case *LocalAuthMutation:
-		return c.LocalAuth.mutate(ctx, m)
-	case *OAuthAuthMutation:
-		return c.OAuthAuth.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -326,41 +305,10 @@ func (c *AuthAccountClient) GetX(ctx context.Context, id uuid.UUID) *AuthAccount
 	return obj
 }
 
-// QueryLocalAuths queries the local_auths edge of a AuthAccount.
-func (c *AuthAccountClient) QueryLocalAuths(aa *AuthAccount) *LocalAuthQuery {
-	query := (&LocalAuthClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := aa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(authaccount.Table, authaccount.FieldID, id),
-			sqlgraph.To(localauth.Table, localauth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, authaccount.LocalAuthsTable, authaccount.LocalAuthsColumn),
-		)
-		fromV = sqlgraph.Neighbors(aa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryOauthAuths queries the oauth_auths edge of a AuthAccount.
-func (c *AuthAccountClient) QueryOauthAuths(aa *AuthAccount) *OAuthAuthQuery {
-	query := (&OAuthAuthClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := aa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(authaccount.Table, authaccount.FieldID, id),
-			sqlgraph.To(oauthauth.Table, oauthauth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, authaccount.OauthAuthsTable, authaccount.OauthAuthsColumn),
-		)
-		fromV = sqlgraph.Neighbors(aa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *AuthAccountClient) Hooks() []Hook {
-	return c.hooks.AuthAccount
+	hooks := c.hooks.AuthAccount
+	return append(hooks[:len(hooks):len(hooks)], authaccount.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -383,310 +331,12 @@ func (c *AuthAccountClient) mutate(ctx context.Context, m *AuthAccountMutation) 
 	}
 }
 
-// LocalAuthClient is a client for the LocalAuth schema.
-type LocalAuthClient struct {
-	config
-}
-
-// NewLocalAuthClient returns a client for the LocalAuth from the given config.
-func NewLocalAuthClient(c config) *LocalAuthClient {
-	return &LocalAuthClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `localauth.Hooks(f(g(h())))`.
-func (c *LocalAuthClient) Use(hooks ...Hook) {
-	c.hooks.LocalAuth = append(c.hooks.LocalAuth, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `localauth.Intercept(f(g(h())))`.
-func (c *LocalAuthClient) Intercept(interceptors ...Interceptor) {
-	c.inters.LocalAuth = append(c.inters.LocalAuth, interceptors...)
-}
-
-// Create returns a builder for creating a LocalAuth entity.
-func (c *LocalAuthClient) Create() *LocalAuthCreate {
-	mutation := newLocalAuthMutation(c.config, OpCreate)
-	return &LocalAuthCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of LocalAuth entities.
-func (c *LocalAuthClient) CreateBulk(builders ...*LocalAuthCreate) *LocalAuthCreateBulk {
-	return &LocalAuthCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *LocalAuthClient) MapCreateBulk(slice any, setFunc func(*LocalAuthCreate, int)) *LocalAuthCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &LocalAuthCreateBulk{err: fmt.Errorf("calling to LocalAuthClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*LocalAuthCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &LocalAuthCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for LocalAuth.
-func (c *LocalAuthClient) Update() *LocalAuthUpdate {
-	mutation := newLocalAuthMutation(c.config, OpUpdate)
-	return &LocalAuthUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *LocalAuthClient) UpdateOne(la *LocalAuth) *LocalAuthUpdateOne {
-	mutation := newLocalAuthMutation(c.config, OpUpdateOne, withLocalAuth(la))
-	return &LocalAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *LocalAuthClient) UpdateOneID(id uuid.UUID) *LocalAuthUpdateOne {
-	mutation := newLocalAuthMutation(c.config, OpUpdateOne, withLocalAuthID(id))
-	return &LocalAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for LocalAuth.
-func (c *LocalAuthClient) Delete() *LocalAuthDelete {
-	mutation := newLocalAuthMutation(c.config, OpDelete)
-	return &LocalAuthDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *LocalAuthClient) DeleteOne(la *LocalAuth) *LocalAuthDeleteOne {
-	return c.DeleteOneID(la.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *LocalAuthClient) DeleteOneID(id uuid.UUID) *LocalAuthDeleteOne {
-	builder := c.Delete().Where(localauth.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &LocalAuthDeleteOne{builder}
-}
-
-// Query returns a query builder for LocalAuth.
-func (c *LocalAuthClient) Query() *LocalAuthQuery {
-	return &LocalAuthQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeLocalAuth},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a LocalAuth entity by its id.
-func (c *LocalAuthClient) Get(ctx context.Context, id uuid.UUID) (*LocalAuth, error) {
-	return c.Query().Where(localauth.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *LocalAuthClient) GetX(ctx context.Context, id uuid.UUID) *LocalAuth {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryAuthAccount queries the auth_account edge of a LocalAuth.
-func (c *LocalAuthClient) QueryAuthAccount(la *LocalAuth) *AuthAccountQuery {
-	query := (&AuthAccountClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := la.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(localauth.Table, localauth.FieldID, id),
-			sqlgraph.To(authaccount.Table, authaccount.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, localauth.AuthAccountTable, localauth.AuthAccountColumn),
-		)
-		fromV = sqlgraph.Neighbors(la.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *LocalAuthClient) Hooks() []Hook {
-	return c.hooks.LocalAuth
-}
-
-// Interceptors returns the client interceptors.
-func (c *LocalAuthClient) Interceptors() []Interceptor {
-	return c.inters.LocalAuth
-}
-
-func (c *LocalAuthClient) mutate(ctx context.Context, m *LocalAuthMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&LocalAuthCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&LocalAuthUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&LocalAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&LocalAuthDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown LocalAuth mutation op: %q", m.Op())
-	}
-}
-
-// OAuthAuthClient is a client for the OAuthAuth schema.
-type OAuthAuthClient struct {
-	config
-}
-
-// NewOAuthAuthClient returns a client for the OAuthAuth from the given config.
-func NewOAuthAuthClient(c config) *OAuthAuthClient {
-	return &OAuthAuthClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `oauthauth.Hooks(f(g(h())))`.
-func (c *OAuthAuthClient) Use(hooks ...Hook) {
-	c.hooks.OAuthAuth = append(c.hooks.OAuthAuth, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `oauthauth.Intercept(f(g(h())))`.
-func (c *OAuthAuthClient) Intercept(interceptors ...Interceptor) {
-	c.inters.OAuthAuth = append(c.inters.OAuthAuth, interceptors...)
-}
-
-// Create returns a builder for creating a OAuthAuth entity.
-func (c *OAuthAuthClient) Create() *OAuthAuthCreate {
-	mutation := newOAuthAuthMutation(c.config, OpCreate)
-	return &OAuthAuthCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of OAuthAuth entities.
-func (c *OAuthAuthClient) CreateBulk(builders ...*OAuthAuthCreate) *OAuthAuthCreateBulk {
-	return &OAuthAuthCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *OAuthAuthClient) MapCreateBulk(slice any, setFunc func(*OAuthAuthCreate, int)) *OAuthAuthCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &OAuthAuthCreateBulk{err: fmt.Errorf("calling to OAuthAuthClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*OAuthAuthCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &OAuthAuthCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for OAuthAuth.
-func (c *OAuthAuthClient) Update() *OAuthAuthUpdate {
-	mutation := newOAuthAuthMutation(c.config, OpUpdate)
-	return &OAuthAuthUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *OAuthAuthClient) UpdateOne(oa *OAuthAuth) *OAuthAuthUpdateOne {
-	mutation := newOAuthAuthMutation(c.config, OpUpdateOne, withOAuthAuth(oa))
-	return &OAuthAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *OAuthAuthClient) UpdateOneID(id uuid.UUID) *OAuthAuthUpdateOne {
-	mutation := newOAuthAuthMutation(c.config, OpUpdateOne, withOAuthAuthID(id))
-	return &OAuthAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for OAuthAuth.
-func (c *OAuthAuthClient) Delete() *OAuthAuthDelete {
-	mutation := newOAuthAuthMutation(c.config, OpDelete)
-	return &OAuthAuthDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *OAuthAuthClient) DeleteOne(oa *OAuthAuth) *OAuthAuthDeleteOne {
-	return c.DeleteOneID(oa.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *OAuthAuthClient) DeleteOneID(id uuid.UUID) *OAuthAuthDeleteOne {
-	builder := c.Delete().Where(oauthauth.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &OAuthAuthDeleteOne{builder}
-}
-
-// Query returns a query builder for OAuthAuth.
-func (c *OAuthAuthClient) Query() *OAuthAuthQuery {
-	return &OAuthAuthQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeOAuthAuth},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a OAuthAuth entity by its id.
-func (c *OAuthAuthClient) Get(ctx context.Context, id uuid.UUID) (*OAuthAuth, error) {
-	return c.Query().Where(oauthauth.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *OAuthAuthClient) GetX(ctx context.Context, id uuid.UUID) *OAuthAuth {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryAuthAccount queries the auth_account edge of a OAuthAuth.
-func (c *OAuthAuthClient) QueryAuthAccount(oa *OAuthAuth) *AuthAccountQuery {
-	query := (&AuthAccountClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := oa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(oauthauth.Table, oauthauth.FieldID, id),
-			sqlgraph.To(authaccount.Table, authaccount.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, oauthauth.AuthAccountTable, oauthauth.AuthAccountColumn),
-		)
-		fromV = sqlgraph.Neighbors(oa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *OAuthAuthClient) Hooks() []Hook {
-	return c.hooks.OAuthAuth
-}
-
-// Interceptors returns the client interceptors.
-func (c *OAuthAuthClient) Interceptors() []Interceptor {
-	return c.inters.OAuthAuth
-}
-
-func (c *OAuthAuthClient) mutate(ctx context.Context, m *OAuthAuthMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&OAuthAuthCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&OAuthAuthUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&OAuthAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&OAuthAuthDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown OAuthAuth mutation op: %q", m.Op())
-	}
-}
-
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AuthAccount, LocalAuth, OAuthAuth []ent.Hook
+		AuthAccount []ent.Hook
 	}
 	inters struct {
-		AuthAccount, LocalAuth, OAuthAuth []ent.Interceptor
+		AuthAccount []ent.Interceptor
 	}
 )

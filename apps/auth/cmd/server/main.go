@@ -12,9 +12,13 @@ import (
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 	httpserver "mandacode.com/accounts/auth/cmd/server/http"
+	kafkaserver "mandacode.com/accounts/auth/cmd/server/kafka"
 	"mandacode.com/accounts/auth/config"
-	"mandacode.com/accounts/auth/ent/oauthauth"
-	handlerv1 "mandacode.com/accounts/auth/internal/handler/v1"
+	"mandacode.com/accounts/auth/ent/authaccount"
+
+	_ "mandacode.com/accounts/auth/ent/runtime"
+	"mandacode.com/accounts/auth/internal/handler/v1/http"
+	kafkahandlerv1 "mandacode.com/accounts/auth/internal/handler/v1/kafka"
 	dbinfra "mandacode.com/accounts/auth/internal/infra/database"
 	"mandacode.com/accounts/auth/internal/infra/mailer"
 	"mandacode.com/accounts/auth/internal/infra/oauthapi"
@@ -24,6 +28,7 @@ import (
 	tokenrepo "mandacode.com/accounts/auth/internal/repository/token"
 	"mandacode.com/accounts/auth/internal/usecase/localauth"
 	oauthusecase "mandacode.com/accounts/auth/internal/usecase/oauthauth"
+	"mandacode.com/accounts/auth/internal/usecase/userevent"
 	"mandacode.com/accounts/auth/internal/util"
 )
 
@@ -76,6 +81,12 @@ func main() {
 	}
 	mailer := mailer.NewMailer(mailWriter)
 
+	userEventReader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: []string{cfg.UserEventReader.Address},
+		Topic:   cfg.UserEventReader.Topic,
+		GroupID: cfg.UserEventReader.GroupID,
+	})
+
 	// Initialize OAuth APIs
 	googleApi, err := oauthapi.NewGoogleAPI(cfg.GoogleOAuth.ClientID, cfg.GoogleOAuth.ClientSecret, cfg.GoogleOAuth.RedirectURL, validator)
 	if err != nil {
@@ -89,10 +100,10 @@ func main() {
 	if err != nil {
 		logger.Fatal("failed to create Kakao OAuth API", zap.Error(err))
 	}
-	oauthApis := map[oauthauth.Provider]oauthapi.OAuthAPI{
-		oauthauth.ProviderGoogle: googleApi,
-		oauthauth.ProviderNaver:  naverApi,
-		oauthauth.ProviderKakao:  kakaoApi,
+	oauthApis := map[authaccount.Provider]oauthapi.OAuthAPI{
+		authaccount.ProviderGoogle: googleApi,
+		authaccount.ProviderNaver:  naverApi,
+		authaccount.ProviderKakao:  kakaoApi,
 	}
 
 	// Initialize random code generators
@@ -101,8 +112,6 @@ func main() {
 
 	// Initialize repositories
 	authAccountRepo := dbrepository.NewAuthAccountRepository(dbClient)
-	localAuthRepo := dbrepository.NewLocalAuthRepository(dbClient)
-	oauthAuthRepo := dbrepository.NewOAuthAuthRepository(dbClient)
 	tokenRepo := tokenrepo.NewTokenRepository(tokenClient)
 
 	// Initialize code managers
@@ -110,25 +119,34 @@ func main() {
 	emailCodeManager := coderepo.NewCodeManager(emailCodeGenerator, cfg.EmailCodeStore.Timeout, emailCodeStore, cfg.EmailCodeStore.Prefix)
 
 	// Initialize use cases
-	localLoginUsecase := localauth.NewLoginUsecase(authAccountRepo, localAuthRepo, tokenRepo, loginCodeManager)
-	localSignupUsecase := localauth.NewSignupUsecase(authAccountRepo, localAuthRepo, tokenRepo, mailer, emailCodeManager, cfg.VerifyEmailURL)
-	oauthLoginUsecase := oauthusecase.NewLoginUsecase(authAccountRepo, oauthAuthRepo, tokenRepo, loginCodeManager, oauthApis)
+	localLoginUsecase := localauth.NewLoginUsecase(authAccountRepo, tokenRepo, loginCodeManager)
+	localSignupUsecase := localauth.NewSignupUsecase(authAccountRepo, tokenRepo, mailer, emailCodeManager, cfg.VerifyEmailURL)
+	oauthLoginUsecase := oauthusecase.NewLoginUsecase(authAccountRepo, tokenRepo, loginCodeManager, oauthApis)
+
+	userEventUsecase := userevent.NewUserEventUsecase(authAccountRepo)
 
 	// Initialize handlers
-	localAuthHandler, err := handlerv1.NewLocalAuthHandler(localLoginUsecase, localSignupUsecase, logger, validator)
+	localAuthHandler, err := httphandlerv1.NewLocalAuthHandler(localLoginUsecase, localSignupUsecase, logger, validator)
 	if err != nil {
 		logger.Fatal("failed to create local auth handler", zap.Error(err))
 	}
-	oauthHandler, err := handlerv1.NewOAuthHandler(oauthLoginUsecase, logger, validator)
+	oauthHandler, err := httphandlerv1.NewOAuthHandler(oauthLoginUsecase, logger, validator)
 	if err != nil {
 		logger.Fatal("failed to create OAuth handler", zap.Error(err))
 	}
+	userEventHandler := kafkahandlerv1.NewUserEventHandler(userEventUsecase)
 
 	// Initialize servers
 	httpServer := httpserver.NewServer(cfg.Port, logger, localAuthHandler, oauthHandler, sessionStore)
+	kafkaServer := kafkaserver.NewKafkaServer(logger, []*kafkaserver.ReaderHandler{
+		{
+			Reader:  userEventReader,
+			Handler: userEventHandler,
+		},
+	})
 
 	manager := server.NewServerManager(
-		[]server.Server{httpServer},
+		[]server.Server{httpServer, kafkaServer},
 	)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

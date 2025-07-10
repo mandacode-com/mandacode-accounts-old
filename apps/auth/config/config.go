@@ -22,6 +22,12 @@ type KafkaWriterConfig struct {
 	Topic   string `validate:"required"`
 }
 
+type KafkaReaderConfig struct {
+	Address string `validate:"required"`
+	Topic   string `validate:"required"`
+	GroupID string `validate:"required"`
+}
+
 type RedisStoreConfig struct {
 	Address  string        `validate:"required"`
 	Password string        `validate:"omitempty"`
@@ -41,6 +47,7 @@ type Config struct {
 	EmailCodeStore   RedisStoreConfig    `validate:"required"` // Store for email verification codes
 	SessionStore     RedisStoreConfig    `validate:"required"`
 	MailWriter       KafkaWriterConfig   `validate:"required"`
+	UserEventReader  KafkaReaderConfig   `validate:"required"`
 	GoogleOAuth      OAuthProviderConfig `validate:"required"`
 	NaverOAuth       OAuthProviderConfig `validate:"required"`
 	KakaoOAuth       OAuthProviderConfig `validate:"required"`
@@ -105,6 +112,11 @@ func LoadConfig(validator *validator.Validate) (*Config, error) {
 		MailWriter: KafkaWriterConfig{
 			Address: getEnv("MAIL_WRITER_ADDRESS", ""),
 			Topic:   getEnv("MAIL_WRITER_TOPIC", "mail"),
+		},
+		UserEventReader: KafkaReaderConfig{
+			Address: getEnv("USER_EVENT_READER_ADDRESS", ""),
+			Topic:   getEnv("USER_EVENT_READER_TOPIC", "user_event"),
+			GroupID: getEnv("USER_EVENT_READER_GROUP_ID", "user_event_group"),
 		},
 		GoogleOAuth: OAuthProviderConfig{
 			ClientID:     getEnv("GOOGLE_CLIENT_ID", ""),

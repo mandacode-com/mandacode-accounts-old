@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -14,20 +13,16 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"mandacode.com/accounts/auth/ent/authaccount"
-	"mandacode.com/accounts/auth/ent/localauth"
-	"mandacode.com/accounts/auth/ent/oauthauth"
 	"mandacode.com/accounts/auth/ent/predicate"
 )
 
 // AuthAccountQuery is the builder for querying AuthAccount entities.
 type AuthAccountQuery struct {
 	config
-	ctx            *QueryContext
-	order          []authaccount.OrderOption
-	inters         []Interceptor
-	predicates     []predicate.AuthAccount
-	withLocalAuths *LocalAuthQuery
-	withOauthAuths *OAuthAuthQuery
+	ctx        *QueryContext
+	order      []authaccount.OrderOption
+	inters     []Interceptor
+	predicates []predicate.AuthAccount
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,50 +57,6 @@ func (aaq *AuthAccountQuery) Unique(unique bool) *AuthAccountQuery {
 func (aaq *AuthAccountQuery) Order(o ...authaccount.OrderOption) *AuthAccountQuery {
 	aaq.order = append(aaq.order, o...)
 	return aaq
-}
-
-// QueryLocalAuths chains the current query on the "local_auths" edge.
-func (aaq *AuthAccountQuery) QueryLocalAuths() *LocalAuthQuery {
-	query := (&LocalAuthClient{config: aaq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := aaq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := aaq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(authaccount.Table, authaccount.FieldID, selector),
-			sqlgraph.To(localauth.Table, localauth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, authaccount.LocalAuthsTable, authaccount.LocalAuthsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(aaq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryOauthAuths chains the current query on the "oauth_auths" edge.
-func (aaq *AuthAccountQuery) QueryOauthAuths() *OAuthAuthQuery {
-	query := (&OAuthAuthClient{config: aaq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := aaq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := aaq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(authaccount.Table, authaccount.FieldID, selector),
-			sqlgraph.To(oauthauth.Table, oauthauth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, authaccount.OauthAuthsTable, authaccount.OauthAuthsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(aaq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first AuthAccount entity from the query.
@@ -295,39 +246,15 @@ func (aaq *AuthAccountQuery) Clone() *AuthAccountQuery {
 		return nil
 	}
 	return &AuthAccountQuery{
-		config:         aaq.config,
-		ctx:            aaq.ctx.Clone(),
-		order:          append([]authaccount.OrderOption{}, aaq.order...),
-		inters:         append([]Interceptor{}, aaq.inters...),
-		predicates:     append([]predicate.AuthAccount{}, aaq.predicates...),
-		withLocalAuths: aaq.withLocalAuths.Clone(),
-		withOauthAuths: aaq.withOauthAuths.Clone(),
+		config:     aaq.config,
+		ctx:        aaq.ctx.Clone(),
+		order:      append([]authaccount.OrderOption{}, aaq.order...),
+		inters:     append([]Interceptor{}, aaq.inters...),
+		predicates: append([]predicate.AuthAccount{}, aaq.predicates...),
 		// clone intermediate query.
 		sql:  aaq.sql.Clone(),
 		path: aaq.path,
 	}
-}
-
-// WithLocalAuths tells the query-builder to eager-load the nodes that are connected to
-// the "local_auths" edge. The optional arguments are used to configure the query builder of the edge.
-func (aaq *AuthAccountQuery) WithLocalAuths(opts ...func(*LocalAuthQuery)) *AuthAccountQuery {
-	query := (&LocalAuthClient{config: aaq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	aaq.withLocalAuths = query
-	return aaq
-}
-
-// WithOauthAuths tells the query-builder to eager-load the nodes that are connected to
-// the "oauth_auths" edge. The optional arguments are used to configure the query builder of the edge.
-func (aaq *AuthAccountQuery) WithOauthAuths(opts ...func(*OAuthAuthQuery)) *AuthAccountQuery {
-	query := (&OAuthAuthClient{config: aaq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	aaq.withOauthAuths = query
-	return aaq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -406,12 +333,8 @@ func (aaq *AuthAccountQuery) prepareQuery(ctx context.Context) error {
 
 func (aaq *AuthAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AuthAccount, error) {
 	var (
-		nodes       = []*AuthAccount{}
-		_spec       = aaq.querySpec()
-		loadedTypes = [2]bool{
-			aaq.withLocalAuths != nil,
-			aaq.withOauthAuths != nil,
-		}
+		nodes = []*AuthAccount{}
+		_spec = aaq.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*AuthAccount).scanValues(nil, columns)
@@ -419,7 +342,6 @@ func (aaq *AuthAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &AuthAccount{config: aaq.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -431,82 +353,7 @@ func (aaq *AuthAccountQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := aaq.withLocalAuths; query != nil {
-		if err := aaq.loadLocalAuths(ctx, query, nodes,
-			func(n *AuthAccount) { n.Edges.LocalAuths = []*LocalAuth{} },
-			func(n *AuthAccount, e *LocalAuth) { n.Edges.LocalAuths = append(n.Edges.LocalAuths, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := aaq.withOauthAuths; query != nil {
-		if err := aaq.loadOauthAuths(ctx, query, nodes,
-			func(n *AuthAccount) { n.Edges.OauthAuths = []*OAuthAuth{} },
-			func(n *AuthAccount, e *OAuthAuth) { n.Edges.OauthAuths = append(n.Edges.OauthAuths, e) }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
-}
-
-func (aaq *AuthAccountQuery) loadLocalAuths(ctx context.Context, query *LocalAuthQuery, nodes []*AuthAccount, init func(*AuthAccount), assign func(*AuthAccount, *LocalAuth)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*AuthAccount)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(localauth.FieldAuthAccountID)
-	}
-	query.Where(predicate.LocalAuth(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(authaccount.LocalAuthsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.AuthAccountID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "auth_account_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (aaq *AuthAccountQuery) loadOauthAuths(ctx context.Context, query *OAuthAuthQuery, nodes []*AuthAccount, init func(*AuthAccount), assign func(*AuthAccount, *OAuthAuth)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*AuthAccount)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(oauthauth.FieldAuthAccountID)
-	}
-	query.Where(predicate.OAuthAuth(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(authaccount.OauthAuthsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.AuthAccountID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "auth_account_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
 }
 
 func (aaq *AuthAccountQuery) sqlCount(ctx context.Context) (int, error) {

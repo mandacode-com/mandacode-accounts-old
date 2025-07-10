@@ -13,8 +13,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"mandacode.com/accounts/auth/ent/authaccount"
-	"mandacode.com/accounts/auth/ent/localauth"
-	"mandacode.com/accounts/auth/ent/oauthauth"
 	"mandacode.com/accounts/auth/ent/predicate"
 )
 
@@ -45,101 +43,92 @@ func (aau *AuthAccountUpdate) SetNillableUserID(u *uuid.UUID) *AuthAccountUpdate
 	return aau
 }
 
+// SetProvider sets the "provider" field.
+func (aau *AuthAccountUpdate) SetProvider(a authaccount.Provider) *AuthAccountUpdate {
+	aau.mutation.SetProvider(a)
+	return aau
+}
+
+// SetNillableProvider sets the "provider" field if the given value is not nil.
+func (aau *AuthAccountUpdate) SetNillableProvider(a *authaccount.Provider) *AuthAccountUpdate {
+	if a != nil {
+		aau.SetProvider(*a)
+	}
+	return aau
+}
+
+// SetProviderID sets the "provider_id" field.
+func (aau *AuthAccountUpdate) SetProviderID(s string) *AuthAccountUpdate {
+	aau.mutation.SetProviderID(s)
+	return aau
+}
+
+// SetNillableProviderID sets the "provider_id" field if the given value is not nil.
+func (aau *AuthAccountUpdate) SetNillableProviderID(s *string) *AuthAccountUpdate {
+	if s != nil {
+		aau.SetProviderID(*s)
+	}
+	return aau
+}
+
+// ClearProviderID clears the value of the "provider_id" field.
+func (aau *AuthAccountUpdate) ClearProviderID() *AuthAccountUpdate {
+	aau.mutation.ClearProviderID()
+	return aau
+}
+
+// SetIsVerified sets the "is_verified" field.
+func (aau *AuthAccountUpdate) SetIsVerified(b bool) *AuthAccountUpdate {
+	aau.mutation.SetIsVerified(b)
+	return aau
+}
+
+// SetNillableIsVerified sets the "is_verified" field if the given value is not nil.
+func (aau *AuthAccountUpdate) SetNillableIsVerified(b *bool) *AuthAccountUpdate {
+	if b != nil {
+		aau.SetIsVerified(*b)
+	}
+	return aau
+}
+
+// SetEmail sets the "email" field.
+func (aau *AuthAccountUpdate) SetEmail(s string) *AuthAccountUpdate {
+	aau.mutation.SetEmail(s)
+	return aau
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (aau *AuthAccountUpdate) SetNillableEmail(s *string) *AuthAccountUpdate {
+	if s != nil {
+		aau.SetEmail(*s)
+	}
+	return aau
+}
+
+// SetPasswordHash sets the "password_hash" field.
+func (aau *AuthAccountUpdate) SetPasswordHash(s string) *AuthAccountUpdate {
+	aau.mutation.SetPasswordHash(s)
+	return aau
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (aau *AuthAccountUpdate) SetNillablePasswordHash(s *string) *AuthAccountUpdate {
+	if s != nil {
+		aau.SetPasswordHash(*s)
+	}
+	return aau
+}
+
+// ClearPasswordHash clears the value of the "password_hash" field.
+func (aau *AuthAccountUpdate) ClearPasswordHash() *AuthAccountUpdate {
+	aau.mutation.ClearPasswordHash()
+	return aau
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (aau *AuthAccountUpdate) SetUpdatedAt(t time.Time) *AuthAccountUpdate {
 	aau.mutation.SetUpdatedAt(t)
 	return aau
-}
-
-// SetLastLoginAt sets the "last_login_at" field.
-func (aau *AuthAccountUpdate) SetLastLoginAt(t time.Time) *AuthAccountUpdate {
-	aau.mutation.SetLastLoginAt(t)
-	return aau
-}
-
-// SetNillableLastLoginAt sets the "last_login_at" field if the given value is not nil.
-func (aau *AuthAccountUpdate) SetNillableLastLoginAt(t *time.Time) *AuthAccountUpdate {
-	if t != nil {
-		aau.SetLastLoginAt(*t)
-	}
-	return aau
-}
-
-// ClearLastLoginAt clears the value of the "last_login_at" field.
-func (aau *AuthAccountUpdate) ClearLastLoginAt() *AuthAccountUpdate {
-	aau.mutation.ClearLastLoginAt()
-	return aau
-}
-
-// SetLastFailedLoginAt sets the "last_failed_login_at" field.
-func (aau *AuthAccountUpdate) SetLastFailedLoginAt(t time.Time) *AuthAccountUpdate {
-	aau.mutation.SetLastFailedLoginAt(t)
-	return aau
-}
-
-// SetNillableLastFailedLoginAt sets the "last_failed_login_at" field if the given value is not nil.
-func (aau *AuthAccountUpdate) SetNillableLastFailedLoginAt(t *time.Time) *AuthAccountUpdate {
-	if t != nil {
-		aau.SetLastFailedLoginAt(*t)
-	}
-	return aau
-}
-
-// ClearLastFailedLoginAt clears the value of the "last_failed_login_at" field.
-func (aau *AuthAccountUpdate) ClearLastFailedLoginAt() *AuthAccountUpdate {
-	aau.mutation.ClearLastFailedLoginAt()
-	return aau
-}
-
-// SetFailedLoginAttempts sets the "failed_login_attempts" field.
-func (aau *AuthAccountUpdate) SetFailedLoginAttempts(i int) *AuthAccountUpdate {
-	aau.mutation.ResetFailedLoginAttempts()
-	aau.mutation.SetFailedLoginAttempts(i)
-	return aau
-}
-
-// SetNillableFailedLoginAttempts sets the "failed_login_attempts" field if the given value is not nil.
-func (aau *AuthAccountUpdate) SetNillableFailedLoginAttempts(i *int) *AuthAccountUpdate {
-	if i != nil {
-		aau.SetFailedLoginAttempts(*i)
-	}
-	return aau
-}
-
-// AddFailedLoginAttempts adds i to the "failed_login_attempts" field.
-func (aau *AuthAccountUpdate) AddFailedLoginAttempts(i int) *AuthAccountUpdate {
-	aau.mutation.AddFailedLoginAttempts(i)
-	return aau
-}
-
-// AddLocalAuthIDs adds the "local_auths" edge to the LocalAuth entity by IDs.
-func (aau *AuthAccountUpdate) AddLocalAuthIDs(ids ...uuid.UUID) *AuthAccountUpdate {
-	aau.mutation.AddLocalAuthIDs(ids...)
-	return aau
-}
-
-// AddLocalAuths adds the "local_auths" edges to the LocalAuth entity.
-func (aau *AuthAccountUpdate) AddLocalAuths(l ...*LocalAuth) *AuthAccountUpdate {
-	ids := make([]uuid.UUID, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
-	}
-	return aau.AddLocalAuthIDs(ids...)
-}
-
-// AddOauthAuthIDs adds the "oauth_auths" edge to the OAuthAuth entity by IDs.
-func (aau *AuthAccountUpdate) AddOauthAuthIDs(ids ...uuid.UUID) *AuthAccountUpdate {
-	aau.mutation.AddOauthAuthIDs(ids...)
-	return aau
-}
-
-// AddOauthAuths adds the "oauth_auths" edges to the OAuthAuth entity.
-func (aau *AuthAccountUpdate) AddOauthAuths(o ...*OAuthAuth) *AuthAccountUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return aau.AddOauthAuthIDs(ids...)
 }
 
 // Mutation returns the AuthAccountMutation object of the builder.
@@ -147,51 +136,11 @@ func (aau *AuthAccountUpdate) Mutation() *AuthAccountMutation {
 	return aau.mutation
 }
 
-// ClearLocalAuths clears all "local_auths" edges to the LocalAuth entity.
-func (aau *AuthAccountUpdate) ClearLocalAuths() *AuthAccountUpdate {
-	aau.mutation.ClearLocalAuths()
-	return aau
-}
-
-// RemoveLocalAuthIDs removes the "local_auths" edge to LocalAuth entities by IDs.
-func (aau *AuthAccountUpdate) RemoveLocalAuthIDs(ids ...uuid.UUID) *AuthAccountUpdate {
-	aau.mutation.RemoveLocalAuthIDs(ids...)
-	return aau
-}
-
-// RemoveLocalAuths removes "local_auths" edges to LocalAuth entities.
-func (aau *AuthAccountUpdate) RemoveLocalAuths(l ...*LocalAuth) *AuthAccountUpdate {
-	ids := make([]uuid.UUID, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
-	}
-	return aau.RemoveLocalAuthIDs(ids...)
-}
-
-// ClearOauthAuths clears all "oauth_auths" edges to the OAuthAuth entity.
-func (aau *AuthAccountUpdate) ClearOauthAuths() *AuthAccountUpdate {
-	aau.mutation.ClearOauthAuths()
-	return aau
-}
-
-// RemoveOauthAuthIDs removes the "oauth_auths" edge to OAuthAuth entities by IDs.
-func (aau *AuthAccountUpdate) RemoveOauthAuthIDs(ids ...uuid.UUID) *AuthAccountUpdate {
-	aau.mutation.RemoveOauthAuthIDs(ids...)
-	return aau
-}
-
-// RemoveOauthAuths removes "oauth_auths" edges to OAuthAuth entities.
-func (aau *AuthAccountUpdate) RemoveOauthAuths(o ...*OAuthAuth) *AuthAccountUpdate {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return aau.RemoveOauthAuthIDs(ids...)
-}
-
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (aau *AuthAccountUpdate) Save(ctx context.Context) (int, error) {
-	aau.defaults()
+	if err := aau.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, aau.sqlSave, aau.mutation, aau.hooks)
 }
 
@@ -218,14 +167,36 @@ func (aau *AuthAccountUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (aau *AuthAccountUpdate) defaults() {
+func (aau *AuthAccountUpdate) defaults() error {
 	if _, ok := aau.mutation.UpdatedAt(); !ok {
+		if authaccount.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized authaccount.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := authaccount.UpdateDefaultUpdatedAt()
 		aau.mutation.SetUpdatedAt(v)
 	}
+	return nil
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (aau *AuthAccountUpdate) check() error {
+	if v, ok := aau.mutation.Provider(); ok {
+		if err := authaccount.ProviderValidator(v); err != nil {
+			return &ValidationError{Name: "provider", err: fmt.Errorf(`ent: validator failed for field "AuthAccount.provider": %w`, err)}
+		}
+	}
+	if v, ok := aau.mutation.Email(); ok {
+		if err := authaccount.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "AuthAccount.email": %w`, err)}
+		}
+	}
+	return nil
 }
 
 func (aau *AuthAccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := aau.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(authaccount.Table, authaccount.Columns, sqlgraph.NewFieldSpec(authaccount.FieldID, field.TypeUUID))
 	if ps := aau.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -237,116 +208,29 @@ func (aau *AuthAccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := aau.mutation.UserID(); ok {
 		_spec.SetField(authaccount.FieldUserID, field.TypeUUID, value)
 	}
+	if value, ok := aau.mutation.Provider(); ok {
+		_spec.SetField(authaccount.FieldProvider, field.TypeEnum, value)
+	}
+	if value, ok := aau.mutation.ProviderID(); ok {
+		_spec.SetField(authaccount.FieldProviderID, field.TypeString, value)
+	}
+	if aau.mutation.ProviderIDCleared() {
+		_spec.ClearField(authaccount.FieldProviderID, field.TypeString)
+	}
+	if value, ok := aau.mutation.IsVerified(); ok {
+		_spec.SetField(authaccount.FieldIsVerified, field.TypeBool, value)
+	}
+	if value, ok := aau.mutation.Email(); ok {
+		_spec.SetField(authaccount.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := aau.mutation.PasswordHash(); ok {
+		_spec.SetField(authaccount.FieldPasswordHash, field.TypeString, value)
+	}
+	if aau.mutation.PasswordHashCleared() {
+		_spec.ClearField(authaccount.FieldPasswordHash, field.TypeString)
+	}
 	if value, ok := aau.mutation.UpdatedAt(); ok {
 		_spec.SetField(authaccount.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := aau.mutation.LastLoginAt(); ok {
-		_spec.SetField(authaccount.FieldLastLoginAt, field.TypeTime, value)
-	}
-	if aau.mutation.LastLoginAtCleared() {
-		_spec.ClearField(authaccount.FieldLastLoginAt, field.TypeTime)
-	}
-	if value, ok := aau.mutation.LastFailedLoginAt(); ok {
-		_spec.SetField(authaccount.FieldLastFailedLoginAt, field.TypeTime, value)
-	}
-	if aau.mutation.LastFailedLoginAtCleared() {
-		_spec.ClearField(authaccount.FieldLastFailedLoginAt, field.TypeTime)
-	}
-	if value, ok := aau.mutation.FailedLoginAttempts(); ok {
-		_spec.SetField(authaccount.FieldFailedLoginAttempts, field.TypeInt, value)
-	}
-	if value, ok := aau.mutation.AddedFailedLoginAttempts(); ok {
-		_spec.AddField(authaccount.FieldFailedLoginAttempts, field.TypeInt, value)
-	}
-	if aau.mutation.LocalAuthsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.LocalAuthsTable,
-			Columns: []string{authaccount.LocalAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(localauth.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := aau.mutation.RemovedLocalAuthsIDs(); len(nodes) > 0 && !aau.mutation.LocalAuthsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.LocalAuthsTable,
-			Columns: []string{authaccount.LocalAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(localauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := aau.mutation.LocalAuthsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.LocalAuthsTable,
-			Columns: []string{authaccount.LocalAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(localauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if aau.mutation.OauthAuthsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.OauthAuthsTable,
-			Columns: []string{authaccount.OauthAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthauth.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := aau.mutation.RemovedOauthAuthsIDs(); len(nodes) > 0 && !aau.mutation.OauthAuthsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.OauthAuthsTable,
-			Columns: []string{authaccount.OauthAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := aau.mutation.OauthAuthsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.OauthAuthsTable,
-			Columns: []string{authaccount.OauthAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, aau.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -382,148 +266,97 @@ func (aauo *AuthAccountUpdateOne) SetNillableUserID(u *uuid.UUID) *AuthAccountUp
 	return aauo
 }
 
+// SetProvider sets the "provider" field.
+func (aauo *AuthAccountUpdateOne) SetProvider(a authaccount.Provider) *AuthAccountUpdateOne {
+	aauo.mutation.SetProvider(a)
+	return aauo
+}
+
+// SetNillableProvider sets the "provider" field if the given value is not nil.
+func (aauo *AuthAccountUpdateOne) SetNillableProvider(a *authaccount.Provider) *AuthAccountUpdateOne {
+	if a != nil {
+		aauo.SetProvider(*a)
+	}
+	return aauo
+}
+
+// SetProviderID sets the "provider_id" field.
+func (aauo *AuthAccountUpdateOne) SetProviderID(s string) *AuthAccountUpdateOne {
+	aauo.mutation.SetProviderID(s)
+	return aauo
+}
+
+// SetNillableProviderID sets the "provider_id" field if the given value is not nil.
+func (aauo *AuthAccountUpdateOne) SetNillableProviderID(s *string) *AuthAccountUpdateOne {
+	if s != nil {
+		aauo.SetProviderID(*s)
+	}
+	return aauo
+}
+
+// ClearProviderID clears the value of the "provider_id" field.
+func (aauo *AuthAccountUpdateOne) ClearProviderID() *AuthAccountUpdateOne {
+	aauo.mutation.ClearProviderID()
+	return aauo
+}
+
+// SetIsVerified sets the "is_verified" field.
+func (aauo *AuthAccountUpdateOne) SetIsVerified(b bool) *AuthAccountUpdateOne {
+	aauo.mutation.SetIsVerified(b)
+	return aauo
+}
+
+// SetNillableIsVerified sets the "is_verified" field if the given value is not nil.
+func (aauo *AuthAccountUpdateOne) SetNillableIsVerified(b *bool) *AuthAccountUpdateOne {
+	if b != nil {
+		aauo.SetIsVerified(*b)
+	}
+	return aauo
+}
+
+// SetEmail sets the "email" field.
+func (aauo *AuthAccountUpdateOne) SetEmail(s string) *AuthAccountUpdateOne {
+	aauo.mutation.SetEmail(s)
+	return aauo
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (aauo *AuthAccountUpdateOne) SetNillableEmail(s *string) *AuthAccountUpdateOne {
+	if s != nil {
+		aauo.SetEmail(*s)
+	}
+	return aauo
+}
+
+// SetPasswordHash sets the "password_hash" field.
+func (aauo *AuthAccountUpdateOne) SetPasswordHash(s string) *AuthAccountUpdateOne {
+	aauo.mutation.SetPasswordHash(s)
+	return aauo
+}
+
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
+func (aauo *AuthAccountUpdateOne) SetNillablePasswordHash(s *string) *AuthAccountUpdateOne {
+	if s != nil {
+		aauo.SetPasswordHash(*s)
+	}
+	return aauo
+}
+
+// ClearPasswordHash clears the value of the "password_hash" field.
+func (aauo *AuthAccountUpdateOne) ClearPasswordHash() *AuthAccountUpdateOne {
+	aauo.mutation.ClearPasswordHash()
+	return aauo
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (aauo *AuthAccountUpdateOne) SetUpdatedAt(t time.Time) *AuthAccountUpdateOne {
 	aauo.mutation.SetUpdatedAt(t)
 	return aauo
 }
 
-// SetLastLoginAt sets the "last_login_at" field.
-func (aauo *AuthAccountUpdateOne) SetLastLoginAt(t time.Time) *AuthAccountUpdateOne {
-	aauo.mutation.SetLastLoginAt(t)
-	return aauo
-}
-
-// SetNillableLastLoginAt sets the "last_login_at" field if the given value is not nil.
-func (aauo *AuthAccountUpdateOne) SetNillableLastLoginAt(t *time.Time) *AuthAccountUpdateOne {
-	if t != nil {
-		aauo.SetLastLoginAt(*t)
-	}
-	return aauo
-}
-
-// ClearLastLoginAt clears the value of the "last_login_at" field.
-func (aauo *AuthAccountUpdateOne) ClearLastLoginAt() *AuthAccountUpdateOne {
-	aauo.mutation.ClearLastLoginAt()
-	return aauo
-}
-
-// SetLastFailedLoginAt sets the "last_failed_login_at" field.
-func (aauo *AuthAccountUpdateOne) SetLastFailedLoginAt(t time.Time) *AuthAccountUpdateOne {
-	aauo.mutation.SetLastFailedLoginAt(t)
-	return aauo
-}
-
-// SetNillableLastFailedLoginAt sets the "last_failed_login_at" field if the given value is not nil.
-func (aauo *AuthAccountUpdateOne) SetNillableLastFailedLoginAt(t *time.Time) *AuthAccountUpdateOne {
-	if t != nil {
-		aauo.SetLastFailedLoginAt(*t)
-	}
-	return aauo
-}
-
-// ClearLastFailedLoginAt clears the value of the "last_failed_login_at" field.
-func (aauo *AuthAccountUpdateOne) ClearLastFailedLoginAt() *AuthAccountUpdateOne {
-	aauo.mutation.ClearLastFailedLoginAt()
-	return aauo
-}
-
-// SetFailedLoginAttempts sets the "failed_login_attempts" field.
-func (aauo *AuthAccountUpdateOne) SetFailedLoginAttempts(i int) *AuthAccountUpdateOne {
-	aauo.mutation.ResetFailedLoginAttempts()
-	aauo.mutation.SetFailedLoginAttempts(i)
-	return aauo
-}
-
-// SetNillableFailedLoginAttempts sets the "failed_login_attempts" field if the given value is not nil.
-func (aauo *AuthAccountUpdateOne) SetNillableFailedLoginAttempts(i *int) *AuthAccountUpdateOne {
-	if i != nil {
-		aauo.SetFailedLoginAttempts(*i)
-	}
-	return aauo
-}
-
-// AddFailedLoginAttempts adds i to the "failed_login_attempts" field.
-func (aauo *AuthAccountUpdateOne) AddFailedLoginAttempts(i int) *AuthAccountUpdateOne {
-	aauo.mutation.AddFailedLoginAttempts(i)
-	return aauo
-}
-
-// AddLocalAuthIDs adds the "local_auths" edge to the LocalAuth entity by IDs.
-func (aauo *AuthAccountUpdateOne) AddLocalAuthIDs(ids ...uuid.UUID) *AuthAccountUpdateOne {
-	aauo.mutation.AddLocalAuthIDs(ids...)
-	return aauo
-}
-
-// AddLocalAuths adds the "local_auths" edges to the LocalAuth entity.
-func (aauo *AuthAccountUpdateOne) AddLocalAuths(l ...*LocalAuth) *AuthAccountUpdateOne {
-	ids := make([]uuid.UUID, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
-	}
-	return aauo.AddLocalAuthIDs(ids...)
-}
-
-// AddOauthAuthIDs adds the "oauth_auths" edge to the OAuthAuth entity by IDs.
-func (aauo *AuthAccountUpdateOne) AddOauthAuthIDs(ids ...uuid.UUID) *AuthAccountUpdateOne {
-	aauo.mutation.AddOauthAuthIDs(ids...)
-	return aauo
-}
-
-// AddOauthAuths adds the "oauth_auths" edges to the OAuthAuth entity.
-func (aauo *AuthAccountUpdateOne) AddOauthAuths(o ...*OAuthAuth) *AuthAccountUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return aauo.AddOauthAuthIDs(ids...)
-}
-
 // Mutation returns the AuthAccountMutation object of the builder.
 func (aauo *AuthAccountUpdateOne) Mutation() *AuthAccountMutation {
 	return aauo.mutation
-}
-
-// ClearLocalAuths clears all "local_auths" edges to the LocalAuth entity.
-func (aauo *AuthAccountUpdateOne) ClearLocalAuths() *AuthAccountUpdateOne {
-	aauo.mutation.ClearLocalAuths()
-	return aauo
-}
-
-// RemoveLocalAuthIDs removes the "local_auths" edge to LocalAuth entities by IDs.
-func (aauo *AuthAccountUpdateOne) RemoveLocalAuthIDs(ids ...uuid.UUID) *AuthAccountUpdateOne {
-	aauo.mutation.RemoveLocalAuthIDs(ids...)
-	return aauo
-}
-
-// RemoveLocalAuths removes "local_auths" edges to LocalAuth entities.
-func (aauo *AuthAccountUpdateOne) RemoveLocalAuths(l ...*LocalAuth) *AuthAccountUpdateOne {
-	ids := make([]uuid.UUID, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
-	}
-	return aauo.RemoveLocalAuthIDs(ids...)
-}
-
-// ClearOauthAuths clears all "oauth_auths" edges to the OAuthAuth entity.
-func (aauo *AuthAccountUpdateOne) ClearOauthAuths() *AuthAccountUpdateOne {
-	aauo.mutation.ClearOauthAuths()
-	return aauo
-}
-
-// RemoveOauthAuthIDs removes the "oauth_auths" edge to OAuthAuth entities by IDs.
-func (aauo *AuthAccountUpdateOne) RemoveOauthAuthIDs(ids ...uuid.UUID) *AuthAccountUpdateOne {
-	aauo.mutation.RemoveOauthAuthIDs(ids...)
-	return aauo
-}
-
-// RemoveOauthAuths removes "oauth_auths" edges to OAuthAuth entities.
-func (aauo *AuthAccountUpdateOne) RemoveOauthAuths(o ...*OAuthAuth) *AuthAccountUpdateOne {
-	ids := make([]uuid.UUID, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return aauo.RemoveOauthAuthIDs(ids...)
 }
 
 // Where appends a list predicates to the AuthAccountUpdate builder.
@@ -541,7 +374,9 @@ func (aauo *AuthAccountUpdateOne) Select(field string, fields ...string) *AuthAc
 
 // Save executes the query and returns the updated AuthAccount entity.
 func (aauo *AuthAccountUpdateOne) Save(ctx context.Context) (*AuthAccount, error) {
-	aauo.defaults()
+	if err := aauo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, aauo.sqlSave, aauo.mutation, aauo.hooks)
 }
 
@@ -568,14 +403,36 @@ func (aauo *AuthAccountUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (aauo *AuthAccountUpdateOne) defaults() {
+func (aauo *AuthAccountUpdateOne) defaults() error {
 	if _, ok := aauo.mutation.UpdatedAt(); !ok {
+		if authaccount.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized authaccount.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := authaccount.UpdateDefaultUpdatedAt()
 		aauo.mutation.SetUpdatedAt(v)
 	}
+	return nil
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (aauo *AuthAccountUpdateOne) check() error {
+	if v, ok := aauo.mutation.Provider(); ok {
+		if err := authaccount.ProviderValidator(v); err != nil {
+			return &ValidationError{Name: "provider", err: fmt.Errorf(`ent: validator failed for field "AuthAccount.provider": %w`, err)}
+		}
+	}
+	if v, ok := aauo.mutation.Email(); ok {
+		if err := authaccount.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "AuthAccount.email": %w`, err)}
+		}
+	}
+	return nil
 }
 
 func (aauo *AuthAccountUpdateOne) sqlSave(ctx context.Context) (_node *AuthAccount, err error) {
+	if err := aauo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(authaccount.Table, authaccount.Columns, sqlgraph.NewFieldSpec(authaccount.FieldID, field.TypeUUID))
 	id, ok := aauo.mutation.ID()
 	if !ok {
@@ -604,116 +461,29 @@ func (aauo *AuthAccountUpdateOne) sqlSave(ctx context.Context) (_node *AuthAccou
 	if value, ok := aauo.mutation.UserID(); ok {
 		_spec.SetField(authaccount.FieldUserID, field.TypeUUID, value)
 	}
+	if value, ok := aauo.mutation.Provider(); ok {
+		_spec.SetField(authaccount.FieldProvider, field.TypeEnum, value)
+	}
+	if value, ok := aauo.mutation.ProviderID(); ok {
+		_spec.SetField(authaccount.FieldProviderID, field.TypeString, value)
+	}
+	if aauo.mutation.ProviderIDCleared() {
+		_spec.ClearField(authaccount.FieldProviderID, field.TypeString)
+	}
+	if value, ok := aauo.mutation.IsVerified(); ok {
+		_spec.SetField(authaccount.FieldIsVerified, field.TypeBool, value)
+	}
+	if value, ok := aauo.mutation.Email(); ok {
+		_spec.SetField(authaccount.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := aauo.mutation.PasswordHash(); ok {
+		_spec.SetField(authaccount.FieldPasswordHash, field.TypeString, value)
+	}
+	if aauo.mutation.PasswordHashCleared() {
+		_spec.ClearField(authaccount.FieldPasswordHash, field.TypeString)
+	}
 	if value, ok := aauo.mutation.UpdatedAt(); ok {
 		_spec.SetField(authaccount.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := aauo.mutation.LastLoginAt(); ok {
-		_spec.SetField(authaccount.FieldLastLoginAt, field.TypeTime, value)
-	}
-	if aauo.mutation.LastLoginAtCleared() {
-		_spec.ClearField(authaccount.FieldLastLoginAt, field.TypeTime)
-	}
-	if value, ok := aauo.mutation.LastFailedLoginAt(); ok {
-		_spec.SetField(authaccount.FieldLastFailedLoginAt, field.TypeTime, value)
-	}
-	if aauo.mutation.LastFailedLoginAtCleared() {
-		_spec.ClearField(authaccount.FieldLastFailedLoginAt, field.TypeTime)
-	}
-	if value, ok := aauo.mutation.FailedLoginAttempts(); ok {
-		_spec.SetField(authaccount.FieldFailedLoginAttempts, field.TypeInt, value)
-	}
-	if value, ok := aauo.mutation.AddedFailedLoginAttempts(); ok {
-		_spec.AddField(authaccount.FieldFailedLoginAttempts, field.TypeInt, value)
-	}
-	if aauo.mutation.LocalAuthsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.LocalAuthsTable,
-			Columns: []string{authaccount.LocalAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(localauth.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := aauo.mutation.RemovedLocalAuthsIDs(); len(nodes) > 0 && !aauo.mutation.LocalAuthsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.LocalAuthsTable,
-			Columns: []string{authaccount.LocalAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(localauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := aauo.mutation.LocalAuthsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.LocalAuthsTable,
-			Columns: []string{authaccount.LocalAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(localauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if aauo.mutation.OauthAuthsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.OauthAuthsTable,
-			Columns: []string{authaccount.OauthAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthauth.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := aauo.mutation.RemovedOauthAuthsIDs(); len(nodes) > 0 && !aauo.mutation.OauthAuthsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.OauthAuthsTable,
-			Columns: []string{authaccount.OauthAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := aauo.mutation.OauthAuthsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   authaccount.OauthAuthsTable,
-			Columns: []string{authaccount.OauthAuthsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(oauthauth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &AuthAccount{config: aauo.config}
 	_spec.Assign = _node.assignValues

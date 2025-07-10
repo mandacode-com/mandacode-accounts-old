@@ -3,10 +3,11 @@
 package authaccount
 
 import (
+	"fmt"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -17,47 +18,35 @@ const (
 	FieldID = "id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldProvider holds the string denoting the provider field in the database.
+	FieldProvider = "provider"
+	// FieldProviderID holds the string denoting the provider_id field in the database.
+	FieldProviderID = "provider_id"
+	// FieldIsVerified holds the string denoting the is_verified field in the database.
+	FieldIsVerified = "is_verified"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldPasswordHash holds the string denoting the password_hash field in the database.
+	FieldPasswordHash = "password_hash"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldLastLoginAt holds the string denoting the last_login_at field in the database.
-	FieldLastLoginAt = "last_login_at"
-	// FieldLastFailedLoginAt holds the string denoting the last_failed_login_at field in the database.
-	FieldLastFailedLoginAt = "last_failed_login_at"
-	// FieldFailedLoginAttempts holds the string denoting the failed_login_attempts field in the database.
-	FieldFailedLoginAttempts = "failed_login_attempts"
-	// EdgeLocalAuths holds the string denoting the local_auths edge name in mutations.
-	EdgeLocalAuths = "local_auths"
-	// EdgeOauthAuths holds the string denoting the oauth_auths edge name in mutations.
-	EdgeOauthAuths = "oauth_auths"
 	// Table holds the table name of the authaccount in the database.
 	Table = "auth_accounts"
-	// LocalAuthsTable is the table that holds the local_auths relation/edge.
-	LocalAuthsTable = "local_auths"
-	// LocalAuthsInverseTable is the table name for the LocalAuth entity.
-	// It exists in this package in order to avoid circular dependency with the "localauth" package.
-	LocalAuthsInverseTable = "local_auths"
-	// LocalAuthsColumn is the table column denoting the local_auths relation/edge.
-	LocalAuthsColumn = "auth_account_id"
-	// OauthAuthsTable is the table that holds the oauth_auths relation/edge.
-	OauthAuthsTable = "oauth_auths"
-	// OauthAuthsInverseTable is the table name for the OAuthAuth entity.
-	// It exists in this package in order to avoid circular dependency with the "oauthauth" package.
-	OauthAuthsInverseTable = "oauth_auths"
-	// OauthAuthsColumn is the table column denoting the oauth_auths relation/edge.
-	OauthAuthsColumn = "auth_account_id"
 )
 
 // Columns holds all SQL columns for authaccount fields.
 var Columns = []string{
 	FieldID,
 	FieldUserID,
+	FieldProvider,
+	FieldProviderID,
+	FieldIsVerified,
+	FieldEmail,
+	FieldPasswordHash,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldLastLoginAt,
-	FieldLastFailedLoginAt,
-	FieldFailedLoginAttempts,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -70,18 +59,52 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "mandacode.com/accounts/auth/ent/runtime"
 var (
+	Hooks [2]ent.Hook
+	// DefaultIsVerified holds the default value on creation for the "is_verified" field.
+	DefaultIsVerified bool
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// DefaultFailedLoginAttempts holds the default value on creation for the "failed_login_attempts" field.
-	DefaultFailedLoginAttempts int
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
+
+// Provider defines the type for the "provider" enum field.
+type Provider string
+
+// Provider values.
+const (
+	ProviderLocal  Provider = "local"
+	ProviderGoogle Provider = "google"
+	ProviderKakao  Provider = "kakao"
+	ProviderNaver  Provider = "naver"
+	ProviderApple  Provider = "apple"
+)
+
+func (pr Provider) String() string {
+	return string(pr)
+}
+
+// ProviderValidator is a validator for the "provider" field enum values. It is called by the builders before save.
+func ProviderValidator(pr Provider) error {
+	switch pr {
+	case ProviderLocal, ProviderGoogle, ProviderKakao, ProviderNaver, ProviderApple:
+		return nil
+	default:
+		return fmt.Errorf("authaccount: invalid enum value for provider field: %q", pr)
+	}
+}
 
 // OrderOption defines the ordering options for the AuthAccount queries.
 type OrderOption func(*sql.Selector)
@@ -96,6 +119,31 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
+// ByProvider orders the results by the provider field.
+func ByProvider(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProvider, opts...).ToFunc()
+}
+
+// ByProviderID orders the results by the provider_id field.
+func ByProviderID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProviderID, opts...).ToFunc()
+}
+
+// ByIsVerified orders the results by the is_verified field.
+func ByIsVerified(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsVerified, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByPasswordHash orders the results by the password_hash field.
+func ByPasswordHash(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPasswordHash, opts...).ToFunc()
+}
+
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -104,61 +152,4 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByLastLoginAt orders the results by the last_login_at field.
-func ByLastLoginAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLastLoginAt, opts...).ToFunc()
-}
-
-// ByLastFailedLoginAt orders the results by the last_failed_login_at field.
-func ByLastFailedLoginAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLastFailedLoginAt, opts...).ToFunc()
-}
-
-// ByFailedLoginAttempts orders the results by the failed_login_attempts field.
-func ByFailedLoginAttempts(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFailedLoginAttempts, opts...).ToFunc()
-}
-
-// ByLocalAuthsCount orders the results by local_auths count.
-func ByLocalAuthsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newLocalAuthsStep(), opts...)
-	}
-}
-
-// ByLocalAuths orders the results by local_auths terms.
-func ByLocalAuths(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newLocalAuthsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByOauthAuthsCount orders the results by oauth_auths count.
-func ByOauthAuthsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newOauthAuthsStep(), opts...)
-	}
-}
-
-// ByOauthAuths orders the results by oauth_auths terms.
-func ByOauthAuths(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOauthAuthsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newLocalAuthsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(LocalAuthsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, LocalAuthsTable, LocalAuthsColumn),
-	)
-}
-func newOauthAuthsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OauthAuthsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, OauthAuthsTable, OauthAuthsColumn),
-	)
 }

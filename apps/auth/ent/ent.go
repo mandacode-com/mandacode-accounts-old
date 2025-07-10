@@ -13,8 +13,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"mandacode.com/accounts/auth/ent/authaccount"
-	"mandacode.com/accounts/auth/ent/localauth"
-	"mandacode.com/accounts/auth/ent/oauthauth"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -76,8 +74,6 @@ func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			authaccount.Table: authaccount.ValidColumn,
-			localauth.Table:   localauth.ValidColumn,
-			oauthauth.Table:   oauthauth.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

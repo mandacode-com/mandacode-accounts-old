@@ -7,8 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mandacode-com/golib/errors"
 	"github.com/mandacode-com/golib/errors/errcode"
-	"mandacode.com/accounts/auth/ent"
-	"mandacode.com/accounts/auth/ent/oauthauth"
+	"mandacode.com/accounts/auth/ent/authaccount"
 
 	"mandacode.com/accounts/auth/internal/infra/oauthapi"
 	dbmodels "mandacode.com/accounts/auth/internal/models/database"
@@ -16,134 +15,144 @@ import (
 	coderepo "mandacode.com/accounts/auth/internal/repository/code"
 	dbrepo "mandacode.com/accounts/auth/internal/repository/database"
 	tokenrepo "mandacode.com/accounts/auth/internal/repository/token"
+	userrepo "mandacode.com/accounts/auth/internal/repository/user"
 	oauthdto "mandacode.com/accounts/auth/internal/usecase/oauthauth/dto"
 )
 
 type LoginUsecase struct {
 	authAccount      *dbrepo.AuthAccountRepository
-	oauthAuth        *dbrepo.OAuthAuthRepository
+	userService      *userrepo.UserServiceRepository
 	token            *tokenrepo.TokenRepository
 	loginCodeManager *coderepo.CodeManager
-	oauthApiMap      map[oauthauth.Provider]oauthapi.OAuthAPI
+	oauthApiMap      map[authaccount.Provider]oauthapi.OAuthAPI
+}
+
+// createOAuth creates a new OAuth account in the database.
+func (l *LoginUsecase) createOAuth(ctx context.Context, provider authaccount.Provider, userInfo *oauthmodels.UserInfo) (*dbmodels.SecureOAuthAuthAccount, error) {
+	userID := uuid.New()
+	initUser, err := l.userService.InitUser(ctx, userID)
+	if err != nil {
+		return nil, errors.Upgrade(err, "Failed to initialize user", errcode.ErrInternalFailure)
+	}
+	if initUser.UserId != userID.String() {
+		l.userService.DeleteUser(ctx, userID)
+		return nil, errors.New("user initialization failed", "User Initialization Error", errcode.ErrInternalFailure)
+	}
+
+	account, err := l.authAccount.CreateOAuthAuthAccount(
+		ctx,
+		&dbmodels.CreateOAuthAuthAccountInput{
+			UserID:     userID,
+			Provider:   provider,
+			ProviderID: userInfo.ProviderID,
+			Email:      userInfo.Email,
+			IsVerified: userInfo.EmailVerified,
+		},
+	)
+	if err != nil {
+		return nil, errors.Upgrade(err, "Failed to create OAuth account", errcode.ErrInternalFailure)
+	}
+	return account, nil
+}
+
+// getAccessToken retrieves the access token from the OAuth API.
+func (l *LoginUsecase) getAccessToken(ctx context.Context, provider authaccount.Provider, code string) (string, error) {
+	api, ok := l.oauthApiMap[provider]
+	if !ok {
+		return "", errors.New(fmt.Sprintf("unsupported provider: %s", provider), "UnsupportedProvider", errcode.ErrInvalidInput)
+	}
+	accessToken, err := api.GetAccessToken(code)
+	if err != nil {
+		return "", errors.Upgrade(err, "Failed to get access token from OAuth provider", errcode.ErrUnauthorized)
+	}
+	return accessToken, nil
+}
+
+func (l *LoginUsecase) getOrCreateVerifiedUser(ctx context.Context, input oauthdto.LoginInput) (uuid.UUID, error) {
+	var oauthAccessToken string
+	if input.AccessToken == "" && input.Code != "" {
+		var err error
+		oauthAccessToken, err = l.getAccessToken(ctx, input.Provider, input.Code)
+		if err != nil {
+			return uuid.Nil, errors.Upgrade(err, "Failed to get access token", errcode.ErrUnauthorized)
+		}
+	} else if input.AccessToken != "" {
+		oauthAccessToken = input.AccessToken
+	} else {
+		return uuid.Nil, errors.New("either access token or code must be provided", "Invalid Input", errcode.ErrInvalidInput)
+	}
+
+	userInfo, err := l.oauthApiMap[input.Provider].GetUserInfo(oauthAccessToken)
+	if err != nil {
+		return uuid.Nil, errors.Upgrade(err, "Failed to get user info from OAuth provider", errcode.ErrUnauthorized)
+	}
+	if userInfo == nil {
+		return uuid.Nil, errors.New("user info is nil", "InvalidUserInfo", errcode.ErrInvalidInput)
+	}
+
+	var verified bool
+	var userID uuid.UUID
+	oauth, err := l.authAccount.GetOAuthAccountByProviderAndProviderID(ctx, input.Provider, userInfo.ProviderID)
+	if err != nil {
+		if errors.Is(err, errcode.ErrNotFound) {
+			// User not found, create a new OAuth account
+			newAccount, err := l.createOAuth(ctx, input.Provider, userInfo)
+			if err != nil {
+				return uuid.Nil, errors.Upgrade(err, "Failed to create OAuth account", errcode.ErrInternalFailure)
+			}
+			userID = newAccount.UserID
+			verified = newAccount.IsVerified
+		}
+		return uuid.Nil, errors.Upgrade(err, "Failed to get OAuth account", errcode.ErrInternalFailure)
+	} else {
+		userID = oauth.UserID
+		verified = oauth.IsVerified
+	}
+
+	if !verified {
+		return uuid.Nil, errors.New("user is not verified", "Unauthorized", errcode.ErrUnauthorized)
+	}
+
+	return userID, nil
 }
 
 // GetLoginURL implements oauthdomain.LoginUsecase.
 func (l *LoginUsecase) GetLoginURL(ctx context.Context, provider string) (loginURL string, err error) {
-	api, ok := l.oauthApiMap[oauthauth.Provider(provider)]
-	if ok {
-		loginURL = api.GetLoginURL()
-		return loginURL, nil
+	api, ok := l.oauthApiMap[authaccount.Provider(provider)]
+	if !ok {
+		return "", errors.New("unsupported provider: "+provider, "Unsupported Provider", errcode.ErrInvalidInput)
 	}
-	if _, ok := l.oauthApiMap[oauthauth.Provider(provider)]; !ok {
-		return "", errors.New(fmt.Sprintf("unsupported provider: %s", provider), "UnsupportedProvider", errcode.ErrInvalidInput)
-	}
-	return "", errors.New("unsupported login type", "UnsupportedLoginType", errcode.ErrInvalidInput)
+	loginURL = api.GetLoginURL()
+	return loginURL, nil
 }
 
 // IssueLoginCode implements oauthdomain.LoginUsecase.
 func (l *LoginUsecase) IssueLoginCode(ctx context.Context, input oauthdto.LoginInput) (code string, userID uuid.UUID, err error) {
-	// Get Access Token
-	var accessToken string
-	if input.AccessToken == "" && input.Code != "" {
-		// When code is provided, exchange it for an access token
-		api, ok := l.oauthApiMap[input.Provider]
-		if !ok {
-			return "", uuid.Nil, errors.New(fmt.Sprintf("unsupported provider: %s", input.Provider), "UnsupportedProvider", errcode.ErrInvalidInput)
-		}
-
-		accessToken, err = api.GetAccessToken(input.Code)
-		if err != nil {
-			joinedErr := errors.Join(err, "failed to get access token from OAuth provider")
-			return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrUnauthorized, "AuthenticationFailed")
-		}
-	} else if input.AccessToken != "" {
-		accessToken = input.AccessToken
-	} else {
-		return "", uuid.Nil, errors.New("either access token or code must be provided", "InvalidInput", errcode.ErrInvalidInput)
-	}
-
-	// Get User Info
-	userInfo, err := l.oauthApiMap[input.Provider].GetUserInfo(accessToken)
+	// Get or create verified user
+	userID, err = l.getOrCreateVerifiedUser(ctx, input)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to get user info from OAuth provider")
-		return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrUnauthorized, "AuthenticationFailed")
-	}
-	if userInfo == nil {
-		return "", uuid.Nil, errors.New("user info is nil", "InvalidUserInfo", errcode.ErrInvalidInput)
-	}
-
-	// Check if user exists in the database
-	oauthEntity, err := l.oauthAuth.GetOAuthAuthByProviderID(ctx, input.Provider, userInfo.ProviderID)
-	if err != nil {
-		if errors.Is(err, errcode.ErrNotFound) { // Create new user if not found
-			oauthEntity, err = l.createOAuthAuth(ctx, input.Provider, userInfo)
-			if err != nil {
-				return "", uuid.Nil, err
-			}
-		} else {
-			joinedErr := errors.Join(err, "failed to get OAuth entity from database")
-			return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrUnauthorized, "AuthenticationFailed")
-		}
+		return "", uuid.Nil, errors.Upgrade(err, "Failed to get or create verified user", errcode.ErrUnauthorized)
 	}
 
 	// Generate and store login code
-	code, err = l.loginCodeManager.IssueCode(ctx, oauthEntity.ID)
+	code, err = l.loginCodeManager.IssueCode(ctx, userID)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to issue login code")
-		return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrInternalFailure, PubInternalFailure)
+		return "", uuid.Nil, errors.Upgrade(err, "Failed to issue login code", errcode.ErrInternalFailure)
 	}
-	userID = oauthEntity.ID
 
 	return code, userID, nil
 }
 
 // Login implements oauthdomain.LoginUsecase.
 func (l *LoginUsecase) Login(ctx context.Context, input oauthdto.LoginInput) (accessToken string, refreshToken string, err error) {
-	// Get Access Token
-	var accessTokenStr string
-	if input.AccessToken == "" && input.Code != "" {
-		api, ok := l.oauthApiMap[input.Provider]
-		if !ok {
-			return "", "", errors.New(fmt.Sprintf("unsupported provider: %s", input.Provider), "UnsupportedProvider", errcode.ErrInvalidInput)
-		}
-
-		accessTokenStr, err = api.GetAccessToken(input.Code)
-		if err != nil {
-			joinedErr := errors.Join(err, "failed to get access token from OAuth provider")
-			return "", "", errors.Upgrade(joinedErr, errcode.ErrUnauthorized, "AuthenticationFailed")
-		}
-	} else if input.AccessToken != "" {
-		accessTokenStr = input.AccessToken
-	} else {
-		return "", "", errors.New("either access token or code must be provided", "InvalidInput", errcode.ErrInvalidInput)
-	}
-
-	// Get User Info
-	userInfo, err := l.oauthApiMap[input.Provider].GetUserInfo(accessTokenStr)
+	// Get or create verified user
+	userID, err := l.getOrCreateVerifiedUser(ctx, input)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to get user info from OAuth provider")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrUnauthorized, "AuthenticationFailed")
-	}
-	if userInfo == nil {
-		return "", "", errors.New("user info is nil", "InvalidUserInfo", errcode.ErrInvalidInput)
-	}
-
-	// Check if user exists in the database
-	oauthEntity, err := l.oauthAuth.GetOAuthAuthByProviderID(ctx, input.Provider, userInfo.ProviderID)
-	if err != nil {
-		if errors.Is(err, errcode.ErrNotFound) { // Create new user if not found
-			oauthEntity, err = l.createOAuthAuth(ctx, input.Provider, userInfo)
-			if err != nil {
-				return "", "", err
-			}
-		} else {
-			joinedErr := errors.Join(err, "failed to get OAuth entity from database")
-			return "", "", errors.Upgrade(joinedErr, errcode.ErrUnauthorized, "AuthenticationFailed")
-		}
+		return "", "", errors.Upgrade(err, "Failed to get or create verified user", errcode.ErrUnauthorized)
 	}
 
 	// Generate access and refresh tokens
-	return l.issueToken(ctx, oauthEntity.ID)
+	return l.issueToken(ctx, userID)
 }
 
 // VerifyLoginCode implements oauthdomain.LoginUsecase.
@@ -151,11 +160,10 @@ func (l *LoginUsecase) VerifyLoginCode(ctx context.Context, userID uuid.UUID, co
 	// Validate code
 	valid, err := l.loginCodeManager.ValidateCode(ctx, userID, code)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to validate login code")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrInternalFailure, PubInternalFailure)
+		return "", "", errors.Upgrade(err, "Failed to validate login code", errcode.ErrInternalFailure)
 	}
 	if !valid {
-		return "", "", errors.New("login code is invalid or expired", "LoginCodeInvalid", errcode.ErrUnauthorized)
+		return "", "", errors.New("login code is invalid or expired", "Failed to validate login code", errcode.ErrUnauthorized)
 	}
 
 	// Generate access and refresh tokens
@@ -167,54 +175,27 @@ func (l *LoginUsecase) issueToken(ctx context.Context, userID uuid.UUID) (access
 	// Generate access token
 	accessToken, _, err = l.token.GenerateAccessToken(ctx, userID)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to generate access token")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrInternalFailure, PubInternalFailure)
+		return "", "", errors.Upgrade(err, "Failed to generate access token", errcode.ErrInternalFailure)
 	}
 
 	// Generate refresh token
 	refreshToken, _, err = l.token.GenerateRefreshToken(ctx, userID)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to generate refresh token")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrInternalFailure, PubInternalFailure)
+		return "", "", errors.Upgrade(err, "Failed to generate refresh token", errcode.ErrInternalFailure)
 	}
 
 	return accessToken, refreshToken, nil
 }
 
-func (l *LoginUsecase) createOAuthAuth(ctx context.Context, provider oauthauth.Provider, userInfo *oauthmodels.UserInfo) (*ent.OAuthAuth, error) {
-	account, err := l.authAccount.CreateAuthAccount(
-		ctx,
-		&dbmodels.CreateAuthAccountInput{
-			UserID: uuid.New(), // Generate a new UUID for the user
-		},
-	)
-	oauthAuth, err := l.oauthAuth.CreateOAuthAuth(
-		ctx,
-		&dbmodels.CreateOAuthAuthInput{
-			AccountID:  account.ID,
-			Provider:   provider,
-			ProviderID: userInfo.ProviderID,
-			Email:      userInfo.Email,
-			IsVerified: userInfo.EmailVerified,
-		},
-	)
-	if err != nil {
-		return nil, errors.New(err.Error(), "Failed to create OAuthAuth", errcode.ErrInternalFailure)
-	}
-	return oauthAuth, nil
-}
-
 // NewLoginUsecase creates a new instance of LoginUsecase.
 func NewLoginUsecase(
 	authAccount *dbrepo.AuthAccountRepository,
-	oauthAuth *dbrepo.OAuthAuthRepository,
 	token *tokenrepo.TokenRepository,
 	loginCodeManager *coderepo.CodeManager,
-	oauthApiMap map[oauthauth.Provider]oauthapi.OAuthAPI,
+	oauthApiMap map[authaccount.Provider]oauthapi.OAuthAPI,
 ) *LoginUsecase {
 	return &LoginUsecase{
 		authAccount:      authAccount,
-		oauthAuth:        oauthAuth,
 		token:            token,
 		loginCodeManager: loginCodeManager,
 		oauthApiMap:      oauthApiMap,

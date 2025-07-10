@@ -21,49 +21,21 @@ type AuthAccount struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// The unique identifier for the user associated with this authentication account
 	UserID uuid.UUID `json:"user_id,omitempty"`
+	// The OAuth provider used for authentication
+	Provider authaccount.Provider `json:"provider,omitempty"`
+	// The unique identifier provided by the OAuth provider for the user
+	ProviderID *string `json:"provider_id,omitempty"`
+	// Indicates if the authentication account has verified the email address
+	IsVerified bool `json:"is_verified,omitempty"`
+	// The email address associated with the authentication account
+	Email string `json:"email,omitempty"`
+	// The hashed password for the local authentication, if applicable
+	PasswordHash *string `json:"password_hash,omitempty"`
 	// The time when the authentication account was created
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// The time when the authentication account was last updated
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// The time when the user last logged in with this authentication account
-	LastLoginAt time.Time `json:"last_login_at,omitempty"`
-	// The time when the user last failed to log in with this authentication account
-	LastFailedLoginAt time.Time `json:"last_failed_login_at,omitempty"`
-	// The number of consecutive failed login attempts for this authentication account
-	FailedLoginAttempts int `json:"failed_login_attempts,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the AuthAccountQuery when eager-loading is set.
-	Edges        AuthAccountEdges `json:"edges"`
+	UpdatedAt    time.Time `json:"updated_at,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// AuthAccountEdges holds the relations/edges for other nodes in the graph.
-type AuthAccountEdges struct {
-	// The local authentication methods associated with this authentication account
-	LocalAuths []*LocalAuth `json:"local_auths,omitempty"`
-	// The OAuth authentication methods associated with this authentication account
-	OauthAuths []*OAuthAuth `json:"oauth_auths,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// LocalAuthsOrErr returns the LocalAuths value or an error if the edge
-// was not loaded in eager-loading.
-func (e AuthAccountEdges) LocalAuthsOrErr() ([]*LocalAuth, error) {
-	if e.loadedTypes[0] {
-		return e.LocalAuths, nil
-	}
-	return nil, &NotLoadedError{edge: "local_auths"}
-}
-
-// OauthAuthsOrErr returns the OauthAuths value or an error if the edge
-// was not loaded in eager-loading.
-func (e AuthAccountEdges) OauthAuthsOrErr() ([]*OAuthAuth, error) {
-	if e.loadedTypes[1] {
-		return e.OauthAuths, nil
-	}
-	return nil, &NotLoadedError{edge: "oauth_auths"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -71,9 +43,11 @@ func (*AuthAccount) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case authaccount.FieldFailedLoginAttempts:
-			values[i] = new(sql.NullInt64)
-		case authaccount.FieldCreatedAt, authaccount.FieldUpdatedAt, authaccount.FieldLastLoginAt, authaccount.FieldLastFailedLoginAt:
+		case authaccount.FieldIsVerified:
+			values[i] = new(sql.NullBool)
+		case authaccount.FieldProvider, authaccount.FieldProviderID, authaccount.FieldEmail, authaccount.FieldPasswordHash:
+			values[i] = new(sql.NullString)
+		case authaccount.FieldCreatedAt, authaccount.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case authaccount.FieldID, authaccount.FieldUserID:
 			values[i] = new(uuid.UUID)
@@ -104,6 +78,38 @@ func (aa *AuthAccount) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				aa.UserID = *value
 			}
+		case authaccount.FieldProvider:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field provider", values[i])
+			} else if value.Valid {
+				aa.Provider = authaccount.Provider(value.String)
+			}
+		case authaccount.FieldProviderID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field provider_id", values[i])
+			} else if value.Valid {
+				aa.ProviderID = new(string)
+				*aa.ProviderID = value.String
+			}
+		case authaccount.FieldIsVerified:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_verified", values[i])
+			} else if value.Valid {
+				aa.IsVerified = value.Bool
+			}
+		case authaccount.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				aa.Email = value.String
+			}
+		case authaccount.FieldPasswordHash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
+			} else if value.Valid {
+				aa.PasswordHash = new(string)
+				*aa.PasswordHash = value.String
+			}
 		case authaccount.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -116,24 +122,6 @@ func (aa *AuthAccount) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				aa.UpdatedAt = value.Time
 			}
-		case authaccount.FieldLastLoginAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field last_login_at", values[i])
-			} else if value.Valid {
-				aa.LastLoginAt = value.Time
-			}
-		case authaccount.FieldLastFailedLoginAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field last_failed_login_at", values[i])
-			} else if value.Valid {
-				aa.LastFailedLoginAt = value.Time
-			}
-		case authaccount.FieldFailedLoginAttempts:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field failed_login_attempts", values[i])
-			} else if value.Valid {
-				aa.FailedLoginAttempts = int(value.Int64)
-			}
 		default:
 			aa.selectValues.Set(columns[i], values[i])
 		}
@@ -145,16 +133,6 @@ func (aa *AuthAccount) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (aa *AuthAccount) Value(name string) (ent.Value, error) {
 	return aa.selectValues.Get(name)
-}
-
-// QueryLocalAuths queries the "local_auths" edge of the AuthAccount entity.
-func (aa *AuthAccount) QueryLocalAuths() *LocalAuthQuery {
-	return NewAuthAccountClient(aa.config).QueryLocalAuths(aa)
-}
-
-// QueryOauthAuths queries the "oauth_auths" edge of the AuthAccount entity.
-func (aa *AuthAccount) QueryOauthAuths() *OAuthAuthQuery {
-	return NewAuthAccountClient(aa.config).QueryOauthAuths(aa)
 }
 
 // Update returns a builder for updating this AuthAccount.
@@ -183,20 +161,30 @@ func (aa *AuthAccount) String() string {
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", aa.UserID))
 	builder.WriteString(", ")
+	builder.WriteString("provider=")
+	builder.WriteString(fmt.Sprintf("%v", aa.Provider))
+	builder.WriteString(", ")
+	if v := aa.ProviderID; v != nil {
+		builder.WriteString("provider_id=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("is_verified=")
+	builder.WriteString(fmt.Sprintf("%v", aa.IsVerified))
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(aa.Email)
+	builder.WriteString(", ")
+	if v := aa.PasswordHash; v != nil {
+		builder.WriteString("password_hash=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(aa.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(aa.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("last_login_at=")
-	builder.WriteString(aa.LastLoginAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("last_failed_login_at=")
-	builder.WriteString(aa.LastFailedLoginAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("failed_login_attempts=")
-	builder.WriteString(fmt.Sprintf("%v", aa.FailedLoginAttempts))
 	builder.WriteByte(')')
 	return builder.String()
 }

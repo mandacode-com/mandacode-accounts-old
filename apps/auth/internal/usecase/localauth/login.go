@@ -15,44 +15,43 @@ import (
 
 type LoginUsecase struct {
 	authAccount      *dbrepo.AuthAccountRepository
-	localAuth        *dbrepo.LocalAuthRepository
 	token            *tokenrepo.TokenRepository
 	loginCodeManager *coderepo.CodeManager
 }
 
-// IssueLoginCode implements localauthdomain.LoginUsecase.
-func (l *LoginUsecase) IssueLoginCode(ctx context.Context, input localauthdto.LoginInput) (code string, userID uuid.UUID, err error) {
-	auth, err := l.localAuth.GetLocalAuthByEmail(ctx, input.Email)
+func (l *LoginUsecase) checkUserVerified(ctx context.Context, input localauthdto.LoginInput) (uuid.UUID, error) {
+	verified, userID, err := l.authAccount.ComparePassword(ctx, input.Email, input.Password)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to get user by ID")
-		return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
-	}
-	if !auth.IsVerified {
-		return "", uuid.Nil, errors.New("user is not verified", PubUserNotVerified, errcode.ErrUnauthorized)
-	}
-
-	account, err := l.authAccount.GetAuthAccountByUserID(ctx, auth.AccountID)
-	if err != nil {
-		joinedErr := errors.Join(err, "failed to get auth account by user ID")
-		return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
-	}
-
-	verified, err := l.localAuth.ComparePassword(ctx, account.ID, input.Password)
-	if err != nil {
-		joinedErr := errors.Join(err, "failed to compare password")
-		return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
+		return uuid.Nil, err
 	}
 	if !verified {
-		return "", uuid.Nil, errors.New("invalid password", PubAuthenticationFailed, errcode.ErrUnauthorized)
+		return uuid.Nil, errors.New("invalid email or password", "Unauthorized", errcode.ErrUnauthorized)
 	}
 
-	code, err = l.loginCodeManager.IssueCode(ctx, account.UserID)
+	authAccount, err := l.authAccount.GetLocalAuthAccountByUserID(ctx, userID)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to issue login code")
-		return "", uuid.Nil, errors.Upgrade(joinedErr, errcode.ErrInternalFailure, PubInternalFailure)
+		return uuid.Nil, errors.Upgrade(err, "Failed to get auth account", errcode.ErrInternalFailure)
+	}
+	if !authAccount.IsVerified {
+		return uuid.Nil, errors.New("user is not verified", "User Email Not Verified", errcode.ErrUnauthorized)
 	}
 
-	userID = account.UserID
+	return userID, nil
+}
+
+// IssueLoginCode implements localauthdomain.LoginUsecase.
+func (l *LoginUsecase) IssueLoginCode(ctx context.Context, input localauthdto.LoginInput) (code string, userID uuid.UUID, err error) {
+	userID, err = l.checkUserVerified(ctx, input)
+	if err != nil {
+		return "", uuid.Nil, err
+	}
+
+	code, err = l.loginCodeManager.IssueCode(ctx, userID)
+	if err != nil {
+		return "", uuid.Nil, errors.Upgrade(err, "Internal Error", errcode.ErrInternalFailure)
+	}
+
+	userID = userID
 	return code, userID, nil
 }
 
@@ -60,11 +59,10 @@ func (l *LoginUsecase) IssueLoginCode(ctx context.Context, input localauthdto.Lo
 func (l *LoginUsecase) VerifyLoginCode(ctx context.Context, userID uuid.UUID, code string) (accessToken string, refreshToken string, err error) {
 	valid, err := l.loginCodeManager.ValidateCode(ctx, userID, code)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to validate login code")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrInternalFailure, PubInternalFailure)
+		return "", "", errors.Upgrade(err, "Failed to validate login code", errcode.ErrInternalFailure)
 	}
 	if !valid {
-		return "", "", errors.New("login code is invalid or expired", PubAuthenticationFailed, errcode.ErrUnauthorized)
+		return "", "", errors.New("login code is invalid or expired", "Failed to validate login code", errcode.ErrUnauthorized)
 	}
 
 	// Generate access and refresh tokens
@@ -73,58 +71,35 @@ func (l *LoginUsecase) VerifyLoginCode(ctx context.Context, userID uuid.UUID, co
 
 // Login implements localauthdomain.LoginUsecase.
 func (l *LoginUsecase) Login(ctx context.Context, input localauthdto.LoginInput) (accessToken string, refreshToken string, err error) {
-	auth, err := l.localAuth.GetLocalAuthByEmail(ctx, input.Email)
+	userID, err := l.checkUserVerified(ctx, input)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to get user by email")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
-	}
-	if !auth.IsVerified {
-		return "", "", errors.New("user is not verified", PubUserNotVerified, errcode.ErrUnauthorized)
-	}
-
-	account, err := l.authAccount.GetAuthAccountByUserID(ctx, auth.AccountID)
-	if err != nil {
-		joinedErr := errors.Join(err, "failed to get auth account by user ID")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
-	}
-
-	verified, err := l.localAuth.ComparePassword(ctx, account.ID, input.Password)
-	if err != nil {
-		joinedErr := errors.Join(err, "failed to compare password")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrUnauthorized, PubAuthenticationFailed)
-	}
-	if !verified {
-		return "", "", errors.New("invalid password", PubAuthenticationFailed, errcode.ErrUnauthorized)
+		return "", "", err
 	}
 
 	// Generate access and refresh tokens
-	return l.issueToken(ctx, account.UserID)
+	return l.issueToken(ctx, userID)
 }
 
 // issueToken issues a new access token and refresh token for the user.
 func (l *LoginUsecase) issueToken(ctx context.Context, userID uuid.UUID) (accessToken string, refreshToken string, err error) {
 	accessToken, _, err = l.token.GenerateAccessToken(ctx, userID)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to generate access token")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrInternalFailure, PubInternalFailure)
+		return "", "", errors.Upgrade(err, "Failed to generate token", errcode.ErrInternalFailure)
 	}
 	refreshToken, _, err = l.token.GenerateRefreshToken(ctx, userID)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to generate refresh token")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrInternalFailure, PubInternalFailure)
+		return "", "", errors.Upgrade(err, "Failed to generate token", errcode.ErrInternalFailure)
 	}
 	return accessToken, refreshToken, nil
 }
 
 func NewLoginUsecase(
 	authAccount *dbrepo.AuthAccountRepository,
-	localAuth *dbrepo.LocalAuthRepository,
 	token *tokenrepo.TokenRepository,
 	loginCodeManager *coderepo.CodeManager,
 ) *LoginUsecase {
 	return &LoginUsecase{
 		authAccount:      authAccount,
-		localAuth:        localAuth,
 		token:            token,
 		loginCodeManager: loginCodeManager,
 	}

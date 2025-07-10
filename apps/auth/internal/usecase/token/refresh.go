@@ -16,12 +16,12 @@ type RefreshUsecase struct {
 // Refresh generates new access and refresh tokens based on a valid refresh token.
 //
 // Parameters:
-//    - ctx: The context for the operation.
+//   - ctx: The context for the operation.
 //
 // Returns:
-//    - newAccessToken: The newly generated access token.
-//    - newRefreshToken: The newly generated refresh token.
-//    - err: An error if the operation fails, or nil if successful.
+//   - newAccessToken: The newly generated access token.
+//   - newRefreshToken: The newly generated refresh token.
+//   - err: An error if the operation fails, or nil if successful.
 func (r *RefreshUsecase) Refresh(ctx context.Context, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
 	// Validate the refresh token
 	valid, userID, err := r.token.VerifyRefreshToken(ctx, refreshToken)
@@ -35,17 +35,15 @@ func (r *RefreshUsecase) Refresh(ctx context.Context, refreshToken string) (newA
 	// Generate new access and refresh tokens
 	userUID, err := uuid.Parse(*userID)
 	if err != nil {
-		return "", "", errors.New("invalid user ID in refresh token", "InvalidUserID", errcode.ErrUnauthorized)
+		return "", "", errors.New("invalid user ID in refresh token", "Invalid User ID", errcode.ErrUnauthorized)
 	}
 	newAccessToken, _, err = r.token.GenerateAccessToken(ctx, userUID)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to generate new access token")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrInternalFailure, "TokenGenerationFailed")
+		return "", "", errors.Join(err, "failed to generate new access token")
 	}
 	newRefreshToken, _, err = r.token.GenerateRefreshToken(ctx, userUID)
 	if err != nil {
-		joinedErr := errors.Join(err, "failed to generate new refresh token")
-		return "", "", errors.Upgrade(joinedErr, errcode.ErrInternalFailure, "TokenGenerationFailed")
+		return "", "", errors.Join(err, "failed to generate new refresh token")
 	}
 
 	return newAccessToken, newRefreshToken, nil
