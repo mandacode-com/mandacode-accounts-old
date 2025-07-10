@@ -63,7 +63,7 @@ func (k *kafkaServer) runReader(ctx context.Context, rh *ReaderHandler) {
 			k.logger.Error("Failed to read message", zap.Error(err))
 			continue
 		}
-		if err := rh.Handler.HandleMessage(m); err != nil {
+		if err := rh.Handler.HandleMessage(ctx, m); err != nil {
 			k.logger.Error("Failed to handle message", zap.Error(err))
 		}
 	}

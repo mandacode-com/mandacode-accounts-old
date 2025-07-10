@@ -1,6 +1,8 @@
 package mailhandler
 
 import (
+	"context"
+
 	"github.com/go-playground/validator/v10"
 	mailerv1 "github.com/mandacode-com/accounts-proto/mailer/v1"
 	kafka "github.com/segmentio/kafka-go"
@@ -15,7 +17,7 @@ type MailHandler struct {
 }
 
 // HandleMessage implements kafkaserver.KafkaHandler.
-func (h *MailHandler) HandleMessage(m kafka.Message) error {
+func (h *MailHandler) HandleMessage(ctx context.Context, m kafka.Message) error {
 	event := &mailerv1.EmailVerificationEvent{}
 	if err := proto.Unmarshal(m.Value, event); err != nil {
 		return err
@@ -23,7 +25,6 @@ func (h *MailHandler) HandleMessage(m kafka.Message) error {
 	if err := h.MailApp.SendEmailVerificationMail(event.Email, event.VerificationLink); err != nil {
 		return err
 	}
-
 	return nil
 }
 
