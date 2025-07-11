@@ -27,7 +27,7 @@ func (e *UserEventEmitter) EmitUserDeletedEvent(ctx context.Context, userID uuid
 	event := &usereventv1.UserEvent{
 		EventType: usereventv1.EventType_USER_DELETED,
 		UserId:    userID.String(),
-		SyncCode:  "",
+		SyncCode:  nil,
 	}
 
 	// Marshal the event to protobuf bytes
@@ -53,7 +53,7 @@ func (e *UserEventEmitter) EmitUserArchivedEvent(ctx context.Context, userID uui
 	event := &usereventv1.UserEvent{
 		EventType: usereventv1.EventType_USER_ARCHIVED,
 		UserId:    userID.String(),
-		SyncCode:  syncCode,
+		SyncCode:  &syncCode,
 	}
 
 	// Marshal the event to protobuf bytes
@@ -79,7 +79,7 @@ func (e *UserEventEmitter) EmitUserRestoredEvent(ctx context.Context, userID uui
 	event := &usereventv1.UserEvent{
 		EventType: usereventv1.EventType_USER_RESTORED,
 		UserId:    userID.String(),
-		SyncCode:  syncCode,
+		SyncCode:  &syncCode,
 	}
 
 	// Marshal the event to protobuf bytes
@@ -105,7 +105,7 @@ func (e *UserEventEmitter) EmitUserBlockedEvent(ctx context.Context, userID uuid
 	event := &usereventv1.UserEvent{
 		EventType: usereventv1.EventType_USER_BLOCKED,
 		UserId:    userID.String(),
-		SyncCode:  syncCode,
+		SyncCode:  &syncCode,
 	}
 
 	// Marshal the event to protobuf bytes
@@ -131,7 +131,7 @@ func (e *UserEventEmitter) EmitUserUnblockedEvent(ctx context.Context, userID uu
 	event := &usereventv1.UserEvent{
 		EventType: usereventv1.EventType_USER_UNBLOCKED,
 		UserId:    userID.String(),
-		SyncCode:  syncCode,
+		SyncCode:  &syncCode,
 	}
 
 	// Marshal the event to protobuf bytes
